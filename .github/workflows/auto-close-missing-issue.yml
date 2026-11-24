@@ -14,7 +14,7 @@ jobs:
 
     steps:
       - name: Close PRs missing linked issue for over 4 days
-        uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b #v7
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 #v9.0.0
         with:
           script: |
             const { owner, repo } = context.repo;
@@ -37,6 +37,14 @@ jobs:
 
               if (isExempt) continue;
 
+              const isCollaborator = await github.rest.repos.checkCollaborator({
+                owner,
+                repo,
+                username: pr.user.login,
+              }).then(() => true).catch(() => false);
+
+              if (isCollaborator) continue;
+
               // Find when the missing-issue label was applied
               const events = await github.paginate(github.rest.issues.listEventsForTimeline, {
                 owner,
@@ -50,6 +58,59 @@ jobs:
 
               if (!labelEvent) continue;
               if (new Date(labelEvent.created_at) > fourDaysAgo) continue;
+
+              // Re-fetch the PR's current state to guard against race conditions:
+              // the label may have been removed between the initial paginated query
+              // and this point in the loop.
+              const currentPr = await github.rest.pulls.get({
+                owner,
+                repo,
+                pull_number: pr.number,
+              });
+
+              if (currentPr.data.state !== 'open') continue;
+
+              const currentLabels = currentPr.data.labels.map(l => l.name);
+              if (!currentLabels.includes('missing-issue')) continue;
+
+              const result = await github.graphql(`
+                query($owner: String!, $repo: String!, $number: Int!) {
+                  repository(owner: $owner, name: $repo) {
+                    pullRequest(number: $number) {
+                      closingIssuesReferences(first: 1) {
+                        totalCount
+                      }
+                    }
+                  }
+                }
+              `, { owner, repo, number: pr.number });
+              if (result.repository.pullRequest.closingIssuesReferences.totalCount > 0) {
+                // An issue was linked without an event that re-runs the check
+                // workflow (e.g. via the Development sidebar), so clean up here.
+                await github.rest.issues.removeLabel({
+                  owner,
+                  repo,
+                  issue_number: pr.number,
+                  name: 'missing-issue',
+                });
+
+                const comments = await github.paginate(github.rest.issues.listComments, {
+                  owner,
+                  repo,
+                  issue_number: pr.number,
+                  per_page: 100,
+                });
+                for (const comment of comments) {
+                  if (comment.user.type === 'Bot' && comment.body.includes('To link an issue, edit the PR description')) {
+                    await github.rest.issues.deleteComment({
+                      owner,
+                      repo,
+                      comment_id: comment.id,
+                    });
+                  }
+                }
+                continue;
+              }
 
               await github.rest.pulls.update({
                 owner,

@@ -1,4 +1,4 @@
-// Copyright: Ankitects Pty Ltd and contributors
+// Copyright: Anki Software, LLC and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 #![cfg(test)]
@@ -104,6 +104,15 @@ impl Collection {
         let ntid = self
             .storage
             .get_notetype_id("Basic (and reversed card)")
+            .unwrap()
+            .unwrap();
+        self.storage.get_notetype(ntid).unwrap().unwrap()
+    }
+
+    pub(crate) fn basic_optional_rev_notetype(&self) -> Notetype {
+        let ntid = self
+            .storage
+            .get_notetype_id("Basic (optional reversed card)")
             .unwrap()
             .unwrap();
         self.storage.get_notetype(ntid).unwrap().unwrap()

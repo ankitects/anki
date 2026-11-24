@@ -1,4 +1,4 @@
-// Copyright: Ankitects Pty Ltd and contributors
+// Copyright: Anki Software, LLC and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use std::borrow::Cow;
@@ -76,6 +76,11 @@ pub enum SearchNode {
         text: String,
         mode: FieldSearchMode,
     },
+    NumericField {
+        field: String,
+        operator: String,
+        value: f64,
+    },
     AddedInDays(u32),
     EditedInDays(u32),
     CardTemplate(TemplateKind),
@@ -86,6 +91,8 @@ pub enum SearchNode {
     /// Matches cards in a deck or its children (original_deck_id is not
     /// checked, so filtered cards are not matched).
     DeckIdWithChildren(DeckId),
+    /// checks if the card has an fsrs memory state
+    HasMemoryState,
     IntroducedInDays(u32),
     NotetypeId(NotetypeId),
     Notetype(String),
@@ -353,10 +360,41 @@ fn search_node_for_text(s: &str) -> ParseResult<'_, SearchNode> {
     .parse(s)
     .map_err(|_: nom::Err<ParseError>| parse_failure(s, FailKind::MissingKey))?;
     if tail.is_empty() {
-        Ok(SearchNode::UnqualifiedText(unescape(head)?))
+        if let Some((field, operator, value)) = numeric_field_comparison(head) {
+            Ok(SearchNode::NumericField {
+                field: unescape(field)?,
+                operator: operator.into(),
+                value,
+            })
+        } else {
+            Ok(SearchNode::UnqualifiedText(unescape(head)?))
+        }
     } else {
         search_node_for_text_with_argument(head, &tail[1..])
     }
+}
+
+/// Detect a numeric comparison at the first unescaped comparator.
+pub(super) fn numeric_field_comparison(s: &str) -> Option<(&str, &str, f64)> {
+    let mut escaped = false;
+    for (idx, ch) in s.char_indices() {
+        if !escaped && matches!(ch, '<' | '>' | '=') {
+            if idx == 0 {
+                return None;
+            }
+            let operator_len = if ch != '=' && s[idx + 1..].starts_with('=') {
+                2
+            } else {
+                1
+            };
+            let value = s[idx + operator_len..].parse::<f64>().ok()?;
+            return value
+                .is_finite()
+                .then_some((&s[..idx], &s[idx..idx + operator_len], value));
+        }
+        escaped = ch == '\\' && !escaped;
+    }
+    None
 }
 
 /// Convert a colon-separated key/val pair into the relevant search type.
@@ -743,7 +781,7 @@ fn unescape(txt: &str) -> ParseResult<'_, String> {
         ))
     } else {
         Ok(if is_parser_escape(txt) {
-            static RE: LazyLock<Regex> = LazyLock::new(|| Regex::new(r#"\\[\\":()-]"#).unwrap());
+            static RE: LazyLock<Regex> = LazyLock::new(|| Regex::new(r#"\\[\\":()<>=-]"#).unwrap());
             RE.replace_all(txt, |caps: &Captures| match &caps[0] {
                 r"\\" => r"\\",
                 "\\\"" => "\"",
@@ -751,6 +789,9 @@ fn unescape(txt: &str) -> ParseResult<'_, String> {
                 r"\(" => "(",
                 r"\)" => ")",
                 r"\-" => "-",
+                r"\<" => "<",
+                r"\>" => ">",
+                r"\=" => "=",
                 _ => unreachable!(),
             })
             .into()
@@ -769,7 +810,7 @@ fn invalid_escape_sequence(txt: &str) -> Option<String> {
             (?:^|[^\\])         # not a backslash
             (?:\\\\)*           # even number of backslashes
             (\\                 # single backslash
-            (?:[^\\":*_()-]|$)) # anything but an escapable char
+            (?:[^\\":*_()<>=-]|$)) # anything but an escapable char
             "#,
         )
         .unwrap()
@@ -779,7 +820,7 @@ fn invalid_escape_sequence(txt: &str) -> Option<String> {
     Some(caps[1].to_string())
 }
 
-/// Check string for escape sequences handled by the parser: ":()-
+/// Check string for escape sequences handled by the parser: ":()<>=-
 fn is_parser_escape(txt: &str) -> bool {
     // odd number of \s followed by a char with special meaning to the parser
     static RE: LazyLock<Regex> = LazyLock::new(|| {
@@ -788,7 +829,7 @@ fn is_parser_escape(txt: &str) -> bool {
             (?:^|[^\\])     # not a backslash
             (?:\\\\)*       # even number of backslashes
             \\              # single backslash
-            [":()-]         # parser escape
+            [":()<>=-]      # parser escape
             "#,
         )
         .unwrap()
@@ -892,6 +933,52 @@ mod test {
                 mode: FieldSearchMode::NoCombining,
             })]
         );
+        for operator in ["<", "<=", "=", ">=", ">"] {
+            assert_eq!(
+                parse(&format!("Frequency{operator}500"))?,
+                vec![Search(NumericField {
+                    field: "Frequency".into(),
+                    operator: operator.into(),
+                    value: 500.0,
+                })]
+            );
+        }
+        for (input, text) in [
+            (r"x\<5", "x<5"),
+            (r#""x\<5""#, "x<5"),
+            (r"x\=5", "x=5"),
+            ("<=5", "<=5"),
+            ("=5", "=5"),
+            ("<b>", "<b>"),
+            ("a=b", "a=b"),
+            ("a<b<5", "a<b<5"),
+        ] {
+            assert_eq!(
+                parse(input)?,
+                vec![Search(UnqualifiedText(text.into()))],
+                "{input}"
+            );
+        }
+        for (input, field) in [("x<5", "x"), (r"x\<a<5", "x<a"), (r"x\\<5", r"x\\")] {
+            assert_eq!(
+                parse(input)?,
+                vec![Search(NumericField {
+                    field: field.into(),
+                    operator: "<".into(),
+                    value: 5.0,
+                })],
+                "{input}"
+            );
+        }
+        assert_eq!(
+            parse(r"front:\<b\>")?,
+            vec![Search(SingleField {
+                field: "front".into(),
+                text: "<b>".into(),
+                mode: FieldSearchMode::Normal,
+            })]
+        );
+        assert_eq!(parse(r"re:\<x")?, vec![Search(Regex(r"\<x".into()))]);
 
         // escaping is independent of quotation
         assert_eq!(

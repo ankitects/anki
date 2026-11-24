@@ -1,4 +1,4 @@
-// Copyright: Ankitects Pty Ltd and contributors
+// Copyright: Anki Software, LLC and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use std::borrow::Cow;
@@ -11,7 +11,6 @@ use anki_proto::image_occlusion::get_image_occlusion_note_response::ImageOcclusi
 use anki_proto::image_occlusion::get_image_occlusion_note_response::ImageOcclusionShape;
 use htmlescape::encode_attribute;
 use itertools::Itertools;
-use nom::branch::alt;
 use nom::bytes::complete::tag;
 use nom::bytes::complete::take_while;
 use nom::combinator::map;
@@ -84,36 +83,89 @@ fn tokenize(mut text: &str) -> impl Iterator<Item = Token<'_>> {
     }
 
     /// Match a run of text until an open/close marker is encountered.
-    fn normal_text(text: &str) -> IResult<&str, Token<'_>> {
-        if text.is_empty() {
-            return Err(nom::Err::Error(nom::error::make_error(
-                text,
-                nom::error::ErrorKind::Eof,
-            )));
-        }
-        let mut other_token = alt((open_cloze, close_cloze));
-        // start with the no-match case
-        let mut index = text.len();
-        for (idx, _) in text.char_indices() {
-            if other_token.parse(&text[idx..]).is_ok() {
-                index = idx;
+    fn normal_text<'a>(text: &'a str, state: &mut MathJaxState) -> (&'a str, Token<'a>) {
+        let mut i = 0;
+        while i < text.len() {
+            let rest = &text[i..];
+            if open_cloze(rest).is_ok() || (state.can_close_cloze() && close_cloze(rest).is_ok()) {
                 break;
             }
+            i += state
+                .consume_delimiter(rest)
+                .unwrap_or_else(|| rest.chars().next().map_or(1, char::len_utf8));
         }
-        Ok((&text[index..], Token::Text(&text[0..index])))
+        (&text[i..], Token::Text(&text[..i]))
     }
 
+    let mut state = MathJaxState::default();
     std::iter::from_fn(move || {
         if text.is_empty() {
-            None
-        } else {
-            let (remaining_text, token) = alt((open_cloze, close_cloze, normal_text))
-                .parse(text)
-                .unwrap();
-            text = remaining_text;
-            Some(token)
+            return None;
         }
+        let (remaining_text, token) = if let Ok((rest, token)) = open_cloze(text) {
+            state.cloze_regions.push(state.region());
+            (rest, token)
+        } else if let (true, Ok((rest, token))) = (state.can_close_cloze(), close_cloze(text)) {
+            state.cloze_regions.pop();
+            (rest, token)
+        } else {
+            normal_text(text, &mut state)
+        };
+        text = remaining_text;
+        Some(token)
     })
+}
+
+/// Tracks MathJax expressions during tokenizing, so that a `}}` inside an
+/// expression doesn't end a cloze that was opened outside of it.
+#[derive(Default)]
+struct MathJaxState {
+    /// The closing delimiter and id of the expression we're in, if any.
+    current: Option<(&'static str, u32)>,
+    next_id: u32,
+    /// For each open cloze, the expression it was opened in.
+    cloze_regions: Vec<Option<u32>>,
+}
+
+impl MathJaxState {
+    fn region(&self) -> Option<u32> {
+        self.current.map(|(_, id)| id)
+    }
+
+    /// Outside MathJax, `}}` always closes a cloze. Inside MathJax, it only
+    /// closes a cloze opened in the same expression.
+    fn can_close_cloze(&self) -> bool {
+        match self.region() {
+            None => true,
+            Some(id) => self.cloze_regions.last() == Some(&Some(id)),
+        }
+    }
+
+    /// If `text` starts with a MathJax delimiter, enter or exit the
+    /// expression, and return the delimiter's length.
+    fn consume_delimiter(&mut self, text: &str) -> Option<usize> {
+        match self.current {
+            None => {
+                for (open, close) in [(r"\(", r"\)"), (r"\[", r"\]")] {
+                    // An unterminated delimiter is treated as plain text, so
+                    // that it can't swallow the cloze's closing marker.
+                    if text
+                        .strip_prefix(open)
+                        .is_some_and(|rest| rest.contains(close))
+                    {
+                        self.current = Some((close, self.next_id));
+                        self.next_id += 1;
+                        return Some(open.len());
+                    }
+                }
+                None
+            }
+            Some((close, _)) => text.starts_with(close).then(|| {
+                self.current = None;
+                close.len()
+            }),
+        }
+    }
 }
 
 #[derive(Debug)]
@@ -194,10 +246,12 @@ fn parse_text_with_clozes(text: &str) -> Vec<TextOrCloze<'_>> {
             }
             Token::Text(mut text) => {
                 if let Some(cloze) = open_clozes.last_mut() {
-                    // extract hint if found
-                    if let Some((head, tail)) = text.split_once("::") {
-                        text = head;
-                        cloze.hint = Some(tail);
+                    if !text.starts_with("image-occlusion:") {
+                        // extract hint if found
+                        if let Some((head, tail)) = text.split_once("::") {
+                            text = head;
+                            cloze.hint = Some(tail);
+                        }
                     }
                     cloze.nodes.push(TextOrCloze::Text(text));
                 } else {
@@ -337,19 +391,19 @@ fn render_image_occlusion(
         format!(
             r#"<div class="cloze" data-ordinal="{}" {}></div>"#,
             ordinals_str(ordinals),
-            &get_image_cloze_data(text)
+            get_image_cloze_data(text)
         )
     } else if !active {
         format!(
             r#"<div class="cloze-inactive" data-ordinal="{}" {}></div>"#,
             ordinals_str(ordinals),
-            &get_image_cloze_data(text)
+            get_image_cloze_data(text)
         )
     } else if !question_side && active {
         format!(
             r#"<div class="cloze-highlight" data-ordinal="{}" {}></div>"#,
             ordinals_str(ordinals),
-            &get_image_cloze_data(text)
+            get_image_cloze_data(text)
         )
     } else {
         "".into()
@@ -517,6 +571,8 @@ pub(crate) fn cloze_only_filter<'a>(text: &'a str, context: &RenderContext) -> C
 mod test {
     use std::collections::HashSet;
 
+    use anki_proto::image_occlusion::get_image_occlusion_note_response::ImageOcclusionProperty;
+
     use super::*;
     use crate::text::strip_html;
 
@@ -666,6 +722,121 @@ mod test {
     }
 
     #[test]
+    fn cloze_with_mathjax_braces() {
+        let text = r"{{c1:: \( \frac{1}{\sqrt{\pi}} \) }}";
+        assert_eq!(
+            strip_html(reveal_cloze_text(text, 1, true).as_ref()),
+            "[...]"
+        );
+        assert_eq!(
+            strip_html(reveal_cloze_text(text, 1, false).as_ref()),
+            r" \( \frac{1}{\sqrt{\pi}} \) "
+        );
+    }
+
+    #[test]
+    fn cloze_with_mathjax_square_brackets() {
+        let text = r"{{c1:: \[ \frac{1}{\sqrt{\pi}} \] }}";
+        assert_eq!(
+            strip_html(reveal_cloze_text(text, 1, true).as_ref()),
+            "[...]"
+        );
+        assert_eq!(
+            strip_html(reveal_cloze_text(text, 1, false).as_ref()),
+            r" \[ \frac{1}{\sqrt{\pi}} \] "
+        );
+    }
+
+    #[test]
+    fn cloze_with_multiple_mathjax_expressions() {
+        let text = r"{{c1:: \(\pi\) and \(\sqrt{2}\) }}";
+        assert_eq!(
+            strip_html(reveal_cloze_text(text, 1, true).as_ref()),
+            "[...]"
+        );
+        assert_eq!(
+            strip_html(reveal_cloze_text(text, 1, false).as_ref()),
+            r" \(\pi\) and \(\sqrt{2}\) "
+        );
+    }
+
+    #[test]
+    fn cloze_with_unterminated_mathjax() {
+        for (text, answer) in [
+            (r"{{c1::foo \( bar}} baz", r"foo \( bar baz"),
+            (r"{{c1::foo \[ bar}} baz", r"foo \[ bar baz"),
+        ] {
+            assert_eq!(
+                strip_html(reveal_cloze_text(text, 1, true).as_ref()),
+                "[...] baz"
+            );
+            assert_eq!(
+                strip_html(reveal_cloze_text(text, 1, false).as_ref()),
+                answer
+            );
+            assert_eq!(cloze_numbers_in_string(text), HashSet::from([1]));
+        }
+    }
+
+    #[test]
+    fn cloze_with_mismatched_mathjax_delimiters() {
+        let text = r"{{c1::\( a \]}} b";
+        assert_eq!(
+            strip_html(reveal_cloze_text(text, 1, false).as_ref()),
+            r"\( a \] b"
+        );
+    }
+
+    #[test]
+    fn nested_cloze_inside_mathjax_does_not_reset_mathjax_state() {
+        let text = r"{{c1::\( a {{c2::b}} \frac{1}{\sqrt{2}} \)}} c";
+        assert_eq!(
+            strip_html(reveal_cloze_text(text, 1, true).as_ref()),
+            "[...] c"
+        );
+        assert_eq!(
+            strip_html(reveal_cloze_text(text, 1, false).as_ref()),
+            r"\( a b \frac{1}{\sqrt{2}} \) c"
+        );
+        assert_eq!(
+            strip_html(reveal_cloze_text(text, 2, false).as_ref()),
+            r"\( a b \frac{1}{\sqrt{2}} \) c"
+        );
+        assert_eq!(cloze_numbers_in_string(text), HashSet::from([1, 2]));
+    }
+
+    #[test]
+    fn clozes_opened_inside_mathjax_close_inside_it() {
+        let text = r"\(x = {{c1::a}} + {{c2::\frac{1}{2} }}\)";
+        assert_eq!(
+            strip_html(reveal_cloze_text(text, 1, false).as_ref()),
+            r"\(x = a + \frac{1}{2} \)"
+        );
+        assert_eq!(
+            strip_html(reveal_cloze_text(text, 2, false).as_ref()),
+            r"\(x = a + \frac{1}{2} \)"
+        );
+    }
+
+    #[test]
+    fn cloze_opened_inside_mathjax_can_close_after_it() {
+        let text = r"\(a {{c1::b\) c}} d";
+        assert_eq!(
+            strip_html(reveal_cloze_text(text, 1, false).as_ref()),
+            r"\(a b\) c d"
+        );
+    }
+
+    #[test]
+    fn braces_in_mathjax_outside_clozes_are_text() {
+        let text = r"\(\sqrt{\pi}}\) {{c1::a}}";
+        assert_eq!(
+            strip_html(reveal_cloze_text(text, 1, false).as_ref()),
+            r"\(\sqrt{\pi}}\) a"
+        );
+    }
+
+    #[test]
     fn non_latin() {
         assert!(cloze_numbers_in_string("öaöaöööaö").is_empty());
     }
@@ -678,9 +849,7 @@ mod test {
                 1,
                 true
             ),
-            format!(
-                r#"<div class="cloze" data-ordinal="1" data-shape="rect" data-left="10.0" data-top="20" data-width="30" data-height="10" ></div>"#,
-            )
+            r#"<div class="cloze" data-ordinal="1" data-shape="rect" data-left="10.0" data-top="20" data-width="30" data-height="10" ></div>"#.to_string()
         );
     }
 
@@ -838,5 +1007,24 @@ mod test {
 
         let card2_html = reveal_cloze_text(text, 2, true);
         assert!(card2_html.contains(r#"data-ordinal="1,2""#));
+    }
+
+    #[test]
+    fn image_occlusion_with_funny_text() {
+        let text =
+            r#"{{c1::image-occlusion:text:left=10:top=20:text=\:l\\ol\::width=30:height=40}}"#;
+        let occlusions = parse_image_occlusions(text);
+        assert_eq!(occlusions.len(), 1);
+        let text = occlusions.first().unwrap().shapes.first().unwrap();
+        assert_eq!(text.shape, "text");
+        assert_eq!(text.properties.len(), 5);
+        assert!(text.properties.contains(&ImageOcclusionProperty {
+            name: "text".into(),
+            value: r#":l\ol:"#.into()
+        }));
+        assert!(text.properties.contains(&ImageOcclusionProperty {
+            name: "width".into(),
+            value: "30".into()
+        }));
     }
 }

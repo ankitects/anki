@@ -1,4 +1,4 @@
-// Copyright: Ankitects Pty Ltd and contributors
+// Copyright: Anki Software, LLC and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use std::mem;
@@ -8,6 +8,7 @@ use regex::Regex;
 
 use crate::notetype::NotetypeId as NotetypeIdType;
 use crate::prelude::*;
+use crate::search::parser::numeric_field_comparison;
 use crate::search::parser::parse;
 use crate::search::parser::FieldSearchMode;
 use crate::search::parser::Node;
@@ -29,10 +30,8 @@ pub fn replace_search_node(mut existing: Vec<Node>, replacement: Node) -> String
                 match old_node {
                     Node::Not(n) => update_node(n, new_node),
                     Node::Group(ns) => update_node_vec(ns, new_node),
-                    Node::Search(n) => {
-                        if mem::discriminant(n) == mem::discriminant(new_node) {
-                            *n = new_node.clone();
-                        }
+                    Node::Search(n) if mem::discriminant(n) == mem::discriminant(new_node) => {
+                        *n = new_node.clone();
                     }
                     _ => (),
                 }
@@ -69,16 +68,28 @@ fn write_node(node: &Node) -> String {
 fn write_search_node(node: &SearchNode) -> String {
     use SearchNode::*;
     match node {
-        UnqualifiedText(s) => maybe_quote(&s.replace(':', "\\:")),
+        UnqualifiedText(s) => {
+            let mut text = s.replace(':', "\\:");
+            if numeric_field_comparison(&text).is_some() {
+                text = escape_comparators(&text);
+            }
+            maybe_quote(&text)
+        }
         SingleField { field, text, mode } => write_single_field(field, text, *mode),
+        NumericField {
+            field,
+            operator,
+            value,
+        } => maybe_quote(&format!(
+            "{}{operator}{value}",
+            escape_comparators(&field.replace(':', "\\:"))
+        )),
         AddedInDays(u) => format!("added:{u}"),
         EditedInDays(u) => format!("edited:{u}"),
         IntroducedInDays(u) => format!("introduced:{u}"),
         CardTemplate(t) => write_template(t),
         Deck(s) => maybe_quote(&format!("deck:{s}")),
         DeckIdsWithoutChildren(s) => format!("did:{s}"),
-        // not exposed on the GUI end
-        DeckIdWithChildren(_) => "".to_string(),
         NotetypeId(NotetypeIdType(i)) => format!("mid:{i}"),
         Notetype(s) => maybe_quote(&format!("note:{s}")),
         Rated { days, ease } => write_rated(days, ease),
@@ -96,7 +107,17 @@ fn write_search_node(node: &SearchNode) -> String {
         WordBoundary(s) => maybe_quote(&format!("w:{s}")),
         CustomData(k) => maybe_quote(&format!("has-cd:{k}")),
         Preset(s) => maybe_quote(&format!("preset:{s}")),
+
+        // not exposed on the GUI end
+        DeckIdWithChildren(_) => "".to_string(),
+        HasMemoryState => "".to_string(),
     }
+}
+
+fn escape_comparators(text: &str) -> String {
+    text.replace('<', r"\<")
+        .replace('>', r"\>")
+        .replace('=', r"\=")
 }
 
 /// Escape double quotes and wrap in double quotes if necessary.
@@ -130,12 +151,7 @@ fn write_single_field(field: &str, text: &str, mode: FieldSearchMode) -> String 
     } else {
         text.to_string()
     };
-    maybe_quote(&format!(
-        "{}:{}{}",
-        field.replace(':', "\\:"),
-        prefix,
-        &text
-    ))
+    maybe_quote(&format!("{}:{}{}", field.replace(':', "\\:"), prefix, text))
 }
 
 fn write_template(template: &TemplateKind) -> String {
@@ -240,6 +256,18 @@ mod test {
         assert_eq!(r#""aNd" "oR""#, normalize_search(r#""aNd" "oR""#).unwrap());
         // normalize numbers
         assert_eq!("prop:ease>1", normalize_search("prop:ease>1.0").unwrap());
+        assert_eq!(
+            "Frequency>500",
+            normalize_search("Frequency>500.0").unwrap()
+        );
+        assert_eq!(
+            "Frequency=500",
+            normalize_search("Frequency=500.0").unwrap()
+        );
+        assert_eq!(r"foo\:bar>5", normalize_search(r"foo\:bar>5").unwrap());
+        for input in [r"x\<5", "<b>", "a=b", "<=5", r"x\<a<5", r"x\\\<5"] {
+            assert_eq!(input, normalize_search(input).unwrap(), "{input}");
+        }
     }
 
     #[test]

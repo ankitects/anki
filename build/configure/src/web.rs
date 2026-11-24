@@ -1,4 +1,4 @@
-// Copyright: Ankitects Pty Ltd and contributors
+// Copyright: Anki Software, LLC and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use anyhow::Result;
@@ -8,7 +8,6 @@ use ninja_gen::glob;
 use ninja_gen::hashmap;
 use ninja_gen::input::BuildInput;
 use ninja_gen::inputs;
-use ninja_gen::node::node_archive;
 use ninja_gen::node::CompileSass;
 use ninja_gen::node::DPrint;
 use ninja_gen::node::EsbuildScript;
@@ -44,7 +43,7 @@ fn build_sveltekit(build: &mut Build) -> Result<()> {
             output_folder: inputs!["sveltekit"],
             deps: inputs![
                 "ts/tsconfig.json",
-                glob!["ts/**", "ts/.svelte-kit/**"],
+                glob!["ts/**", "{ts/.svelte-kit,ts/node_modules}/**"],
                 ":ts:lib"
             ],
         },
@@ -54,7 +53,7 @@ fn build_sveltekit(build: &mut Build) -> Result<()> {
 fn setup_node(build: &mut Build) -> Result<()> {
     ninja_gen::node::setup_node(
         build,
-        node_archive(build.host_platform),
+        build.host_platform,
         &[
             "dprint",
             "svelte-check",
@@ -66,6 +65,7 @@ fn setup_node(build: &mut Build) -> Result<()> {
             "vitest",
             "protoc-gen-es",
             "prettier",
+            "buf",
         ],
         hashmap! {
             "jquery" => vec![
@@ -301,12 +301,13 @@ fn build_and_check_reviewer(build: &mut Build) -> Result<()> {
 }
 
 fn check_web(build: &mut Build) -> Result<()> {
-    let fmt_excluded = "{target,extra,.mypy_cache,ts/.svelte-kit,node_modules,.venv}/**";
+    let fmt_excluded =
+        "{target,extra,.mypy_cache,ts/.svelte-kit,node_modules,ts/node_modules,.venv}/**";
     let dprint_files = inputs![glob!["**/*.{ts,mjs,js,md,json,toml,scss}", fmt_excluded]];
     let prettier_pattern = "{**/*.svelte,docs-site/**/*.mdx}";
     let prettier_files = inputs![
         glob!["**/*.svelte", fmt_excluded],
-        glob!["docs-site/**/*.mdx"]
+        glob!["docs-site/**/*.mdx", fmt_excluded]
     ];
 
     build.add_action(
@@ -345,8 +346,8 @@ fn check_web(build: &mut Build) -> Result<()> {
             deps: inputs![
                 ":node_modules",
                 ":ts:generated",
-                glob!["ts/{svelte.config.js,vite.config.ts,tsconfig.json}"],
-                glob!["ts/{lib,deck-options,html-filter,domlib,reviewer,change-notetype}/**/*"],
+                glob!["ts/{vite.config.ts,tsconfig.json}"],
+                glob!["ts/{lib,routes,reviewer}/**/*"],
             ],
         },
     )?;
@@ -357,13 +358,16 @@ fn check_web(build: &mut Build) -> Result<()> {
             inputs: inputs![
                 ":node_modules",
                 ":ts:generated",
-                glob!["ts/**/*", "ts/.svelte-kit/**"],
+                glob!["ts/**/*", "{ts/.svelte-kit,ts/node_modules}/**"],
             ],
         },
     )?;
     let eslint_rc = inputs![".eslintrc.cjs"];
     for folder in ["ts", "qt/aqt/data/web/js"] {
-        let inputs = inputs![glob![format!("{folder}/**"), "ts/.svelte-kit/**"]];
+        let inputs = inputs![glob![
+            format!("{folder}/**"),
+            "{ts/.svelte-kit,ts/node_modules}/**"
+        ]];
         build.add_action(
             "check:eslint",
             Eslint {

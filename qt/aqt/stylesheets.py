@@ -1,4 +1,4 @@
-# Copyright: Ankitects Pty Ltd and contributors
+# Copyright: Anki Software, LLC and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 from anki.utils import is_mac, is_win
@@ -140,6 +140,9 @@ class CustomStyles:
         background-color: {tm.var(colors.CANVAS_OVERLAY)};
         border: 1px solid {tm.var(colors.BORDER_SUBTLE)};
         padding: 4px;
+    }}
+    QMenu::right-arrow {{
+        width: 13px;
     }}
     QMenu::item {{
         background-color: transparent;

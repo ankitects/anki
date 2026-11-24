@@ -1,5 +1,5 @@
 <!--
-Copyright: Ankitects Pty Ltd and contributors
+Copyright: Anki Software, LLC and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts" context="module">
@@ -28,8 +28,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     export function updateAllState(event: Event): void {
-        updateAllStateWithCallback(
-            (key: KeyType): Promise<boolean> => updaterMap.get(key)!(event),
+        updateAllStateWithCallback((key: KeyType): Promise<boolean> =>
+            updaterMap.get(key)!(event),
         );
     }
 

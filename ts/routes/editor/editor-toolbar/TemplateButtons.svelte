@@ -1,22 +1,22 @@
 <!--
-Copyright: Ankitects Pty Ltd and contributors
+Copyright: Anki Software, LLC and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
     import * as tr from "@generated/ftl";
     import { getPlatformString } from "@tslib/shortcuts";
 
-    import ButtonGroup from "$lib/components/ButtonGroup.svelte";
+    import ButtonGroup from "#lib/components/ButtonGroup.svelte";
     import ButtonGroupItem, {
         createProps,
         setSlotHostContext,
         updatePropsList,
-    } from "$lib/components/ButtonGroupItem.svelte";
-    import DynamicallySlottable from "$lib/components/DynamicallySlottable.svelte";
-    import Icon from "$lib/components/Icon.svelte";
-    import IconButton from "$lib/components/IconButton.svelte";
-    import { micIcon, paperclipIcon } from "$lib/components/icons";
-    import Shortcut from "$lib/components/Shortcut.svelte";
+    } from "#lib/components/ButtonGroupItem.svelte";
+    import DynamicallySlottable from "#lib/components/DynamicallySlottable.svelte";
+    import Icon from "#lib/components/Icon.svelte";
+    import IconButton from "#lib/components/IconButton.svelte";
+    import { micIcon, paperclipIcon } from "#lib/components/icons.js";
+    import Shortcut from "#lib/components/Shortcut.svelte";
 
     import { context } from "../NoteEditor.svelte";
     import { setFormat } from "../old-editor-adapter";
@@ -24,9 +24,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import LatexButton from "./LatexButton.svelte";
     import {
         filenameToLink,
+        isAudio,
         openFilePickerForMedia,
     } from "../rich-text-input/data-transfer";
-    import { addMediaFromPath, recordAudio } from "@generated/backend";
+    import { addMediaFromPath, playFile, recordAudio } from "@generated/backend";
+    import { bridgeCommand } from "@tslib/bridgecommand";
+    import { promiseWithResolver } from "@tslib/promise";
+    import type { RichTextInputAPI } from "../rich-text-input";
+    import { registerPackage } from "@tslib/runtime-require";
 
     const { focusedInput } = context.get();
 
@@ -35,15 +40,37 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     async function attachPath(path: string) {
         const filename = (await addMediaFromPath({ path })).val;
         setFormat("inserthtml", filenameToLink(filename));
+        if (isAudio(filename)) {
+            await playFile({ val: filename });
+        }
+    }
+
+    let mediaPromise: Promise<string>;
+    let resolve: (media: string) => void;
+    function resolveMedia(media: string): void {
+        resolve?.(media);
     }
 
     async function attachMediaOnFocus(): Promise<void> {
         if (disabled) {
             return;
         }
-        const path = await openFilePickerForMedia();
-        await attachPath(path);
+        if (isLegacy) {
+            [mediaPromise, resolve] = promiseWithResolver<string>();
+            ($focusedInput as RichTextInputAPI).editable.focusHandler.focus.on(
+                async () => setFormat("inserthtml", await mediaPromise),
+                { once: true },
+            );
+            bridgeCommand("attach");
+        } else {
+            const path = await openFilePickerForMedia();
+            await attachPath(path);
+        }
     }
+
+    registerPackage("anki/TemplateButtons", {
+        resolveMedia,
+    });
 
     const recordCombination = "F5";
 
@@ -51,13 +78,23 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         if (disabled) {
             return;
         }
-        const path = (await recordAudio({})).val;
-        await attachPath(path);
+        if (isLegacy) {
+            [mediaPromise, resolve] = promiseWithResolver<string>();
+            ($focusedInput as RichTextInputAPI).editable.focusHandler.focus.on(
+                async () => setFormat("inserthtml", await mediaPromise),
+                { once: true },
+            );
+            bridgeCommand("record");
+        } else {
+            const path = (await recordAudio({})).val;
+            await attachPath(path);
+        }
     }
 
     $: disabled = !$focusedInput || !editingInputIsRichText($focusedInput);
 
     export let api = {};
+    const { isLegacy } = context.get();
 </script>
 
 <ButtonGroup>

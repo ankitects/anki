@@ -1,4 +1,4 @@
-// Copyright: Ankitects Pty Ltd and contributors
+// Copyright: Anki Software, LLC and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 /* eslint
@@ -23,6 +23,31 @@ import { allImagesLoaded, preloadAnswerImages } from "./images";
 import { preloadResources } from "./preload";
 
 declare const MathJax: any;
+
+let mathjaxLoading: Promise<void> | null = window?.["MathJax"]?.startup?.promise ?? null;
+
+function _lazyLoadMathJax(): Promise<void> {
+    return mathjaxLoading || (mathjaxLoading = new Promise((resolve, reject) => {
+        const configScript = document.createElement("script");
+        configScript.src = "/_anki/js/mathjax.js";
+        configScript.onload = () => {
+            const mathjaxScript = document.createElement("script");
+            mathjaxScript.src = "/_anki/js/vendor/mathjax/tex-chtml-full.js";
+            mathjaxScript.onload = () => resolve();
+            mathjaxScript.onerror = () => reject(new Error("Failed to load MathJax"));
+            document.head.appendChild(mathjaxScript);
+        };
+        configScript.onerror = () => reject(new Error("Failed to load MathJax config"));
+        document.head.appendChild(configScript);
+    }));
+}
+
+// follows mathjaxBlockDelimiterPattern and mathjaxInlineDelimiterPattern
+const mathjaxRegex = /\\\[(.*?)\\\]|\\\((.*?)\\\)/su;
+
+function _containsMathjax(html: string): boolean {
+    return mathjaxRegex.test(html);
+}
 
 type Callback = () => void | Promise<void>;
 
@@ -132,7 +157,15 @@ export async function _updateQA(
 
     const qa = document.getElementById("qa")!;
 
-    await preloadResources(html);
+    const containsMathJax = _containsMathjax(html);
+    if (containsMathJax) {
+        try {
+            await _lazyLoadMathJax();
+        } catch (error) {
+            console.error(error);
+        }
+    }
+    await preloadResources(html, true);
 
     qa.style.opacity = "0";
 
@@ -147,15 +180,17 @@ export async function _updateQA(
     // dynamic toolbar background
     bridgeCommand("updateToolbar");
 
-    // wait for mathjax to ready
-    await MathJax.startup.promise
-        .then(() => {
-            // clear MathJax buffers from previous typesets
-            MathJax.typesetClear();
+    if (containsMathJax && typeof MathJax !== "undefined" && MathJax.startup) {
+        // wait for mathjax to ready
+        await MathJax.startup.promise
+            .then(() => {
+                // clear MathJax buffers from previous typesets
+                MathJax.typesetClear();
 
-            return MathJax.typesetPromise([qa]);
-        })
-        .catch(renderError("MathJax"));
+                return MathJax.typesetPromise([qa]);
+            })
+            .catch(renderError("MathJax"));
+    }
 
     qa.style.opacity = "1";
 
@@ -179,8 +214,11 @@ export function _showQuestion(q: string, a: string, bodyclass: string): void {
                 if (typeans) {
                     typeans.focus();
                 }
+                if (!mathjaxLoading && _containsMathjax(a)) {
+                    _lazyLoadMathJax();
+                }
                 // preload images
-                allImagesLoaded().then(() => preloadAnswerImages(a));
+                allImagesLoaded().then(() => preloadAnswerImages(a, true));
             },
         )
     );

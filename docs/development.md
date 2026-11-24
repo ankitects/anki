@@ -1,11 +1,19 @@
+<!-- DO NOT MANUALLY EDIT THIS FILE -->
+<!-- This file is copied from docs-site/developers/development.mdx automatically -->
+
 # Anki development
+
+<!-- <<<<cog
+from cogdocs import get_file_contents
+cog.out(get_file_contents("development"))
+>>>> -->
 
 ## Packaged betas
 
 For non-developers who want to try beta versions, the easiest way is to use a
 packaged version - please see:
 
-https://betas.ankiweb.net/
+[/releases/betas/intro](https://anki.mintlify.app/releases/betas/intro)
 
 ## Pre-built Python wheels
 
@@ -15,12 +23,10 @@ Pre-built Python packages are available on PyPI. They are useful if you wish to:
 - Get code completion when developing add-ons
 - Make command line scripts that modify .anki2 files via Anki's Python libraries
 
-You will need the 64 bit version of Python 3.9 or later installed. 3.9 is
-recommended, as Anki has only received minimal testing on 3.10+ so far, and some
-dependencies have not been fully updated yet. You can install Python from python.org
-or from your distro.
+You will need the 64 bit version of Python 3.10 or later installed. You can install
+Python from python.org or from your distro.
 
-For further instructions, please see https://betas.ankiweb.net/#via-pypipip. Note that
+For further instructions, please see [/releases/betas/intro#via-pypi/pip](https://anki.mintlify.app/releases/betas/intro#via-pypi/pip). Note that
 in the provided commands, `--pre` tells pip to fetch alpha/beta versions. If you remove
 `--pre`, it will download the latest stable version instead.
 
@@ -39,18 +45,18 @@ On all platforms, you will need to install:
   or `bash tools\install-n2` on Windows. If you want to use Ninja, it can be downloaded
   from https://github.com/ninja-build/ninja/releases/tag/v1.11.1 and
   placed on your path, or from your distro/homebrew if it's 1.10+.
-  - On Windows, if you have WSL installed, it may conflict with MSYS2 bash. If you are getting an error, try running `C:\msys64\usr\bin\bash.exe tools/install-n2` instead.
+    - On Windows, if you have WSL installed, it may conflict with MSYS2 bash. If you are getting an error, try running `C:\msys64\usr\bin\bash.exe tools/install-n2` instead.
 - (Optional) [just](https://just.systems/man/en/packages.html) command runner.
-  Install with `brew install just` or `uv tool install just`.
+  Install with `brew install just` or `uv tool install rust-just`.
   We are experimenting with `just` as the official tool for running
   Anki-specific commands, and it will likely become the source of truth
   in the future.
 
 Platform-specific requirements:
 
-- [Windows](./windows.md)
-- [Mac](./mac.md)
-- [Linux](./linux.md)
+- [Windows](https://anki.mintlify.app/developers/windows)
+- [Mac](https://anki.mintlify.app/developers/mac)
+- [Linux](https://anki.mintlify.app/developers/linux)
 
 ## Running Anki during development
 
@@ -67,7 +73,7 @@ This will build Anki and run it in place.
 The first build will take a while, as it downloads and builds a bunch of
 dependencies. When the build is complete, Anki will automatically start.
 
-If Anki fails to start, you may need to install [extra libraries](https://docs.ankiweb.net/platform/linux/missing-libraries.html).
+If Anki fails to start, you may need to install [extra libraries](https://anki.mintlify.app/manual/platform/linux/missing-libraries).
 
 ## Running tests/checks
 
@@ -138,7 +144,7 @@ To build wheels on Mac/Linux:
 (on Windows, `.\tools\build.bat`)
 
 The generated wheels are in out/wheels. You can then install them by copying the paths into a pip install command.
-Follow the steps [on the beta site](https://betas.ankiweb.net/#via-pypipip), but replace the
+Follow the steps [on the beta site](https://anki.mintlify.app/releases/betas/intro#via-pypi/pip), but replace the
 `pip install --upgrade --pre aqt` line with something like:
 
 ```
@@ -160,15 +166,28 @@ Windows, Yarn cache can be found in `%LOCALAPPDATA%\Yarn`.
 
 If you invoke Rust outside of the build scripts (eg by running cargo, or
 with Rust Analyzer), output files will go into `target/` unless you have
-overriden the default output location.
+overridden the default output location.
+
+## Storage and Performance
+
+Most editors use rust-analyzer for Rust support, which runs `cargo check` in the
+background whenever you save a file, so that problems are surfaced before you try to
+build. This is useful, but on lower-end machines, it can noticeably increase disk
+usage and CPU load. If that's a problem for you, consider disabling "check on save"
+(e.g. set `rust-analyzer.checkOnSave` to `false` in VS Code) as a trade-off — you'll
+lose real-time error checking, but rust-analyzer can still be used for code completion,
+go-to-definition, etc.
+
+If you chose to disable "check on save" and don't run `cargo` commands manually, you
+may delete the `target/` folder (if any) as that's no longer used.
 
 ## IDEs
 
-Please see [this separate page](./editing.md) for setting up an editor/IDE.
+Please see [this separate page](https://anki.mintlify.app/developers/editing) for setting up an editor/IDE.
 
 ## Making changes to the build
 
-See [this page](./build.md)
+See [this page](https://anki.mintlify.app/developers/build)
 
 ## Generating documentation
 
@@ -210,11 +229,11 @@ Depending on your operating system, this produces a file under `out/installer/di
 ### Issues During Building
 
 If you are experiencing issues building the installer, make sure that all dependencies
-are installed. See [Building from source](#building-from-source) for more info.
+are installed. See [Building from source](https://anki.mintlify.app/developers/development#building-from-source) for more info.
 
 ## Releasing
 
-See [Releasing](./releasing.md).
+See [Releasing](https://anki.mintlify.app/developers/releasing).
 
 # Mixing development and study
 
@@ -228,3 +247,5 @@ If you're using PyCharm:
 - click "Edit 'run'..." - in Script options and enter:
   "-p [dev profile name]" without the quotes
 - click "Ok"
+
+<!-- <<<<end>>>> -->

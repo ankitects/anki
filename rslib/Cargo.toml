@@ -19,6 +19,11 @@ name = "benchmark"
 harness = false
 required-features = ["bench"]
 
+[[bench]]
+name = "fsrs"
+harness = false
+required-features = ["bench"]
+
 [build-dependencies]
 anki_io.workspace = true
 anki_proto.workspace = true

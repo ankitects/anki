@@ -1,4 +1,4 @@
-# Copyright: Ankitects Pty Ltd and contributors
+# Copyright: Anki Software, LLC and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 from __future__ import annotations
@@ -924,7 +924,7 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
         return self.fnameToLink(fname)
 
     def fnameToLink(self, fname: str) -> str:
-        ext = fname.split(".")[-1].lower()
+        ext = fname.rsplit(".", maxsplit=1)[-1].lower()
         if ext in pics:
             name = urllib.parse.quote(fname.encode("utf8"))
             return f'<img src="{name}">'
@@ -1054,10 +1054,6 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
     removeTags = ["script", "iframe", "object", "style"]
 
     def _pastePreFilter(self, html: str, internal: bool) -> str:
-        # https://anki.tenderapp.com/discussions/ankidesktop/39543-anki-is-replacing-the-character-by-when-i-exit-the-html-edit-mode-ctrlshiftx
-        if html.find(">") < 0:
-            return html
-
         with warnings.catch_warnings():
             warnings.simplefilter("ignore", UserWarning)
             doc = BeautifulSoup(html, "html.parser")
@@ -1146,7 +1142,9 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
                     image_path=image_path, notetype_id=0
                 )
             else:
-                assert self.note is not None
+                if self.note is None:
+                    showWarning(tr.browsing_no_selection())
+                    return
                 self.setup_mask_editor_for_existing_note(
                     note_id=self.note.id, image_path=image_path
                 )
@@ -1528,6 +1526,7 @@ class EditorWebView(AnkiWebView):
         AnkiWebView.__init__(self, kind=AnkiWebViewKind.EDITOR)
         self.editor = editor
         self.setAcceptDrops(True)
+        self.setClipboardEnabled(True)
         self._store_field_content_on_next_clipboard_change = False
         # when we detect the user copying from a field, we store the content
         # here, and use it when they paste, so we avoid filtering field content
@@ -1777,16 +1776,17 @@ class EditorWebView(AnkiWebView):
         qconnect(a.triggered, self.onCopy)
 
     def _add_image_menu(self, menu: QMenu) -> None:
-        a = menu.addAction(tr.editing_copy_image())
-        assert a is not None
-        qconnect(a.triggered, self.on_copy_image)
-
         context_menu_request = self.lastContextMenuRequest()
         assert context_menu_request is not None
         url = context_menu_request.mediaUrl()
         file_name = url.fileName()
         path = os.path.join(self.editor.mw.col.media.dir(), file_name)
-        self._add_image_menu_with_path(menu, path)
+        _, ext = os.path.splitext(path)
+        if ext[1:] in pics:
+            a = menu.addAction(tr.editing_copy_image())
+            assert a is not None
+            qconnect(a.triggered, self.on_copy_image)
+            self._add_image_menu_with_path(menu, path)
 
     def _add_image_menu_with_path(self, menu: QMenu, path: str) -> None:
         a = menu.addAction(tr.editing_open_image())

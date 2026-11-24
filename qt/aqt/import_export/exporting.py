@@ -1,4 +1,4 @@
-# Copyright: Ankitects Pty Ltd and contributors
+# Copyright: Anki Software, LLC and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 from __future__ import annotations
@@ -132,7 +132,8 @@ class ExportDialog(QDialog):
             if checkInvalidFilename(os.path.basename(path), dirsep=False):
                 continue
             path = os.path.normpath(path)
-            if os.path.commonprefix([self.mw.pm.base, path]) == self.mw.pm.base:
+            base = os.path.realpath(self.mw.pm.base)
+            if os.path.realpath(path).startswith(base + os.sep):
                 showWarning("Please choose a different export location.")
                 continue
             break

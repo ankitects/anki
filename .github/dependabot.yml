@@ -4,53 +4,71 @@ updates:
   - package-ecosystem: "cargo"
     directory: "/"
     schedule:
-      interval: "monthly"
-    open-pull-requests-limit: 3
+      interval: "quarterly"
+    open-pull-requests-limit: 2
     cooldown:
       default-days: 7
+      semver-major-days: 30
+    ignore:
+      # pinned: any changes could invalidate sqlite indexes
+      - dependency-name: "unicase"
     groups:
       rust-minor-patch:
         applies-to: version-updates
         patterns: ["*"]
         update-types: ["minor", "patch"]
+      rust-major:
+        applies-to: version-updates
+        patterns: ["*"]
+        update-types: ["major"]
     commit-message:
       prefix: "chore(deps)"
 
   - package-ecosystem: "npm"
     directory: "/"
     schedule:
-      interval: "monthly"
-    open-pull-requests-limit: 3
+      interval: "quarterly"
+    open-pull-requests-limit: 2
     cooldown:
       default-days: 7
+      semver-major-days: 30
     groups:
-      js-minor-patch:
+      npm-minor-patch:
         applies-to: version-updates
         patterns: ["*"]
         update-types: ["minor", "patch"]
+      npm-major:
+        applies-to: version-updates
+        patterns: ["*"]
+        update-types: ["major"]
     commit-message:
       prefix: "chore(deps)"
 
   - package-ecosystem: "uv"
     directory: "/"
     schedule:
-      interval: "monthly"
-    open-pull-requests-limit: 3
+      interval: "quarterly"
+    open-pull-requests-limit: 2
     cooldown:
       default-days: 7
+      semver-major-days: 30
     groups:
       python-minor-patch:
         applies-to: version-updates
         patterns: ["*"]
         update-types: ["minor", "patch"]
+      python-major:
+        applies-to: version-updates
+        patterns: ["*"]
+        update-types: ["major"]
     commit-message:
       prefix: "chore(deps)"
 
   - package-ecosystem: "github-actions"
-    directory: "/"
+    directories: ["/", "/.github/actions/*"]
     schedule:
-      interval: "monthly"
-    open-pull-requests-limit: 3
+      interval: "quarterly"
+    open-pull-requests-limit: 1
     cooldown:
       default-days: 7
     groups:

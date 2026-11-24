@@ -1,4 +1,4 @@
-# Copyright: Ankitects Pty Ltd and contributors
+# Copyright: Anki Software, LLC and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 from __future__ import annotations
@@ -1191,10 +1191,17 @@ class Collection(DeprecatedNamesMixin):
         return self._backend.render_markdown(markdown=text, sanitize=sanitize)
 
     def compare_answer(
-        self, expected: str, provided: str, combining: bool = True
+        self,
+        expected: str,
+        provided: str,
+        combining: bool = True,
+        ignore_case: bool = False,
     ) -> str:
         return self._backend.compare_answer(
-            expected=expected, provided=provided, combining=combining
+            expected=expected,
+            provided=provided,
+            combining=combining,
+            ignore_case=ignore_case,
         )
 
     def extract_cloze_for_typing(self, text: str, ordinal: int) -> str:

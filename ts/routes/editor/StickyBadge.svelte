@@ -1,5 +1,5 @@
 <!--
-Copyright: Ankitects Pty Ltd and contributors
+Copyright: Anki Software, LLC and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
@@ -8,21 +8,22 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { onEnterOrSpace } from "@tslib/keys";
     import { onMount } from "svelte";
 
-    import Badge from "$lib/components/Badge.svelte";
-    import Icon from "$lib/components/Icon.svelte";
-    import { stickyIconHollow } from "$lib/components/icons";
-    import { stickyIconSolid } from "$lib/components/icons";
+    import Badge from "#lib/components/Badge.svelte";
+    import Icon from "#lib/components/Icon.svelte";
+    import { stickyIconHollow } from "#lib/components/icons.js";
+    import { stickyIconSolid } from "#lib/components/icons.js";
 
     import { context as editorFieldContext } from "./EditorField.svelte";
     import type { Note } from "@generated/anki/notes_pb";
     import { getNotetype, updateNotetype } from "@generated/backend";
     import { bridgeCommand } from "@tslib/bridgecommand";
+    import { context } from "./NoteEditor.svelte";
 
     const animated = !document.body.classList.contains("reduce-motion");
 
     export let active: boolean;
     export let show: boolean;
-    export let isLegacy: boolean;
+    const { isLegacy } = context.get();
 
     const editorField = editorFieldContext.get();
     const keyCombination = "F9";

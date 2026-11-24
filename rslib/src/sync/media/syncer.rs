@@ -1,4 +1,4 @@
-// Copyright: Ankitects Pty Ltd and contributors
+// Copyright: Anki Software, LLC and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use tracing::debug;
@@ -230,7 +230,7 @@ impl MediaSyncer {
 
             let fnames: Vec<_> = processed_files
                 .into_iter()
-                .chain(processed_deletions.into_iter())
+                .chain(processed_deletions)
                 .map(|e| e.fname)
                 .collect();
             let fname_cnt = fnames.len() as i32;

@@ -1,5 +1,5 @@
 <!--
-Copyright: Ankitects Pty Ltd and contributors
+Copyright: Anki Software, LLC and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
@@ -10,8 +10,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type { Writable } from "svelte/store";
     import { writable } from "svelte/store";
 
-    import Shortcut from "$lib/components/Shortcut.svelte";
-    import { execCommand } from "$lib/domlib";
+    import Shortcut from "#lib/components/Shortcut.svelte";
 
     import { TagOptionsButton } from "./tag-options-button";
     import TagEditMode from "./TagEditMode.svelte";
@@ -40,8 +39,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     let tagTypes: TagType[];
     function tagsToTagTypes(tags: string[]): void {
-        tagTypes = tags.map(
-            (tag: string): TagType => attachId(replaceWithUnicodeSeparator(tag)),
+        tagTypes = tags.map((tag: string): TagType =>
+            attachId(replaceWithUnicodeSeparator(tag)),
         );
     }
 
@@ -326,9 +325,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     function deselect() {
-        tagTypes = tagTypes.map(
-            (tag: TagType): TagType => ({ ...tag, selected: false }),
-        );
+        tagTypes = tagTypes.map((tag: TagType): TagType => ({
+            ...tag,
+            selected: false,
+        }));
         selectionAnchor = null;
         selectionFocus = null;
     }
@@ -343,17 +343,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
     }
 
-    /* TODO replace with navigator.clipboard once available */
     function copyToClipboard(content: string): void {
-        const textarea = document.createElement("textarea");
-        textarea.value = content;
-        textarea.setAttribute("readonly", "");
-        textarea.style.position = "absolute";
-        textarea.style.left = "-9999px";
-        document.body.appendChild(textarea);
-        textarea.select();
-        execCommand("copy");
-        document.body.removeChild(textarea);
+        navigator.clipboard.writeText(content);
     }
 
     function selectAllTags() {

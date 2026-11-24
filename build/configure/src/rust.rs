@@ -1,11 +1,10 @@
-// Copyright: Ankitects Pty Ltd and contributors
+// Copyright: Anki Software, LLC and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use std::env;
 
 use anyhow::Result;
 use ninja_gen::action::BuildAction;
-use ninja_gen::build::BuildProfile;
 use ninja_gen::build::FilesHandle;
 use ninja_gen::cargo::CargoBuild;
 use ninja_gen::cargo::CargoClippy;
@@ -134,7 +133,7 @@ fn build_proto_descriptors_and_interfaces(build: &mut Build) -> Result<()> {
 }
 
 fn build_rsbridge(build: &mut Build) -> Result<()> {
-    let features = if cfg!(target_os = "linux") {
+    let features = if cfg!(target_os = "linux") || cfg!(target_os = "openbsd") {
         "rustls"
     } else {
         "native-tls"
@@ -238,7 +237,7 @@ pub fn check_minilints(build: &mut Build) -> Result<()> {
                     outputs: &[RustOutput::Binary("minilints")],
                     target: None,
                     extra_args: "-p minilints",
-                    release_override: Some(BuildProfile::Debug),
+                    release_override: Some(build.build_profile.for_build_tools()),
                 },
             )
         }
@@ -247,9 +246,12 @@ pub fn check_minilints(build: &mut Build) -> Result<()> {
     let files = inputs![
         glob![
             "**/*.{py,rs,ts,svelte,mjs,md}",
-            "{target,extra,.mypy_cache,node_modules,ts/.svelte-kit}/**"
+            "{target,extra,.mypy_cache,node_modules,ts/.svelte-kit,ts/node_modules}/**"
         ],
-        "Cargo.lock"
+        "Cargo.lock",
+        "cargo/licenses.json",
+        ":node_modules",
+        "ts/licenses.json",
     ];
 
     build.add_action(

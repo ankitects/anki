@@ -1,5 +1,5 @@
-#!/bin/bash
-# Copyright: Ankitects Pty Ltd and contributors
+#!/usr/bin/env bash
+# Copyright: Anki Software, LLC and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 set -e

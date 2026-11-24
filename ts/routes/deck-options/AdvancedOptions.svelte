@@ -1,5 +1,5 @@
 <!--
-Copyright: Ankitects Pty Ltd and contributors
+Copyright: Anki Software, LLC and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
@@ -8,12 +8,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type Carousel from "bootstrap/js/dist/carousel";
     import type Modal from "bootstrap/js/dist/modal";
 
-    import DynamicallySlottable from "$lib/components/DynamicallySlottable.svelte";
-    import HelpModal from "$lib/components/HelpModal.svelte";
-    import Item from "$lib/components/Item.svelte";
-    import SettingTitle from "$lib/components/SettingTitle.svelte";
-    import TitledContainer from "$lib/components/TitledContainer.svelte";
-    import { type HelpItem, HelpItemScheduler } from "$lib/components/types";
+    import DynamicallySlottable from "#lib/components/DynamicallySlottable.svelte";
+    import HelpModal from "#lib/components/HelpModal.svelte";
+    import Item from "#lib/components/Item.svelte";
+    import SettingTitle from "#lib/components/SettingTitle.svelte";
+    import TitledContainer from "#lib/components/TitledContainer.svelte";
+    import { type HelpItem, HelpItemScheduler } from "#lib/components/types.js";
 
     import CardStateCustomizer from "./CardStateCustomizer.svelte";
     import type { DeckOptionsState } from "./lib";
@@ -81,7 +81,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         customScheduling: {
             title: tr.deckConfigCustomScheduling(),
             help: tr.deckConfigCustomSchedulingTooltip(),
-            url: "https://faqs.ankiweb.net/the-2021-scheduler.html#add-ons-and-custom-scheduling",
+            url: "https://docs.ankiweb.net/faqs/the-2021-scheduler#add-ons-and-custom-scheduling",
             global: true,
         },
     };
@@ -303,7 +303,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             </SpinBoxFloatRow>
 
             <Item>
-                <DateInput bind:date={$config.ignoreRevlogsBeforeDate}>
+                <DateInput
+                    bind:date={$config.ignoreRevlogsBeforeDate}
+                    max={new Date().toLocaleDateString("en-CA")}
+                >
                     <SettingTitle
                         on:click={() =>
                             openHelpModal(

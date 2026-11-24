@@ -1,4 +1,4 @@
-// Copyright: Ankitects Pty Ltd and contributors
+// Copyright: Anki Software, LLC and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import { fabric } from "fabric";
@@ -183,7 +183,7 @@ function shapeOrShapesToCloze(
 ): string {
     let text = "";
     function addKeyValue(key: string, value: string) {
-        value = value.replace(":", "\\:");
+        value = value.replace(/\\/g, "\\\\").replace(/:/g, "\\:");
         text += `:${key}=${value}`;
     }
 

@@ -1,4 +1,4 @@
-# Copyright: Ankitects Pty Ltd and contributors
+# Copyright: Anki Software, LLC and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 from __future__ import annotations
@@ -646,13 +646,6 @@ create table if not exists profiles
 
     def set_tags_collapsed(self, mode: EditorMode, collapsed: bool) -> None:
         self.meta[f"{self.editor_key(mode)}TagsCollapsed"] = collapsed
-
-    def legacy_import_export(self) -> bool:
-        "Always returns False so users with this option enabled are not stuck on the legacy importer after the UI option is removed."
-        return False
-
-    def set_legacy_import_export(self, enabled: bool) -> None:
-        self.meta["legacy_import"] = enabled
 
     def last_loaded_profile_name(self) -> str | None:
         return self.meta.get("last_loaded_profile_name")
