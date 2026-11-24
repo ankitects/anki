@@ -1,5 +1,5 @@
 <!--
-Copyright: Ankitects Pty Ltd and contributors
+Copyright: Anki Software, LLC and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
@@ -7,7 +7,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     import { setContext } from "svelte";
 
-    import { modalsKey, touchDeviceKey } from "$lib/components/context-keys";
+    import { modalsKey, touchDeviceKey } from "#lib/components/context-keys.js";
 
     setContext(modalsKey, new Map());
     setContext(touchDeviceKey, "ontouchstart" in document.documentElement);

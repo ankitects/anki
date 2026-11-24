@@ -1,13 +1,13 @@
-// Copyright: Ankitects Pty Ltd and contributors
+// Copyright: Anki Software, LLC and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 syntax = "proto3";
 
-option java_multiple_files = true;
-
 package anki.cards;
 
 import "anki/collection.proto";
+
+option java_multiple_files = true;
 
 service CardsService {
   rpc GetCard(CardId) returns (Card);

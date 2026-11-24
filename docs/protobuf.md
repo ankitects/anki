@@ -3,10 +3,10 @@
 
 # Protocol Buffers
 
-<!-- <<<cog
+<!-- <<<<cog
 from cogdocs import get_file_contents
 cog.out(get_file_contents("protobuf"))
->>> -->
+>>>> -->
 
 ProtoBuf is a format used both to save data in storage and transmit
 data between services. You can think of it as similar to JSON with
@@ -127,4 +127,4 @@ Inside the `pb` module you will find all generated Rust types and their implemen
   don't expect other parts of Anki to send invalid messages, using an `InvalidInput`
   error or `unwrap_or_default()` is usually fine.
 
-<!-- <<<end>>> -->
+<!-- <<<<end>>>> -->

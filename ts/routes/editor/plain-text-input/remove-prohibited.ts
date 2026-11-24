@@ -1,4 +1,4 @@
-// Copyright: Ankitects Pty Ltd and contributors
+// Copyright: Anki Software, LLC and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import { createDummyDoc } from "@tslib/parsing";
@@ -11,7 +11,7 @@ function removeTag(element: HTMLElement, tagName: string): void {
     }
 }
 
-const prohibitedTags = ["script", "link"];
+const prohibitedTags = ["script", "link", "base"];
 
 /**
  * The use cases for using those tags in the field html are slim to none.

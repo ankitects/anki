@@ -1,10 +1,10 @@
 <!--
-Copyright: Ankitects Pty Ltd and contributors
+Copyright: Anki Software, LLC and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script>
     import * as tr from "@generated/ftl";
-    import Item from "$lib/components/Item.svelte";
+    import Item from "#lib/components/Item.svelte";
 
     const easyDays = [
         tr.deckConfigEasyDaysMonday(),

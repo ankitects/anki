@@ -3,10 +3,10 @@
 
 # Linux-specific notes
 
-<!-- <<<cog
+<!-- <<<<cog
 from cogdocs import get_file_contents
 cog.out(get_file_contents("linux"))
->>> -->
+>>>> -->
 
 ## Requirements
 
@@ -80,6 +80,10 @@ export PYTHON_BINARY=/usr/bin/python3
 
 Python, node and protoc are downloaded as part of the build. You can optionally define
 PYTHON_BINARY, NODE_BINARY, YARN_BINARY and/or PROTOC_BINARY to use locally-installed versions instead.
+RUFF_BINARY can be used to specify an external Ruff executable, while
+ANKI_WHEEL_TAG overrides the platform tag used for generated wheels. Set
+ANKI_BACKEND_ONLY to build the Python backend without Qt or audio dependencies.
+On OpenBSD, RUFF_BINARY must point to an external Ruff executable.
 
 If rust-toolchain.toml is removed, newer Rust versions can be used. Older versions
 may or may not compile the code.
@@ -134,4 +138,4 @@ offline.
 
 For info on running tests, building wheels and so on, please see [Development](https://anki.mintlify.app/developers/development).
 
-<!-- <<<end>>> -->
+<!-- <<<<end>>>> -->

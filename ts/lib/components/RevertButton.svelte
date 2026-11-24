@@ -1,12 +1,12 @@
 <!--
-Copyright: Ankitects Pty Ltd and contributors
+Copyright: Anki Software, LLC and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
     import * as tr from "@generated/ftl";
     import { cloneDeep, isEqual as isEqualLodash } from "lodash-es";
 
-    import { revertIcon } from "$lib/components/icons";
+    import { revertIcon } from "#lib/components/icons.js";
 
     import Badge from "./Badge.svelte";
     import DropdownItem from "./DropdownItem.svelte";

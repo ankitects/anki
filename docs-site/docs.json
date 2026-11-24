@@ -1250,6 +1250,24 @@
             ]
           }
         ]
+      },
+      {
+        "language": "nl",
+        "tabs": [
+          {
+            "tab": "Manual",
+            "groups": [
+              {
+                "group": "Desktop Manual",
+                "pages": [
+                  "nl/manual/addons",
+                  "nl/manual/getting-started",
+                  "nl/manual/intro"
+                ]
+              }
+            ]
+          }
+        ]
       }
     ],
     "global": {

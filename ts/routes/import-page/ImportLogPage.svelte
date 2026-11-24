@@ -1,14 +1,14 @@
 <!--
-Copyright: Ankitects Pty Ltd and contributors
+Copyright: Anki Software, LLC and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
     import type { ImportResponse } from "@generated/anki/import_export_pb";
     import * as tr from "@generated/ftl";
 
-    import Container from "$lib/components/Container.svelte";
-    import Row from "$lib/components/Row.svelte";
-    import TitledContainer from "$lib/components/TitledContainer.svelte";
+    import Container from "#lib/components/Container.svelte";
+    import Row from "#lib/components/Row.svelte";
+    import TitledContainer from "#lib/components/TitledContainer.svelte";
 
     import DetailsTable from "./DetailsTable.svelte";
     import { getSummaries } from "./lib";

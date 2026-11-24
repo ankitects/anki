@@ -1,9 +1,9 @@
-// Copyright: Ankitects Pty Ltd and contributors
+// Copyright: Anki Software, LLC and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import { on } from "@tslib/events";
 
-import { placeCaretAfter, placeCaretBefore } from "$lib/domlib/place-caret";
+import { placeCaretAfter, placeCaretBefore } from "#lib/domlib/place-caret.js";
 
 import { mount, tick } from "svelte";
 import type { DecoratedElement, DecoratedElementConstructor } from "./decorated";
