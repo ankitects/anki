@@ -346,7 +346,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     async function computeAllParams(): Promise<void> {
-        if (confirm(tr.deckConfigFsrsConfirmSaveAndOptimize())) {
+        const modified = await state.isModified();
+        if (!modified || confirm(tr.deckConfigFsrsConfirmSaveAndOptimize())) {
             await commitEditing();
             await state.save(UpdateDeckConfigsMode.COMPUTE_ALL_PARAMS);
             window.location.reload();
