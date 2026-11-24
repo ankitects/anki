@@ -190,14 +190,14 @@ flowchart TD
 
 `release.yml` は、署名と公開の対象を個別の真偽値入力で制御します。
 
-| 入力 | 動作 |
-| --- | --- |
-| `sign` | macOS と Windows の成果物に署名します。`release` 環境が必要です。`false` の場合、署名なしの成果物をアップロードし、署名シークレットにはアクセスしません。 |
-| `draft-release` | 生成されたリリースノートとインストーラーを含む GitHub ドラフトリリースを作成します。`sign=true`、`release` 環境、（省略しない限り）CI 成功、タグ・リリースの重複なし、`version` と `.version` の一致が必要です。 |
-| `publish-testpypi` | wheel を TestPyPI に公開します。`release` 環境が必要です。 |
-| `publish-pypi` | wheel を PyPI に公開します。`release` 環境、（省略しない限り）CI 成功、`version` と `.version` の一致が必要です。先に TestPyPI 公開ジョブが実行され、完了を待ちます。`draft-release=true` でない限り署名は不要です。 |
-| `skip-ci-check` | CI の状態確認を省略します。ホットフィックスリリースに便利です。 |
-| `version` | `draft-release` または `publish-pypi` では `.version` と一致する必要があります。ビルドのみ、署名のみ、TestPyPI のみの実行では無視され、ブランチの `.version` が自動的に使われます。 |
+| 入力               | 動作                                                                                                                                                                                                                 |
+| ------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `sign`             | macOS と Windows の成果物に署名します。`release` 環境が必要です。`false` の場合、署名なしの成果物をアップロードし、署名シークレットにはアクセスしません。                                                            |
+| `draft-release`    | 生成されたリリースノートとインストーラーを含む GitHub ドラフトリリースを作成します。`sign=true`、`release` 環境、（省略しない限り）CI 成功、タグ・リリースの重複なし、`version` と `.version` の一致が必要です。     |
+| `publish-testpypi` | wheel を TestPyPI に公開します。`release` 環境が必要です。                                                                                                                                                           |
+| `publish-pypi`     | wheel を PyPI に公開します。`release` 環境、（省略しない限り）CI 成功、`version` と `.version` の一致が必要です。先に TestPyPI 公開ジョブが実行され、完了を待ちます。`draft-release=true` でない限り署名は不要です。 |
+| `skip-ci-check`    | CI の状態確認を省略します。ホットフィックスリリースに便利です。                                                                                                                                                      |
+| `version`          | `draft-release` または `publish-pypi` では `.version` と一致する必要があります。ビルドのみ、署名のみ、TestPyPI のみの実行では無視され、ブランチの `.version` が自動的に使われます。                                  |
 
 ## just でリリースを実行する
 

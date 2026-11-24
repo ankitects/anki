@@ -28,12 +28,12 @@ HTML レポートは `out/coverage/` に書き出されます（git で無視さ
 
 ## カバレッジツールとしきい値
 
-| 技術スタック | テストランナー | カバレッジツール | 最低値 |
-| --- | --- | --- | ---: |
-| Rust ワークスペース | `cargo-llvm-cov` 経由の `cargo nextest` | `cargo-llvm-cov` | 60% |
-| Python `pylib/anki` | `pytest pylib/tests` | `coverage.py` | 63% |
-| Python `qt/aqt` | `pytest qt/tests` | `coverage.py` | 20% |
-| TypeScript/Svelte | `vitest run` | Vitest V8 | 5% |
+| 技術スタック        | テストランナー                          | カバレッジツール | 最低値 |
+| ------------------- | --------------------------------------- | ---------------- | -----: |
+| Rust ワークスペース | `cargo-llvm-cov` 経由の `cargo nextest` | `cargo-llvm-cov` |    60% |
+| Python `pylib/anki` | `pytest pylib/tests`                    | `coverage.py`    |    63% |
+| Python `qt/aqt`     | `pytest qt/tests`                       | `coverage.py`    |    20% |
+| TypeScript/Svelte   | `vitest run`                            | Vitest V8        |     5% |
 
 Linux のプルリクエストでは、CI で `just test --coverage` を実行します。macOS と Windows のジョブでは、現時点でカバレッジを強制せず `just test` を実行します。
 
