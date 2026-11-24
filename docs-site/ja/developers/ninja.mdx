@@ -1,0 +1,14 @@
+---
+title: "Ninja"
+---
+
+既存の Bazel ビルドシステムに慣れている方向けの簡単な説明です。
+
+- Ninja のバイナリを PATH に追加します: https://github.com/ninja-build/ninja/releases/tag/v1.11.1 （Windows で msys にインストールした場合は、ネイティブ版のバイナリが PATH の先に来るようにしてください。）
+- rustup で Rust がインストールされていることを確認します: https://rustup.rs/
+- 既存のチェックアウトから `.bazel` と `node_modules` フォルダーを削除します。
+- `./run` で実行します。
+- `./ninja check` でテストを実行します（Windows では `tools\ninja`）。
+- `./ninja format` でファイルを整形します。
+- `./ninja fix` で ESLint や著作権ヘッダーの問題を修正します。
+- ターゲットは階層構造になっています。たとえば `./ninja check:jest:deck-options` は `ts/deck-options` の Jest テストを実行し、`./ninja check:jest` はすべての Jest テストを実行します。

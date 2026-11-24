@@ -1,0 +1,105 @@
+---
+title: "Linux 固有の注意事項"
+---
+
+## 必要条件
+
+以下の手順は Debian/Ubuntu 向けです。お使いのディストリビューションに合わせて調整してください。フォーラムの利用者による補足情報もありますが、記載内容の一部は現在は該当しません。
+https://forums.ankiweb.net/t/guide-how-to-build-and-run-anki-from-source-with-xubuntu-20-04/12865
+
+ビルド時と実行時の要件の一覧は、[`.github/workflows/`](https://github.com/ankitects/anki/tree/main/.github/workflows) 配下のワークフローで使われている [`setup-anki` 複合アクション](https://github.com/ankitects/anki/blob/main/.github/actions/setup-anki/action.yml) の `apt-get install` の手順で確認できます。
+
+**基本的なツールがインストールされていることを確認してください。**
+
+```
+$ sudo apt install bash grep findutils curl gcc gcc-12 g++ make git rsync
+```
+
+- Debian では `find` ユーティリティは `findutils` パッケージに含まれます。
+
+## ライブラリが見つからない場合
+
+ビルド時または起動時にエラーが出た場合は、まず次のように起動してみてください。
+
+QT_DEBUG_PLUGINS=1 ./run
+
+不足しているライブラリが表示されることがあります。その場合はパッケージマネージャーでインストールしてください。たとえば Debian では、次のライブラリが必要になる場合があります。
+
+```
+sudo apt install libxcb-icccm4 libxcb-image0 libxcb-keysyms1 \
+  libxcb-randr0 libxcb-render-util0 libxkbfile1
+```
+
+Arch Linux では次のライブラリが必要になる場合があります。
+
+```
+sudo pacman -S nss libxkbfile
+```
+
+Fedora など一部のディストリビューションでは、次のエラーが出たときに `libxcrypt-compat` パッケージのインストールが必要な場合があります。
+
+```
+error while loading shared libraries: libcrypt.so.1: cannot open shared object file: No such file or directory
+```
+
+## 音声
+
+開発中に音声を再生・録音するには、mpv と lame をインストールしてください。
+
+## Glibc と Qt
+
+Anki の実行には新しいバージョンの glibc が必要です。
+
+musl を使うディストリビューションでは Anki は動作しません。
+
+希望する場合は、Qt 6.2 以降のシステム Qt ライブラリを使えます。システムライブラリ（例: `sudo apt install python3-pyqt6.qt\{quick,webengine\} python3-venv pyqt6-dev-tools`）をインストールした後、インストール先（例: `/usr/lib/python3/dist-packages`）を確認してください。最近の Ubuntu では、`sudo apt remove python3-protobuf` も必要です。その後、`./run` などのコマンドを実行する前に、Anki がパッケージを見つけられるよう次のように設定します。
+
+```
+export PYTHONPATH=/usr/lib/python3/dist-packages
+export PYTHON_BINARY=/usr/bin/python3
+```
+
+## パッケージングに関する注意
+
+Python、Node、protoc はビルドの一部としてダウンロードされます。必要に応じて `PYTHON_BINARY`、`NODE_BINARY`、`YARN_BINARY`、`PROTOC_BINARY` を設定し、ローカルにインストール済みのバージョンを使うこともできます。
+
+`rust-toolchain.toml` を削除すると、より新しい Rust バージョンを使えます。古いバージョンでコードをコンパイルできるかどうかは保証されません。
+
+完全にオフラインで Anki をビルドするには、次の環境変数を設定します。
+
+- `OFFLINE_BUILD`: 設定すると、ネットワークにアクセスする可能性のあるツールをビルド中に実行しません。
+- `NODE_BINARY`、`YARN_BINARY`、`PROTOC_BINARY` も設定する必要があります。
+
+`OFFLINE_BUILD` を設定してオフラインビルドを成功させるには、手動で準備が必要です。次の条件を満たしてください。
+
+1. 必要な依存関係（Node、Python、Rust、Yarn など）がビルド環境に揃っている。
+2. 翻訳ファイル用のオフラインリポジトリが `ftl/qt-repo` と `ftl/core-repo` にコピーまたはリンクされている。
+3. Python の疑似仮想環境が設定されている。
+
+    ```
+    mkdir out/pyenv/bin
+    ln -s /path/to/python out/pyenv/bin/python
+    ln -s /path/to/protoc-gen-mypy out/pyenv/bin/protoc-gen-mypy
+    ```
+
+    Sphinx ドキュメントを生成する場合は、次の実行ファイルも設定できます。
+
+    ```
+    ln -s /path/to/sphinx-apidoc out/pyenv/bin/sphinx-apidoc
+    ln -s /path/to/sphinx-build out/pyenv/bin/sphinx-build
+    ```
+
+    `PYTHON_BINARY` 環境変数は設定不要です。`OFFLINE_BUILD` が未設定の場合に、ネットワークが必要な Python 仮想環境を自動作成する用途にのみ使われます。
+
+4. Yarn のオフラインキャッシュを作成し、専用の環境変数 `YARN_CACHE_FOLDER` にその場所を設定する。
+
+    ```
+    YARN_CACHE_FOLDER=/path/to/the/yarn/cache
+    /path/to/yarn install --ignore-scripts
+    ```
+
+これで、wheel と Sphinx ドキュメントを完全にオフラインでビルドする準備が整います。
+
+## 関連情報
+
+テストの実行や wheel のビルドなどについては、[開発](/developers/development) を参照してください。

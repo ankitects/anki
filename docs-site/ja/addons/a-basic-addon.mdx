@@ -1,0 +1,34 @@
+---
+title: "基本的なアドオン"
+---
+
+アドオンフォルダー内の `myaddon/__init__.py` に、次のコードを追加します。
+
+```python
+# aqt からメインウィンドウオブジェクト (mw) をインポート
+from aqt import mw
+# utils.py から情報を表示する関数をインポート
+from aqt.utils import showInfo, qconnect
+# Qt GUI ライブラリをすべてインポート
+from aqt.qt import *
+
+# 以下でメニュー項目を追加します。まず、項目が選択されたときに
+# 呼び出す関数を作成します。
+
+def testFunction() -> None:
+    # メインウィンドウに保存されている、現在のコレクション内のカード数を取得
+    cardCount = mw.col.card_count()
+    # メッセージボックスを表示
+    showInfo("Card count: %d" % cardCount)
+
+# "test" という新しいメニュー項目を作成
+action = QAction("test", mw)
+# クリックされたときに testFunction を呼び出すよう設定
+qconnect(action.triggered, testFunction)
+# ツールメニューに追加
+mw.form.menuTools.addAction(action)
+```
+
+Anki を再起動すると、ツールメニューに「test」という項目が表示されます。選択すると、カード数がダイアログに表示されます。
+
+アドオンのコードの入力を間違えると、Anki の起動時に問題の場所を示すエラーメッセージが表示されます。

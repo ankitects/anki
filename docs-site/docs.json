@@ -873,12 +873,362 @@
         "language": "ja",
         "tabs": [
           {
-            "tab": "Manual",
+            "tab": "マニュアル",
             "groups": [
               {
-                "group": "Desktop Manual",
+                "group": "概要",
                 "pages": [
-                  "ja/manual/intro"
+                  "ja/index"
+                ]
+              },
+              {
+                "group": "デスクトップ版マニュアル",
+                "pages": [
+                  "ja/manual/intro",
+                  "ja/manual/getting-started",
+                  "ja/manual/background",
+                  {
+                    "group": "プラットフォーム別の補足",
+                    "icon": "computer",
+                    "pages": [
+                      "ja/manual/platform/intro",
+                      {
+                        "group": "Windows",
+                        "icon": "microsoft",
+                        "pages": [
+                          "ja/manual/platform/windows/intro",
+                          "ja/manual/platform/windows/installing",
+                          "ja/manual/platform/windows/installation-issues",
+                          "ja/manual/platform/windows/startup-issues",
+                          "ja/manual/platform/windows/display-issues",
+                          "ja/manual/platform/windows/copy-and-paste",
+                          "ja/manual/platform/windows/text-size",
+                          "ja/manual/platform/windows/permission-problems"
+                        ]
+                      },
+                      {
+                        "group": "macOS",
+                        "icon": "apple",
+                        "pages": [
+                          "ja/manual/platform/mac/intro",
+                          "ja/manual/platform/mac/installing",
+                          "ja/manual/platform/mac/display-issues"
+                        ]
+                      },
+                      {
+                        "group": "Linux",
+                        "icon": "linux",
+                        "pages": [
+                          "ja/manual/platform/linux/intro",
+                          "ja/manual/platform/linux/installing",
+                          "ja/manual/platform/linux/missing-libraries",
+                          "ja/manual/platform/linux/display-issues",
+                          "ja/manual/platform/linux/blank-window",
+                          "ja/manual/platform/linux/distro-packages",
+                          "ja/manual/platform/linux/gtk-theme",
+                          "ja/manual/platform/linux/wayland",
+                          "ja/manual/platform/linux/input-methods"
+                        ]
+                      }
+                    ]
+                  },
+                  "ja/manual/getting-help",
+                  "ja/manual/studying",
+                  "ja/manual/editing",
+                  {
+                    "group": "カードテンプレート",
+                    "icon": "cards-blank",
+                    "pages": [
+                      "ja/manual/templates/intro",
+                      "ja/manual/templates/fields",
+                      "ja/manual/templates/generation",
+                      "ja/manual/templates/styling",
+                      "ja/manual/templates/errors"
+                    ]
+                  },
+                  "ja/manual/preferences",
+                  "ja/manual/deck-options",
+                  "ja/manual/syncing",
+                  "ja/manual/profiles",
+                  "ja/manual/browsing",
+                  "ja/manual/filtered-decks",
+                  "ja/manual/searching",
+                  {
+                    "group": "インポート",
+                    "icon": "down-from-bracket",
+                    "pages": [
+                      "ja/manual/importing/intro",
+                      "ja/manual/importing/text-files",
+                      "ja/manual/importing/packaged-decks"
+                    ]
+                  },
+                  "ja/manual/exporting",
+                  "ja/manual/backups",
+                  "ja/manual/files",
+                  "ja/manual/stats",
+                  "ja/manual/media",
+                  "ja/manual/math",
+                  "ja/manual/leeches",
+                  "ja/manual/addons",
+                  "ja/manual/troubleshooting",
+                  "ja/manual/sync-server",
+                  "ja/manual/misc",
+                  "ja/manual/contrib",
+                  "ja/manual/resources"
+                ],
+                "expanded": true
+              }
+            ]
+          },
+          {
+            "tab": "AnkiMobile",
+            "groups": [
+              {
+                "group": "AnkiMobile マニュアル",
+                "pages": [
+                  "ja/ankimobile/intro",
+                  "ja/ankimobile/support",
+                  "ja/ankimobile/interface-language",
+                  "ja/ankimobile/syncing",
+                  "ja/ankimobile/shared-decks",
+                  "ja/ankimobile/deck-list",
+                  "ja/ankimobile/study-screen",
+                  "ja/ankimobile/study-tools",
+                  "ja/ankimobile/editing",
+                  "ja/ankimobile/preferences",
+                  "ja/ankimobile/collection-transfer",
+                  "ja/ankimobile/tts",
+                  "ja/ankimobile/mathjax",
+                  "ja/ankimobile/custom-fonts",
+                  "ja/ankimobile/night-mode",
+                  "ja/ankimobile/url-schemes",
+                  "ja/ankimobile/reinstalling",
+                  "ja/ankimobile/beta-testing",
+                  "ja/ankimobile/more"
+                ]
+              }
+            ]
+          },
+          {
+            "tab": "よくある質問",
+            "groups": [
+              {
+                "group": "サポートに関するよくある質問",
+                "pages": [
+                  "ja/faqs/intro",
+                  "ja/faqs/restoring-an-automatic-backup-recovering-from-data-loss",
+                  {
+                    "group": "カードとノート",
+                    "icon": "cards-blank",
+                    "pages": [
+                      "ja/faqs/linking-cards-together",
+                      "ja/faqs/can-i-reveal-parts-of-a-card-one-at-a-time",
+                      "ja/faqs/card-template-has-a-problem",
+                      "ja/faqs/cards-are-reversed-appearing-twice",
+                      "ja/faqs/characters-are-cut-off",
+                      "ja/faqs/customizing-mathjax",
+                      "ja/faqs/errors-when-recording",
+                      "ja/faqs/extra-characters-appearing-on-cards",
+                      "ja/faqs/multiple-choice-questions",
+                      "ja/faqs/no-cloze-found-on-card",
+                      "ja/faqs/printing-cards-in-your-collection",
+                      "ja/faqs/removing-duplicate-note-types",
+                      "ja/faqs/some-updates-were-ignored-because-the-note-type-has-changed",
+                      "ja/faqs/sounds-or-images-have-gone-missing",
+                      "ja/faqs/splitting-a-field-into-multiple-fields",
+                      "ja/faqs/text-to-speech-support",
+                      "ja/faqs/sticky-fields"
+                    ]
+                  },
+                  {
+                    "group": "デッキ",
+                    "icon": "book-sparkles",
+                    "pages": [
+                      "ja/faqs/a-deck-i-want-has-disappeared-from-ankiweb",
+                      "ja/faqs/a-shared-deck-is-not-showing-images-or-playing-audio",
+                      "ja/faqs/cards-are-being-placed-in-the-default-deck",
+                      "ja/faqs/hiding-decks",
+                      "ja/faqs/how-can-i-work-with-someone-else-to-create-a-deck",
+                      "ja/faqs/how-do-i-move-cards-between-decks",
+                      "ja/faqs/merging-or-combining-two-decks",
+                      "ja/faqs/shared-decks-with-broken-javascript",
+                      "ja/faqs/timestamps-in-the-future"
+                    ]
+                  },
+                  {
+                    "group": "学習スケジュール",
+                    "icon": "calendar-clock",
+                    "pages": [
+                      "ja/faqs/anki-is-not-showing-me-all-my-cards",
+                      "ja/faqs/study-in-a-particular-order",
+                      "ja/faqs/due-times-after-a-break",
+                      "ja/faqs/extra-copies-of-a-card-are-coming-up",
+                      "ja/faqs/hard-good-interval-longer-than-good-easy",
+                      "ja/faqs/i-am-going-on-vacation-can-i-pause-the-scheduler",
+                      "ja/faqs/learning-steps-skipped-or-repeated",
+                      "ja/faqs/resetting-progress-in-a-deck",
+                      "ja/faqs/settings-for-using-anki-to-prepare-for-a-large-exam",
+                      "ja/faqs/the-anki-2.1-scheduler",
+                      "ja/faqs/the-2021-scheduler",
+                      "ja/faqs/timezone-handling-changes",
+                      "ja/faqs/what-spaced-repetition-algorithm",
+                      "ja/faqs/frequently-asked-questions-about-fsrs"
+                    ]
+                  },
+                  {
+                    "group": "同期と AnkiWeb",
+                    "icon": "globe-pointer",
+                    "pages": [
+                      "ja/faqs/ankiweb-account-removal",
+                      "ja/faqs/are-there-limits-on-file-sizes-on-ankiweb",
+                      "ja/faqs/can-i-sync-only-some-of-my-decks",
+                      "ja/faqs/email-verification",
+                      "ja/faqs/emails-not-being-received",
+                      "ja/faqs/error-establishing-a-secure-connection-when-syncing",
+                      "ja/faqs/media-files-may-take-time-to-sync",
+                      "ja/faqs/outlook-silently-discards-email",
+                      "ja/faqs/synchronizing-multiple-profiles",
+                      "ja/faqs/syncing-failed-connection-timed-out-errors-when-syncing",
+                      "ja/faqs/sounds-or-images-are-not-appearing-on-ankiweb-or-the-mobile-clients"
+                    ]
+                  },
+                  {
+                    "group": "Anki デスクトップ版",
+                    "icon": "computer",
+                    "pages": [
+                      "ja/faqs/shortcut-not-working",
+                      "ja/faqs/anki-must-be-able-to-connect-to-a-local-port",
+                      "ja/faqs/anki-says-my-clock-is-wrong",
+                      "ja/faqs/changing-the-font",
+                      "ja/faqs/changing-the-interface-language",
+                      "ja/faqs/my-antivirus-program-says-anki-is-infected",
+                      "ja/faqs/running-from-python",
+                      "ja/faqs/screenshots-large-and-blurry-on-retina-displays"
+                    ]
+                  },
+                  {
+                    "group": "Anki モバイル版",
+                    "icon": "mobile",
+                    "pages": [
+                      "ja/faqs/requesting-a-refund-for-ankimobile",
+                      "ja/faqs/retrieving-ankimobile-crash-logs",
+                      "ja/faqs/why-does-ankimobile-cost-more-than-a-typical-mobile-app"
+                    ]
+                  },
+                  {
+                    "group": "その他のアプリ",
+                    "pages": [
+                      "ja/faqs/ankidroid-has-a-separate-support-site",
+                      "ja/faqs/anki-knockoffs",
+                      "ja/faqs/ankiuniversal-is-not-supported-here",
+                      "ja/faqs/we-do-not-make-robots"
+                    ]
+                  },
+                  {
+                    "group": "その他",
+                    "pages": [
+                      "ja/faqs/anki-2.0-support-has-ended",
+                      "ja/faqs/anki-2.0-add-ons",
+                      "ja/faqs/can-i-use-anki-in-a-company-or-school",
+                      "ja/faqs/how-can-i-donate"
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "tab": "アドオン",
+            "groups": [
+              {
+                "group": "アドオン開発",
+                "pages": [
+                  "ja/addons/intro",
+                  "ja/addons/support",
+                  "ja/addons/editor-setup",
+                  "ja/addons/mypy",
+                  "ja/addons/addon-folders",
+                  "ja/addons/a-basic-addon",
+                  "ja/addons/the-anki-module",
+                  "ja/addons/command-line-use",
+                  "ja/addons/hooks-and-filters",
+                  "ja/addons/console-output",
+                  "ja/addons/background-ops",
+                  "ja/addons/qt",
+                  "ja/addons/python-modules",
+                  "ja/addons/addon-config",
+                  "ja/addons/reviewer-javascript",
+                  "ja/addons/debugging",
+                  "ja/addons/monkey-patching",
+                  "ja/addons/sharing",
+                  "ja/addons/hooks-reference",
+                  "ja/addons/porting2.1.x",
+                  "ja/addons/porting2.0"
+                ]
+              }
+            ]
+          },
+          {
+            "tab": "開発者向け",
+            "groups": [
+              {
+                "group": "Anki 本体の開発",
+                "pages": [
+                  "ja/developers/development",
+                  "ja/developers/api-python",
+                  "ja/developers/api-rust",
+                  "ja/developers/architecture",
+                  "ja/developers/build",
+                  "ja/developers/contributing",
+                  "ja/developers/dependabot",
+                  "ja/developers/docker",
+                  "ja/developers/editing",
+                  "ja/developers/language_bridge",
+                  "ja/developers/linux",
+                  "ja/developers/mac",
+                  "ja/developers/windows",
+                  "ja/developers/ninja",
+                  "ja/developers/protobuf",
+                  "ja/developers/releasing",
+                  "ja/developers/syncserver",
+                  "ja/developers/unit-testing",
+                  "ja/developers/testing-coverage",
+                  "ja/developers/e2e-testing",
+                  "ja/developers/sonarcloud"
+                ]
+              }
+            ]
+          },
+          {
+            "tab": "翻訳者向け",
+            "groups": [
+              {
+                "group": "翻訳ガイド",
+                "pages": [
+                  "ja/translators/intro",
+                  {
+                    "group": "Anki の翻訳",
+                    "pages": [
+                      "ja/translators/anki/intro",
+                      "ja/translators/anki/core",
+                      "ja/translators/anki/desktop",
+                      "ja/translators/anki/manual",
+                      "ja/translators/anki/developers"
+                    ]
+                  },
+                  "ja/translators/ankimobile",
+                  "ja/translators/ankidroid"
+                ]
+              }
+            ]
+          },
+          {
+            "tab": "リリース",
+            "groups": [
+              {
+                "group": "リリースノート",
+                "pages": [
+                  "ja/releases/betas/intro"
                 ]
               }
             ]

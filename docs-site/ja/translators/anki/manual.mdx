@@ -1,0 +1,44 @@
+---
+title: "マニュアル"
+---
+
+マニュアルなどのドキュメントの翻訳は、Anki のインターフェースよりも少し複雑です。ドキュメントは[翻訳サイト](https://i18n.ankiweb.net/projects/)では翻訳しません。[Anki のメインリポジトリ](https://github.com/ankitects/anki)にある Markdown ファイルを編集し、プルリクエストを送ります。Git の基本的な知識は必要ですが、Anki をビルドしたり、コードを書いたりする必要はありません。
+
+英語の原文ページは、[docs-site ディレクトリ](https://github.com/ankitects/anki/tree/main/docs-site)にあります。マニュアル本体は `docs-site/manual` にあり、アドオンや開発者向けドキュメントなどのセクションは、その隣のディレクトリにあります。
+
+## 翻訳を始める
+
+1. [Anki リポジトリ](https://github.com/ankitects/anki)を[フォーク](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/working-with-forks/fork-a-repo)し、フォークをローカルにクローンします。
+
+2. `docs-site` の下にお使いの言語のサブディレクトリ（例: `docs-site/ru/`）がすでにある場合は、その中の `.mdx` ページを改善できます。まだない場合は、`docs-site/ko/manual/` のように、言語コードを名前にしたサブディレクトリを作成します。
+
+3. 翻訳したいページを翻訳します。ページは、コンポーネントを埋め込める Markdown の一種である MDX で書かれています。リンク、画像、コードブロックなどの Markdown の書式は維持し、周囲の文章だけを翻訳してください。
+
+4. 翻訳したページがナビゲーションに表示されるよう、[docs-site/docs.json](https://github.com/ankitects/anki/blob/main/docs-site/docs.json)に追加します。各言語には `navigation.languages` の下に項目があります。ページを追加する場合は、その言語の `pages` リストにパスを追加します。新しい言語を追加する場合は、既存の形式に従って項目を追加します。
+
+    ```json
+    {
+        "language": "ko",
+        "tabs": [
+            {
+                "tab": "Manual",
+                "groups": [
+                    {
+                        "group": "Desktop Manual",
+                        "pages": ["ko/manual/intro"]
+                    }
+                ]
+            }
+        ]
+    }
+    ```
+
+    対応している言語コードと、言語切り替えの設定については、Mintlify の[国際化ガイド](https://www.mintlify.com/docs/guides/internationalization#configure-the-language-switcher)をご覧ください。
+
+5. 変更を含むプルリクエストを送ります。
+
+## 補足
+
+- 一部だけの翻訳も歓迎します。多くの既存言語と同様に、まず導入ページから始めても構いません。
+- 特に記載がない限り、ドキュメントの変更には[CC BY-SA 4.0 ライセンス](https://creativecommons.org/licenses/by-sa/4.0/)が適用されます。
+- ドキュメントの翻訳について質問がある場合は、[フォーラム](https://forums.ankiweb.net/)でお尋ねください。
