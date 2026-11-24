@@ -182,9 +182,28 @@ pub fn parse(input: &str) -> Result<Vec<Node>> {
     }
 }
 
+/// Replace whitespace outside of double quotes with a regular space, so that
+/// quoted text (eg deck names) is matched verbatim.
 fn normalize_whitespace(input: &str) -> Cow<'_, str> {
-    static WHITESPACE_RE: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"\s").unwrap());
-    WHITESPACE_RE.replace_all(input, " ")
+    if !input.contains(|c: char| c.is_whitespace() && c != ' ') {
+        return Cow::Borrowed(input);
+    }
+    let (mut quoted, mut escaped) = (false, false);
+    Cow::Owned(
+        input
+            .chars()
+            .map(|c| {
+                let keep = quoted || escaped || !c.is_whitespace();
+                quoted ^= !escaped && c == '"';
+                escaped = !escaped && c == '\\';
+                if keep {
+                    c
+                } else {
+                    ' '
+                }
+            })
+            .collect(),
+    )
 }
 
 /// Zero or more nodes inside brackets, eg 'one OR two -three'.
@@ -851,7 +870,7 @@ mod test {
         assert_eq!(parse("")?, vec![Search(WholeCollection)]);
         assert_eq!(parse("  ")?, vec![Search(WholeCollection)]);
 
-        // // all whitespace should be treated as regular spaces
+        // whitespace not enclosed in quotes should be treated as regular spaces
         assert_eq!(
             parse("foo\u{a0}bar")?,
             vec![
@@ -875,6 +894,16 @@ mod test {
                 And,
                 Search(UnqualifiedText("bar".into()))
             ]
+        );
+
+        // whitespace inside quotes is preserved
+        assert_eq!(
+            parse("deck:\"a\u{3000}b\"")?,
+            vec![Search(Deck("a\u{3000}b".into()))]
+        );
+        assert_eq!(
+            parse("\"a\u{a0}b\"")?,
+            vec![Search(UnqualifiedText("a\u{a0}b".into()))]
         );
 
         // leading/trailing/interspersed whitespace
