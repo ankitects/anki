@@ -643,6 +643,14 @@ class AnkiWebView(QWebEngineView):
             QWebEngineSettings.WebAttribute.PlaybackRequiresUserGesture, value
         )
 
+    def setClipboardEnabled(self, value: bool) -> None:
+        settings = self.settings()
+        assert settings is not None
+        settings.setAttribute(
+            QWebEngineSettings.WebAttribute.JavascriptCanAccessClipboard, value
+        )
+        settings.setAttribute(QWebEngineSettings.WebAttribute.JavascriptCanPaste, value)
+
     def _getQtIntScale(self, screen: QWidget) -> int:
         # try to detect if Qt has scaled the screen
         # - qt will round the scale factor to a whole number, so a dpi of 125% = 1x,

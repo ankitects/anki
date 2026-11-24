@@ -561,12 +561,7 @@ class NewEditorWebView(AnkiWebView):
         AnkiWebView.__init__(self, kind=AnkiWebViewKind.EDITOR)
         self.editor = editor
         self.setAcceptDrops(True)
-        self.settings().setAttribute(  # type: ignore
-            QWebEngineSettings.WebAttribute.JavascriptCanPaste, True
-        )
-        self.settings().setAttribute(  # type: ignore
-            QWebEngineSettings.WebAttribute.JavascriptCanAccessClipboard, True
-        )
+        self.setClipboardEnabled(True)
         gui_hooks.editor_web_view_did_init(self)
 
     def onCut(self) -> None:
