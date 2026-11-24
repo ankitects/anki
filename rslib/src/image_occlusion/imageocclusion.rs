@@ -194,10 +194,11 @@ fn parses_empty_and_backslash_values() {
         get_image_cloze_data("text:left=10:text=:top=20"),
         r#"data-shape="text" data-left="10" data-top="20" "#,
     );
-    // a backslash in a value (e.g. LaTeX) must not drop it or the props after
-    // it (the backslash is HTML-escaped to &#x5C; in the data attribute)
+    // notes saved before backslashes were escaped can contain a lone backslash
+    // (e.g. LaTeX); it must be kept as-is without dropping the props after it
+    // (the backslash is HTML-escaped to &#x5C; in the data attribute)
     assert_eq!(
-        get_image_cloze_data(r"text:left=10:text=\\frac:top=20"),
+        get_image_cloze_data(r"text:left=10:text=\frac:top=20"),
         r#"data-shape="text" data-left="10" data-text="&#x5C;frac" data-top="20" "#,
     );
 }
