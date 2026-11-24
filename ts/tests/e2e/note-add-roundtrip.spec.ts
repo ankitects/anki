@@ -131,3 +131,28 @@ test("clicking Add with empty fields does not fire addNote", async ({ editor: pa
     // rejects with TimeoutError and the assertion passes.
     await expect(addNotePromise).rejects.toThrow();
 });
+
+test("ArrowDown moves through consecutive empty lines", async ({ editor: page }) => {
+    const field = editableField(page, 0);
+
+    await field.click();
+    await field.pressSequentially("a");
+    await page.keyboard.press("Enter");
+    await page.keyboard.press("Enter");
+    await page.keyboard.press("ArrowUp");
+    await page.keyboard.press("ArrowUp");
+    await page.keyboard.press("ArrowRight");
+    await page.keyboard.press("ArrowDown");
+
+    const secondLineTop = await field.evaluate(() =>
+        document.getSelection()!.getRangeAt(0).getBoundingClientRect().top
+    );
+
+    await page.keyboard.press("ArrowDown");
+
+    const thirdLineTop = await field.evaluate(() =>
+        document.getSelection()!.getRangeAt(0).getBoundingClientRect().top
+    );
+
+    expect(thirdLineTop).toBeGreaterThan(secondLineTop);
+});
