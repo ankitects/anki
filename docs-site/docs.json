@@ -579,7 +579,30 @@
               {
                 "group": "Desktop Manual",
                 "pages": [
-                  "uz/manual/intro"
+                  "uz/manual/intro",
+                  "uz/manual/getting-started",
+                  "uz/manual/background",
+                  {
+                    "group": "Platformalar haqida eslatmalar",
+                    "icon": "computer",
+                    "pages": [
+                      "uz/manual/platform/intro",
+                      {
+                        "group": "Windows",
+                        "icon": "microsoft",
+                        "pages": [
+                          "uz/manual/platform/windows/intro",
+                          "uz/manual/platform/windows/installing",
+                          "uz/manual/platform/windows/installation-issues",
+                          "uz/manual/platform/windows/startup-issues",
+                          "uz/manual/platform/windows/display-issues",
+                          "uz/manual/platform/windows/copy-and-paste",
+                          "uz/manual/platform/windows/text-size",
+                          "uz/manual/platform/windows/permission-problems"
+                        ]
+                      }
+                    ]
+                  }
                 ]
               }
             ]
