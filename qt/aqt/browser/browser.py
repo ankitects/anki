@@ -524,7 +524,7 @@ class Browser(QMainWindow):
         self.search()
 
     def current_search(self) -> str:
-        return re.sub(r"\s", " ", self._line_edit().text())
+        return self._line_edit().text().replace("\n", " ")
 
     def search(self) -> None:
         """Search triggered programmatically. Caller must have saved note first."""
