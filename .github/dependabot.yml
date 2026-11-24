@@ -9,6 +9,9 @@ updates:
     cooldown:
       default-days: 7
       semver-major-days: 30
+    ignore:
+      # pinned: any changes could invalidate sqlite indexes
+      - dependency-name: "unicase"
     groups:
       rust-minor-patch:
         applies-to: version-updates
@@ -62,7 +65,7 @@ updates:
       prefix: "chore(deps)"
 
   - package-ecosystem: "github-actions"
-    directory: "/"
+    directories: ["/", "/.github/actions/*"]
     schedule:
       interval: "quarterly"
     open-pull-requests-limit: 1

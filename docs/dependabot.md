@@ -3,10 +3,10 @@
 
 # Dependabot updates
 
-<!-- <<<cog
+<!-- <<<<cog
 from cogdocs import get_file_contents
 cog.out(get_file_contents("dependabot"))
->>> -->
+>>>> -->
 
 Config lives in [`.github/dependabot.yml`](https://github.com/ankitects/anki/blob/main/.github/dependabot.yml).
 This page is for maintainers: how PRs are grouped, which ones to merge,
@@ -86,4 +86,4 @@ Dependabot cannot update git `rev` pins. Those bumps are always manual.
 - `open-pull-requests-limit` cannot cap security PRs;
 - Cooldown keys are `default-days` and `semver-major-days`.
 
-<!-- <<<end>>> -->
+<!-- <<<<end>>>> -->

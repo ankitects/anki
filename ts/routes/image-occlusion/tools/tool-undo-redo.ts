@@ -1,11 +1,11 @@
-// Copyright: Ankitects Pty Ltd and contributors
+// Copyright: Anki Software, LLC and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import * as tr from "@generated/ftl";
 import { fabric } from "fabric";
 import { writable } from "svelte/store";
 
-import { mdiRedo, mdiUndo } from "$lib/components/icons";
+import { mdiRedo, mdiUndo } from "#lib/components/icons.js";
 
 import { saveNeededStore } from "../store";
 import { redoKeyCombination, undoKeyCombination } from "./shortcuts";

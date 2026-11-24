@@ -3,10 +3,10 @@
 
 # The build system
 
-<!-- <<<cog
+<!-- <<<<cog
 from cogdocs import get_file_contents
 cog.out(get_file_contents("build"))
->>> -->
+>>>> -->
 
 ## Basic use
 
@@ -47,4 +47,4 @@ If you run into trouble with the build process:
 
 See [this page](https://anki.mintlify.app/developers/linux).
 
-<!-- <<<end>>> -->
+<!-- <<<<end>>>> -->

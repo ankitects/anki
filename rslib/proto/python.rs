@@ -1,4 +1,4 @@
-// Copyright: Ankitects Pty Ltd and contributors
+// Copyright: Anki Software, LLC and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use std::io::Cursor;
@@ -211,7 +211,7 @@ fn full_name_to_python(name: &str) -> String {
 
 fn write_header(out: &mut impl Write) -> Result<()> {
     out.write_all(
-        br#"# Copyright: Ankitects Pty Ltd and contributors
+        br#"# Copyright: Anki Software, LLC and contributors
 # License: GNU AGPL, version 3 or later; https://www.gnu.org/licenses/agpl.html
 
 from __future__ import annotations
