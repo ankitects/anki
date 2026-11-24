@@ -1,9 +1,9 @@
 <!--
-Copyright: Ankitects Pty Ltd and contributors
+Copyright: Anki Software, LLC and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import { pageTheme } from "$lib/sveltelib/theme";
+    import { pageTheme } from "#lib/sveltelib/theme.js";
 
     export let id: string | undefined;
     export let value: boolean;
@@ -56,6 +56,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         .form-check-input {
             margin-left: 0;
             margin-right: 1.5em;
+            background-position: right center;
+            &:checked {
+                background-position: left center;
+            }
         }
     }
 </style>

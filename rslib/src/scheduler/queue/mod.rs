@@ -1,4 +1,4 @@
-// Copyright: Ankitects Pty Ltd and contributors
+// Copyright: Anki Software, LLC and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 mod builder;
@@ -118,8 +118,7 @@ impl Collection {
                     entry.mtime()
                 );
 
-                // fixme: pass in card instead of id
-                let next_states = self.get_scheduling_states(card.id)?;
+                let (next_states, card) = self.get_scheduling_states_inner(card)?;
 
                 Ok(QueuedCard {
                     context: new_scheduling_context(self, &card)?,

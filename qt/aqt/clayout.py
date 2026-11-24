@@ -1,4 +1,4 @@
-# Copyright: Ankitects Pty Ltd and contributors
+# Copyright: Anki Software, LLC and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 from __future__ import annotations
@@ -788,7 +788,7 @@ class CardLayout(QDialog):
         assert a is not None
         qconnect(
             a.triggered,
-            lambda: self.on_restore_to_default(),
+            lambda: self.on_restore_to_default(),  # noqa: PLW0108
         )
 
         if not self._isCloze():

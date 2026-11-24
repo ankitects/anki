@@ -1,4 +1,4 @@
-// Copyright: Ankitects Pty Ltd and contributors
+// Copyright: Anki Software, LLC and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use std::borrow::Cow;
@@ -27,11 +27,11 @@ pub type FieldMap<'a> = HashMap<&'a str, u16>;
 type TemplateResult<T> = std::result::Result<T, TemplateError>;
 
 static TEMPLATE_ERROR_LINK: &str =
-    "https://docs.ankiweb.net/templates/errors.html#template-syntax-error";
+    "https://docs.ankiweb.net/manual/templates/errors#template-syntax-error";
 static TEMPLATE_BLANK_LINK: &str =
-    "https://docs.ankiweb.net/templates/errors.html#front-of-card-is-blank";
+    "https://docs.ankiweb.net/manual/templates/errors#front-of-card-is-blank";
 static TEMPLATE_BLANK_CLOZE_LINK: &str =
-    "https://docs.ankiweb.net/templates/errors.html#no-cloze-filter-on-cloze-note-type";
+    "https://docs.ankiweb.net/manual/templates/errors#no-cloze-filter-on-cloze-note-type";
 
 // Template comment delimiters
 static COMMENT_START: &str = "<!--";

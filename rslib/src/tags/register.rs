@@ -1,4 +1,4 @@
-// Copyright: Ankitects Pty Ltd and contributors
+// Copyright: Anki Software, LLC and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use std::borrow::Cow;
@@ -132,7 +132,7 @@ impl Collection {
             Ok(Some(format!(
                 "{}::{}",
                 parent_tag,
-                &child_split[parent_count..].join("::")
+                child_split[parent_count..].join("::")
             )))
         } else {
             Ok(None)

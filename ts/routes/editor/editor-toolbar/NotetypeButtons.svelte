@@ -1,5 +1,5 @@
 <!--
-Copyright: Ankitects Pty Ltd and contributors
+Copyright: Anki Software, LLC and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
@@ -7,22 +7,20 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { bridgeCommand } from "@tslib/bridgecommand";
     import { getPlatformString } from "@tslib/shortcuts";
 
-    import ButtonGroup from "$lib/components/ButtonGroup.svelte";
+    import ButtonGroup from "#lib/components/ButtonGroup.svelte";
     import ButtonGroupItem, {
         createProps,
         setSlotHostContext,
         updatePropsList,
-    } from "$lib/components/ButtonGroupItem.svelte";
-    import DynamicallySlottable from "$lib/components/DynamicallySlottable.svelte";
-    import LabelButton from "$lib/components/LabelButton.svelte";
-    import Shortcut from "$lib/components/Shortcut.svelte";
-    import type { NoteEditorAPI } from "../NoteEditor.svelte";
+    } from "#lib/components/ButtonGroupItem.svelte";
+    import DynamicallySlottable from "#lib/components/DynamicallySlottable.svelte";
+    import LabelButton from "#lib/components/LabelButton.svelte";
+    import Shortcut from "#lib/components/Shortcut.svelte";
+    import { context } from "../NoteEditor.svelte";
     import { openFieldsDialog, openCardsDialog } from "@generated/backend";
 
     export let api = {};
-    export let noteEditor: NoteEditorAPI;
-    export let isLegacy = false;
-
+    const { isLegacy, saveNow } = context.get();
     const keyCombination = "Control+L";
 </script>
 
@@ -38,7 +36,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             <LabelButton
                 tooltip={tr.editingCustomizeFields()}
                 on:click={async () => {
-                    await noteEditor.saveNow();
+                    await saveNow();
                     if (isLegacy) {
                         bridgeCommand("fields");
                     } else {
@@ -56,7 +54,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     keyCombination,
                 )})"
                 on:click={async () => {
-                    await noteEditor.saveNow();
+                    await saveNow();
                     if (isLegacy) {
                         bridgeCommand("cards");
                     } else {
@@ -69,7 +67,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             <Shortcut
                 {keyCombination}
                 on:action={async () => {
-                    await noteEditor.saveNow();
+                    await saveNow();
                     bridgeCommand("cards");
                 }}
             />

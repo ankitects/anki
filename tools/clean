@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 #
 # Remove most things from the build folder, to test a clean build. Keeps
 # the download folder, and optionally node_modules/pyenv.

@@ -1,4 +1,4 @@
-// Copyright: Ankitects Pty Ltd and contributors
+// Copyright: Anki Software, LLC and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use anyhow::Result;
@@ -54,8 +54,17 @@ fn normalize_version(version: &str) -> String {
         .join(".")
 }
 
+fn openbsd_wheel_platform_tag() -> String {
+    let output = std::process::Command::new("uname")
+        .arg("-r")
+        .output()
+        .expect("failed to get OpenBSD version");
+    let version = String::from_utf8_lossy(&output.stdout);
+    format!("openbsd_{}_amd64", version.trim().replace('.', "_"))
+}
+
 pub fn setup_venv(build: &mut Build) -> Result<()> {
-    let extra_binary_exports = &[
+    let mut extra_binary_exports = vec![
         "mypy",
         "ruff",
         "pytest",
@@ -63,6 +72,9 @@ pub fn setup_venv(build: &mut Build) -> Result<()> {
         "complexipy",
         "cog",
     ];
+    if std::env::var_os("RUFF_BINARY").is_some() {
+        extra_binary_exports.retain(|binary| *binary != "ruff");
+    }
     build.add_action(
         "pyenv",
         PythonEnvironment {
@@ -73,10 +85,23 @@ pub fn setup_venv(build: &mut Build) -> Result<()> {
                 "qt/pyproject.toml",
                 "uv.lock"
             ],
-            extra_args: "--all-packages --extra qt --extra audio",
+            extra_args: match (
+                std::env::var_os("ANKI_BACKEND_ONLY").is_some(),
+                build.host_platform == Platform::OpenBSDX64,
+            ) {
+                (true, true) => "--package anki --group dev --no-install-package ruff",
+                (true, false) => "--package anki --group dev",
+                (false, true) => {
+                    "--all-packages --extra qt --extra audio --no-install-package ruff"
+                }
+                (false, false) => "--all-packages --extra qt --extra audio",
+            },
             extra_binary_exports,
         },
     )?;
+    if let Ok(ruff) = std::env::var("RUFF_BINARY") {
+        build.add_dependency("pyenv:ruff", inputs![ruff]);
+    }
 
     Ok(())
 }
@@ -151,14 +176,17 @@ impl BuildAction for BuildWheel {
         build.add_variable("out_dir", "$builddir/wheels/");
 
         // Calculate the wheel filename that uv will generate
-        let tag = if let Some(platform) = self.platform {
+        let tag = if let Ok(tag) = std::env::var("ANKI_WHEEL_TAG") {
+            tag
+        } else if let Some(platform) = self.platform {
             let platform_tag = match platform {
-                Platform::LinuxX64 => "manylinux_2_35_x86_64",
-                Platform::LinuxArm => "manylinux_2_35_aarch64",
-                Platform::MacX64 => "macosx_12_0_x86_64",
-                Platform::MacArm => "macosx_12_0_arm64",
-                Platform::WindowsX64 => "win_amd64",
-                Platform::WindowsArm => "win_arm64",
+                Platform::LinuxX64 => "manylinux_2_35_x86_64".to_owned(),
+                Platform::LinuxArm => "manylinux_2_35_aarch64".to_owned(),
+                Platform::OpenBSDX64 => openbsd_wheel_platform_tag(),
+                Platform::MacX64 => "macosx_12_0_x86_64".to_owned(),
+                Platform::MacArm => "macosx_12_0_arm64".to_owned(),
+                Platform::WindowsX64 => "win_amd64".to_owned(),
+                Platform::WindowsArm => "win_arm64".to_owned(),
             };
             format!("cp310-abi3-{platform_tag}")
         } else {
@@ -184,7 +212,6 @@ pub fn check_python(build: &mut Build) -> Result<()> {
         "check:pytest:tools",
         PythonTest {
             folder: "tools/tests",
-            python_path: &["tools"],
             deps: inputs![glob!["tools/**/*.py"]],
         },
     )?;
@@ -192,17 +219,8 @@ pub fn check_python(build: &mut Build) -> Result<()> {
     build.add_action(
         "check:mypy",
         PythonTypecheck {
-            folders: &[
-                "pylib",
-                "qt/aqt",
-                "qt/tools",
-                "out/pylib/anki",
-                "out/qt/_aqt",
-                "python",
-                "tools",
-            ],
             deps: inputs![
-                glob!["{pylib,ftl,qt}/**/*.{py,pyi}"],
+                glob!["{pylib,ftl,qt,tools}/**/*.{py,pyi}"],
                 ":pylib:anki",
                 ":qt:aqt"
             ],

@@ -1,4 +1,4 @@
-// Copyright: Ankitects Pty Ltd and contributors
+// Copyright: Anki Software, LLC and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import { defineConfig } from "@playwright/test";
@@ -11,7 +11,7 @@ const PYENV_PYTHON = process.platform === "win32"
 
 export default defineConfig({
     testDir: "./ts/tests/e2e",
-    outputDir: "./out/e2e-report/",
+    outputDir: "./out/e2e-results/",
     fullyParallel: false,
     workers: 1,
     forbidOnly: !!process.env.CI,

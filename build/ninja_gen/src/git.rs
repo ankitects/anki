@@ -1,4 +1,4 @@
-// Copyright: Ankitects Pty Ltd and contributors
+// Copyright: Anki Software, LLC and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use anyhow::Result;
@@ -75,10 +75,6 @@ fn locate_git_head() -> Option<BuildInput> {
                 .collect_vec();
             return Some(inputs![heads]);
         }
-        if let Some(parent) = folder.parent() {
-            folder = parent.to_owned();
-        } else {
-            return None;
-        }
+        folder = folder.parent()?.to_owned();
     }
 }

@@ -1,4 +1,4 @@
-// Copyright: Ankitects Pty Ltd and contributors
+// Copyright: Anki Software, LLC and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use std::borrow::Cow;
@@ -80,7 +80,7 @@ fn write_template_report(buf: &mut String, templates: &[Template], tr: &I18n) {
     writeln!(
         buf,
         "\n{}",
-        &tr.media_check_template_references_field_header()
+        tr.media_check_template_references_field_header()
     )
     .unwrap();
     for template in templates {

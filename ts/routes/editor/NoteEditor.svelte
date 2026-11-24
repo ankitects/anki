@@ -1,11 +1,11 @@
 <!--
-Copyright: Ankitects Pty Ltd and contributors
+Copyright: Anki Software, LLC and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script context="module" lang="ts">
     import type { Writable } from "svelte/store";
 
-    import Collapsible from "$lib/components/Collapsible.svelte";
+    import Collapsible from "#lib/components/Collapsible.svelte";
 
     import type { EditingInputAPI } from "./EditingArea.svelte";
     import type { EditorToolbarAPI } from "./editor-toolbar";
@@ -14,7 +14,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import LabelContainer from "./LabelContainer.svelte";
     import LabelName from "./LabelName.svelte";
     import { EditorState, type EditorMode } from "./types";
-    import { ContextMenu, Item } from "$lib/context-menu";
+    import { ContextMenu, Item } from "#lib/context-menu/index.js";
 
     export interface NoteEditorAPI {
         fields: EditorFieldAPI[];
@@ -25,6 +25,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         state: Writable<EditorState>;
         lastIOImagePath: Writable<string | null>;
         saveNow: () => Promise<void>;
+        isLegacy: boolean;
     }
 
     interface LoadNoteArgs {
@@ -47,8 +48,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         extractImagePathFromHtml,
         extractImagePathFromData,
     } from "./rich-text-input/data-transfer";
-    import contextProperty from "$lib/sveltelib/context-property";
-    import lifecycleHooks from "$lib/sveltelib/lifecycle-hooks";
+    import contextProperty from "#lib/sveltelib/context-property.js";
+    import lifecycleHooks from "#lib/sveltelib/lifecycle-hooks.js";
 
     const key = Symbol("noteEditor");
     const [context, setContextProperty] = contextProperty<NoteEditorAPI>(key);
@@ -71,18 +72,18 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { nodeIsCommonElement } from "@tslib/dom";
     import { SerialQueue } from "@tslib/promise";
 
-    import Absolute from "$lib/components/Absolute.svelte";
-    import Badge from "$lib/components/Badge.svelte";
-    import Icon from "$lib/components/Icon.svelte";
-    import { alertIcon } from "$lib/components/icons";
-    import { TagEditor } from "$lib/tag-editor";
-    import { commitTagEdits } from "$lib/tag-editor/TagInput.svelte";
+    import Absolute from "#lib/components/Absolute.svelte";
+    import Badge from "#lib/components/Badge.svelte";
+    import Icon from "#lib/components/Icon.svelte";
+    import { alertIcon } from "#lib/components/icons.js";
+    import { TagEditor } from "#lib/tag-editor/index.js";
+    import { commitTagEdits } from "#lib/tag-editor/TagInput.svelte";
 
     import {
         type ImageLoadedEvent,
         resetIOImage,
     } from "../image-occlusion/mask-editor";
-    import { ChangeTimer } from "$lib/editable/change-timer";
+    import { ChangeTimer } from "#lib/editable/change-timer.js";
     import { clearableArray } from "./destroyable";
     import DuplicateLink from "./DuplicateLink.svelte";
     import EditorToolbar from "./editor-toolbar";
@@ -747,10 +748,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     } from "@generated/backend";
     import { wrapInternal } from "@tslib/wrap";
     import { getProfileConfig, getMeta, setMeta, getColConfig } from "@tslib/profile";
-    import Shortcut from "$lib/components/Shortcut.svelte";
+    import Shortcut from "#lib/components/Shortcut.svelte";
     import { registerOperationHandler } from "@tslib/operations";
 
-    import { mathjaxConfig } from "$lib/editable/mathjax-element.svelte";
+    import { mathjaxConfig } from "#lib/editable/mathjax-element.svelte.js";
     import ImageOcclusionPage from "../image-occlusion/ImageOcclusionPage.svelte";
     import ImageOcclusionPicker from "../image-occlusion/ImageOcclusionPicker.svelte";
     import type { IOMode } from "../image-occlusion/lib";
@@ -763,7 +764,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import CollapseLabel from "./CollapseLabel.svelte";
     import * as oldEditorAdapter from "./old-editor-adapter";
     import StickyBadge from "./StickyBadge.svelte";
-    import ButtonGroupItem from "$lib/components/ButtonGroupItem.svelte";
+    import ButtonGroupItem from "#lib/components/ButtonGroupItem.svelte";
     import PreviewButton from "./PreviewButton.svelte";
     import { NoteFieldsCheckResponse_State, type Note } from "@generated/anki/notes_pb";
     import { setupContextMenu } from "./context-menu.svelte";
@@ -772,11 +773,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import HistoryModal from "./HistoryModal.svelte";
     import { HelpPageLinkRequest_HelpPage } from "@generated/anki/links_pb";
     import { MessageBoxType } from "@generated/anki/frontend_pb";
-    import type Modal from "$lib/components/Modal.svelte";
+    import type Modal from "#lib/components/Modal.svelte";
     import EditorChoosers from "./editor-toolbar/EditorChoosers.svelte";
     import type { Card } from "@generated/anki/cards_pb";
-    import type NotetypeChooser from "$lib/components/NotetypeChooser.svelte";
-    import type DeckChooser from "$lib/components/DeckChooser.svelte";
+    import type NotetypeChooser from "#lib/components/NotetypeChooser.svelte";
+    import type DeckChooser from "#lib/components/DeckChooser.svelte";
     import { ConfigKey_Bool } from "@generated/anki/config_pb";
     import {
         destroyToast,
@@ -1376,6 +1377,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     let apiPartial: Partial<NoteEditorAPI> = {};
     export { apiPartial as api };
+    export let isLegacy: boolean;
 
     const hoveredField: NoteEditorAPI["hoveredField"] = writable(null);
     const focusedField: NoteEditorAPI["focusedField"] = writable(null);
@@ -1393,6 +1395,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         state: editorState,
         lastIOImagePath,
         saveNow,
+        isLegacy,
     };
 
     setContextProperty(api);
@@ -1404,7 +1407,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     export let uiResolve: (api: NoteEditorAPI) => void;
     export let mode: EditorMode;
-    export let isLegacy: boolean;
 
     $: if (noteEditor) {
         uiResolve(api as NoteEditorAPI);
@@ -1444,7 +1446,7 @@ components and functionality for general note editing.
         />
     {/if}
 
-    <EditorToolbar noteEditor={api} {size} {wrap} {isLegacy} api={toolbar}>
+    <EditorToolbar {size} {wrap} api={toolbar}>
         <svelte:fragment slot="notetypeButtons">
             {#if mode === "browser"}
                 <ButtonGroupItem>
@@ -1547,14 +1549,13 @@ components and functionality for general note editing.
                             </svelte:fragment>
                             <FieldState>
                                 {#if cols[index] === "dupe"}
-                                    <DuplicateLink {note} {isLegacy} />
+                                    <DuplicateLink {note} />
                                 {/if}
                                 {#if mode === "add"}
                                     <StickyBadge
                                         bind:active={stickies[index]}
                                         {index}
                                         {note}
-                                        {isLegacy}
                                         show={fields[index] === $hoveredField ||
                                             fields[index] === $focusedField}
                                     />
@@ -1587,7 +1588,6 @@ components and functionality for general note editing.
                         >
                             <RichTextInput
                                 {hidden}
-                                {isLegacy}
                                 on:focusout={() => {
                                     saveFieldNow();
                                     $focusedInput = null;
@@ -1632,7 +1632,11 @@ components and functionality for general note editing.
             tooltip={$tagsCollapsed ? tr.editingExpand() : tr.editingCollapse()}
             on:toggle={() => updateTagsCollapsed(!$tagsCollapsed)}
         >
-            {@html `${tagAmount > 0 ? tagAmount : ""} ${tr.editingTags()}`}
+            {#if tagAmount == 0}
+                {@html `${tr.editingTags()}`}
+            {:else}
+                {@html `${tr.editingTagCount({ count: tagAmount })}`}
+            {/if}
         </CollapseLabel>
         <Collapsible toggleDisplay collapse={$tagsCollapsed}>
             <TagEditor {tags} on:tagsupdate={saveTags} />

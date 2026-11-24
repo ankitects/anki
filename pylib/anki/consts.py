@@ -1,4 +1,4 @@
-# Copyright: Ankitects Pty Ltd and contributors
+# Copyright: Anki Software, LLC and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 from __future__ import annotations
@@ -74,7 +74,7 @@ MODEL_CLOZE = 1
 STARTING_FACTOR = 2500
 STARTING_FACTOR_FRACTION = STARTING_FACTOR / 1000
 
-HELP_SITE = "https://docs.ankiweb.net/"
+HELP_SITE = "https://docs.ankiweb.net/manual/"
 
 # Leech actions
 LEECH_SUSPEND = 0

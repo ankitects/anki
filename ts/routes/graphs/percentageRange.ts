@@ -1,4 +1,4 @@
-// Copyright: Ankitects Pty Ltd and contributors
+// Copyright: Anki Software, LLC and contributors
 
 import { range, type ScaleLinear, scaleLinear, sum } from "d3";
 

@@ -1,4 +1,4 @@
-// Copyright: Ankitects Pty Ltd and contributors
+// Copyright: Anki Software, LLC and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use std::cmp::Ordering;
@@ -17,8 +17,7 @@ impl QueueBuilder {
             NewCardSortOrder::NoSort => (),
             NewCardSortOrder::Template => {
                 // stable sort to preserve gather order
-                self.new
-                    .sort_by(|a, b| a.template_index.cmp(&b.template_index))
+                self.new.sort_by_key(|a| a.template_index)
             }
             NewCardSortOrder::TemplateThenRandom => {
                 self.hash_new_cards_by_id();

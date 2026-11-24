@@ -1,4 +1,4 @@
-// Copyright: Ankitects Pty Ltd and contributors
+// Copyright: Anki Software, LLC and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use regex::Regex;
@@ -40,15 +40,12 @@ fn filters_match(filters: &[Regex], tag: &str) -> Option<bool> {
     let mut is_prefix = true;
     'outer: for filter in filters {
         loop {
-            if let Some(component) = remaining_tag_components.next() {
-                if let Some(m) = filter.find(component) {
-                    is_prefix &= m.start() == 0;
-                    continue 'outer;
-                } else {
-                    is_prefix = false;
-                }
+            let component = remaining_tag_components.next()?;
+            if let Some(m) = filter.find(component) {
+                is_prefix &= m.start() == 0;
+                continue 'outer;
             } else {
-                return None;
+                is_prefix = false;
             }
         }
     }

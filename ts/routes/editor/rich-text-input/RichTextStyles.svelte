@@ -1,5 +1,5 @@
 <!--
-Copyright: Ankitects Pty Ltd and contributors
+Copyright: Anki Software, LLC and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
@@ -7,10 +7,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     import type { StyleLinkType, StyleObject } from "./CustomStyles.svelte";
     import CustomStyles from "./CustomStyles.svelte";
-
+    import { context } from "../NoteEditor.svelte";
     import { mount } from "svelte";
 
-    export let isLegacy = false;
+    const { isLegacy } = context.get();
 
     export let callback: (styles: Record<string, any>) => void;
 
@@ -58,9 +58,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             ]);
         } else {
             stylesPromise = Promise.all([
-                import("$lib/editable/editable-base.scss?url"),
-                import("$lib/editable/content-editable.scss?url"),
-                import("$lib/editable/mathjax.scss?url"),
+                import("#lib/editable/editable-base.scss?url"),
+                import("#lib/editable/content-editable.scss?url"),
+                import("#lib/editable/mathjax.scss?url"),
             ]).then(([editableBase, contentEditable, mathjax]) => [
                 {
                     id: "editableBaseStyle",

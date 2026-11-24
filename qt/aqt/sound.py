@@ -1,4 +1,4 @@
-# Copyright: Ankitects Pty Ltd and contributors
+# Copyright: Anki Software, LLC and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 from __future__ import annotations
@@ -98,7 +98,7 @@ AUDIO_EXTENSIONS = {
 
 
 def is_audio_file(fname: str) -> bool:
-    ext = fname.split(".")[-1].lower()
+    ext = fname.rsplit(".", maxsplit=1)[-1].lower()
     return ext in AUDIO_EXTENSIONS
 
 

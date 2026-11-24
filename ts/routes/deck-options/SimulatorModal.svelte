@@ -1,10 +1,10 @@
 <!--
-Copyright: Ankitects Pty Ltd and contributors
+Copyright: Anki Software, LLC and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
     import SpinBoxRow from "./SpinBoxRow.svelte";
-    import SettingTitle from "$lib/components/SettingTitle.svelte";
+    import SettingTitle from "#lib/components/SettingTitle.svelte";
     import Graph from "../graphs/Graph.svelte";
     import HoverColumns from "../graphs/HoverColumns.svelte";
     import CumulativeOverlay from "../graphs/CumulativeOverlay.svelte";
@@ -34,16 +34,17 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         SimulateFsrsWorkloadResponse,
     } from "@generated/anki/scheduler_pb";
     import type { DeckOptionsState } from "./lib";
-    import SwitchRow from "$lib/components/SwitchRow.svelte";
+    import SwitchRow from "#lib/components/SwitchRow.svelte";
     import GlobalLabel from "./GlobalLabel.svelte";
     import SpinBoxFloatRow from "./SpinBoxFloatRow.svelte";
     import { reviewOrderChoices } from "./choices";
-    import EnumSelectorRow from "$lib/components/EnumSelectorRow.svelte";
+    import EnumSelectorRow from "#lib/components/EnumSelectorRow.svelte";
     import { DeckConfig_Config_LeechAction } from "@generated/anki/deck_config_pb";
     import EasyDaysInput from "./EasyDaysInput.svelte";
     import Warning from "./Warning.svelte";
     import type { ComputeRetentionProgress } from "@generated/anki/collection_pb";
     import Modal from "bootstrap/js/dist/modal";
+    import { onMount } from "svelte";
 
     export let state: DeckOptionsState;
     export let simulateFsrsRequest: SimulateFsrsReviewRequest;
@@ -320,6 +321,25 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             },
         };
     }
+
+    let font_scale = 1;
+    function updateFontScale() {
+        font_scale = bounds.height / (svg?.clientHeight ?? bounds.height);
+    }
+
+    $: if (svg?.clientHeight) {
+        updateFontScale();
+    }
+
+    onMount(() => {
+        const observer = new ResizeObserver(() => {
+            updateFontScale();
+        });
+        observer.observe(svg!);
+        return () => {
+            observer.disconnect();
+        };
+    });
 </script>
 
 <div class="modal" tabindex="-1" use:setupModal>
@@ -605,6 +625,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                         <svg
                             bind:this={svg}
                             viewBox={`0 0 ${bounds.width} ${bounds.height}`}
+                            style:--font-scale={font_scale}
                         >
                             <CumulativeOverlay />
                             <HoverColumns />
@@ -620,7 +641,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     </div>
 </div>
 
-<style>
+<style lang="scss">
     .modal {
         background-color: rgba(0, 0, 0, 0.5);
         --bs-modal-margin: 0;
@@ -662,5 +683,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     summary {
         margin-bottom: 0.5em;
+    }
+
+    .svg-container svg {
+        :global(.tick text),
+        :global(.legend) {
+            font-size: calc(1rem * var(--font-scale));
+        }
     }
 </style>

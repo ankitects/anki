@@ -1,4 +1,4 @@
-// Copyright: Ankitects Pty Ltd and contributors
+// Copyright: Anki Software, LLC and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 //! Adding and updating.
@@ -122,7 +122,7 @@ impl Collection {
             deck.name = NativeDeckName::from_native_str(format!(
                 "{}\x1f{}",
                 parent_deck.name,
-                &child_split[parent_count..].join("\x1f")
+                child_split[parent_count..].join("\x1f")
             ));
             if need_create {
                 self.create_missing_parents(&deck.name, usn)?;

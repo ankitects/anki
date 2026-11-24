@@ -1,4 +1,4 @@
-// Copyright: Ankitects Pty Ltd and contributors
+// Copyright: Anki Software, LLC and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import { filterElementBasic, filterElementExtended, filterElementInternal } from "./element";
@@ -33,11 +33,6 @@ const outputHTMLProcessors: Record<FilterMode, (outputHTML: string) => string> =
 };
 
 export function filterHTML(html: string, internal: boolean, extended: boolean): string {
-    // https://anki.tenderapp.com/discussions/ankidesktop/39543-anki-is-replacing-the-character-by-when-i-exit-the-html-edit-mode-ctrlshiftx
-    if (html.indexOf(">") < 0) {
-        return html;
-    }
-
     const template = document.createElement("template");
     template.innerHTML = html;
 

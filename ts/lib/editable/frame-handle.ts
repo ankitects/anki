@@ -1,4 +1,4 @@
-// Copyright: Ankitects Pty Ltd and contributors
+// Copyright: Anki Software, LLC and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import { getSelection, isSelectionCollapsed } from "@tslib/cross-browser";
@@ -7,9 +7,9 @@ import { on } from "@tslib/events";
 import type { Unsubscriber } from "svelte/store";
 import { get } from "svelte/store";
 
-import { moveChildOutOfElement } from "$lib/domlib/move-nodes";
-import { placeCaretAfter } from "$lib/domlib/place-caret";
-import { isComposing } from "$lib/sveltelib/composition";
+import { moveChildOutOfElement } from "#lib/domlib/move-nodes.js";
+import { placeCaretAfter } from "#lib/domlib/place-caret.js";
+import { isComposing } from "#lib/sveltelib/composition.js";
 
 import type { FrameElement } from "./frame-element";
 

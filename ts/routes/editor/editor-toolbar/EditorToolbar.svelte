@@ -1,12 +1,12 @@
 <!--
-Copyright: Ankitects Pty Ltd and contributors
+Copyright: Anki Software, LLC and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script context="module" lang="ts">
     import type { Writable } from "svelte/store";
 
-    import { resetAllState, updateAllState } from "$lib/components/WithState.svelte";
-    import type { DefaultSlotInterface } from "$lib/sveltelib/dynamic-slotting";
+    import { resetAllState, updateAllState } from "#lib/components/WithState.svelte";
+    import type { DefaultSlotInterface } from "#lib/sveltelib/dynamic-slotting.js";
 
     export function updateActiveButtons(event: Event) {
         updateAllState(event);
@@ -39,7 +39,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         AddonButtons,
     };
 
-    import contextProperty from "$lib/sveltelib/context-property";
+    import contextProperty from "#lib/sveltelib/context-property.js";
 
     const key = Symbol("editorToolbar");
     const [context, setContextProperty] = contextProperty<EditorToolbarAPI>(key);
@@ -51,9 +51,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { createEventDispatcher } from "svelte";
     import { writable } from "svelte/store";
 
-    import ButtonToolbar from "$lib/components/ButtonToolbar.svelte";
-    import DynamicallySlottable from "$lib/components/DynamicallySlottable.svelte";
-    import Item from "$lib/components/Item.svelte";
+    import ButtonToolbar from "#lib/components/ButtonToolbar.svelte";
+    import DynamicallySlottable from "#lib/components/DynamicallySlottable.svelte";
+    import Item from "#lib/components/Item.svelte";
 
     import BlockButtons from "./BlockButtons.svelte";
     import ImageOcclusionButton from "./ImageOcclusionButton.svelte";
@@ -63,12 +63,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import RichTextClozeButtons from "./RichTextClozeButtons.svelte";
     import TemplateButtons from "./TemplateButtons.svelte";
     import type { InlineButtonsAPI } from "./InlineButtons.svelte";
-    import type { NoteEditorAPI } from "../NoteEditor.svelte";
 
-    export let isLegacy = false;
     export let size: number;
     export let wrap: boolean;
-    export let noteEditor: NoteEditorAPI;
 
     const toolbar = {} as DefaultSlotInterface;
     const notetypeButtons = {} as DefaultSlotInterface;
@@ -102,13 +99,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     <ButtonToolbar {size} {wrap}>
         <DynamicallySlottable slotHost={Item} api={toolbar}>
             <Item id="notetype">
-                <NotetypeButtons {isLegacy} {noteEditor} api={notetypeButtons}>
+                <NotetypeButtons api={notetypeButtons}>
                     <slot name="notetypeButtons" />
                 </NotetypeButtons>
             </Item>
 
             <Item id="settings">
-                <OptionsButtons api={optionsButtons} {isLegacy} />
+                <OptionsButtons api={optionsButtons} />
             </Item>
 
             <Item id="inlineFormatting">

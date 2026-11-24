@@ -1,16 +1,16 @@
 <!--
-Copyright: Ankitects Pty Ltd and contributors
+Copyright: Anki Software, LLC and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
     import * as tr from "@generated/ftl";
     import { createEventDispatcher } from "svelte";
 
-    import ButtonGroup from "$lib/components/ButtonGroup.svelte";
-    import ButtonToolbar from "$lib/components/ButtonToolbar.svelte";
-    import Icon from "$lib/components/Icon.svelte";
-    import IconButton from "$lib/components/IconButton.svelte";
-    import { blockIcon, deleteIcon, inlineIcon } from "$lib/components/icons";
+    import ButtonGroup from "#lib/components/ButtonGroup.svelte";
+    import ButtonToolbar from "#lib/components/ButtonToolbar.svelte";
+    import Icon from "#lib/components/Icon.svelte";
+    import IconButton from "#lib/components/IconButton.svelte";
+    import { blockIcon, deleteIcon, inlineIcon } from "#lib/components/icons.js";
 
     import ClozeButtons from "../ClozeButtons.svelte";
 

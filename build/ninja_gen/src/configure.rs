@@ -1,10 +1,9 @@
-// Copyright: Ankitects Pty Ltd and contributors
+// Copyright: Anki Software, LLC and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use anyhow::Result;
 
 use crate::action::BuildAction;
-use crate::build::BuildProfile;
 use crate::build::FilesHandle;
 use crate::cargo::CargoBuild;
 use crate::cargo::RustOutput;
@@ -34,7 +33,7 @@ impl BuildAction for ConfigureBuild {
                 outputs: &[RustOutput::Binary("configure")],
                 target: None,
                 extra_args: "-p configure",
-                release_override: Some(BuildProfile::Debug),
+                release_override: Some(build.build_profile.for_build_tools()),
             },
         )?;
         Ok(())

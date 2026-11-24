@@ -1,15 +1,19 @@
-# Copyright: Ankitects Pty Ltd and contributors
+# Copyright: Anki Software, LLC and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 from __future__ import annotations
 
 import dataclasses
 import json
+import logging
 import os
 import re
 import sys
+import time
+import weakref
 from collections.abc import Callable, Sequence
 from enum import Enum
+from types import MethodType
 from typing import TYPE_CHECKING, Any, Type, cast
 
 from google.protobuf.json_format import MessageToDict
@@ -26,6 +30,8 @@ from aqt.qt import *
 from aqt.qt import sip
 from aqt.theme import theme_manager
 from aqt.utils import askUser, is_gesture_or_zoom_event, openLink, showInfo, tr
+
+logger = logging.getLogger(__name__)
 
 serverbaseurl = re.compile(r"^.+:\/\/[^\/]+")
 
@@ -64,6 +70,21 @@ class AnkiWebViewKind(Enum):
     PREFERENCES = "preferences"
 
 
+def _is_internal_url(url: QUrl) -> bool:
+    from aqt import mw
+
+    server = QUrl(mw.serverURL())
+    if url.scheme() == server.scheme() and url.authority() == server.authority():
+        return True
+    # Vite server
+    return (
+        bool(hmr_mode)
+        and url.scheme() == "http"
+        and url.host() == "127.0.0.1"
+        and url.port() == 5173
+    )
+
+
 class AuthInterceptor(QWebEngineUrlRequestInterceptor):
     _api_enabled = False
 
@@ -74,8 +95,29 @@ class AuthInterceptor(QWebEngineUrlRequestInterceptor):
     def interceptRequest(self, info):
         from aqt.mediasrv import _APIKEY
 
-        if self._api_enabled and info.requestUrl().host() == "127.0.0.1":
+        if (
+            self._api_enabled
+            and _is_internal_url(info.requestUrl())
+            and info.resourceType()
+            == QWebEngineUrlRequestInfo.ResourceType.ResourceTypeXhr
+            and info.requestMethod() == b"POST"
+        ):
             info.setHttpHeader(b"Authorization", f"Bearer {_APIKEY}".encode("utf-8"))
+
+
+class WebviewIdInterceptor(QWebEngineUrlRequestInterceptor):
+    def __init__(self, webview: AnkiWebView, webview_id: int):
+        self.webview_id = webview_id
+        super().__init__(webview)
+
+    def interceptRequest(self, info):
+        if (
+            _is_internal_url(info.requestUrl())
+            and info.resourceType()
+            == QWebEngineUrlRequestInfo.ResourceType.ResourceTypeXhr
+            and info.requestMethod() == b"POST"
+        ):
+            info.setHttpHeader(b"Anki-Webview-Id", str(self.webview_id).encode("utf-8"))
 
 
 def _create_bridge_script() -> QWebEngineScript:
@@ -246,15 +288,19 @@ class AnkiWebPage(QWebEnginePage):
     def acceptNavigationRequest(
         self, url: QUrl, navType: Any, isMainFrame: bool
     ) -> bool:
-        from aqt.mediasrv import is_sveltekit_page
+        from aqt.mediasrv import get_sveltekit_route
 
-        if (
-            not self.open_links_externally
-            or "_anki/pages" in url.path()
-            or url.path() == "/_anki/legacyPageData"
-            or is_sveltekit_page(url.path()[1:])
-        ):
+        if not self.open_links_externally:
             return super().acceptNavigationRequest(url, navType, isMainFrame)
+
+        if _is_internal_url(url):
+            path = url.path()
+            if (
+                path.startswith("/_anki/pages/")
+                or path == "/_anki/legacyPageData"
+                or get_sveltekit_route(path[1:])
+            ):
+                return super().acceptNavigationRequest(url, navType, isMainFrame)
 
         if not isMainFrame:
             return True
@@ -357,6 +403,31 @@ class WebContent:
 ##########################################################################
 
 
+def _weak_hook_handler(
+    hook: Any, method: Callable[..., Any], description: str
+) -> Callable[..., Any]:
+    """Wrap a webview's bound method for registration on a global hook.
+
+    The hook only holds a weak reference to the webview, so a webview that is
+    destroyed without a cleanup() call is not kept alive by the hook,
+    and its handler removes itself the next time the hook fires.
+    """
+    ref = weakref.WeakMethod(cast(MethodType, method))
+
+    def handler(*args: Any, **kwargs: Any) -> None:
+        bound = ref()
+        if bound is not None and not sip.isdeleted(
+            cast(sip.simplewrapper, bound.__self__)
+        ):
+            bound(*args, **kwargs)
+            return
+        logger.warning("%s was destroyed without a cleanup() call", description)
+        # hooks iterate over the live handler list, so defer the removal
+        QTimer.singleShot(0, lambda: hook.remove(handler))
+
+    return handler
+
+
 class AnkiWebView(QWebEngineView):
     allow_drops = False
     _kind: AnkiWebViewKind
@@ -367,10 +438,13 @@ class AnkiWebView(QWebEngineView):
         title: str = "",  # used by add-ons; in Anki code use kind instead to set title
         kind: AnkiWebViewKind = AnkiWebViewKind.DEFAULT,
     ) -> None:
+        from aqt import mw
+
         QWebEngineView.__init__(self, parent=parent)
         self._kind = kind
         self.set_title(kind.value)
         self.setPage(AnkiWebPage(self._onBridgeCmd, kind, self))
+        mw.mediaServer.register_webview(self)
         # reduce flicker
         self.page().setBackgroundColor(theme_manager.qcolor(colors.CANVAS))
 
@@ -385,10 +459,17 @@ class AnkiWebView(QWebEngineView):
 
         self.resetHandlers()
         self._filterSet = False
-        gui_hooks.theme_did_change.append(self.on_theme_did_change)
-        gui_hooks.body_classes_need_update.append(self.on_body_classes_need_update)
-        gui_hooks.operation_did_execute.append(self.on_operation_did_execute)
 
+        description = f"{type(self).__name__} ({kind.value})"
+        self._hook_subscriptions: list[tuple[Any, Callable[..., Any]]] = []
+        for hook, method in (
+            (gui_hooks.theme_did_change, self.on_theme_did_change),
+            (gui_hooks.body_classes_need_update, self.on_body_classes_need_update),
+            (gui_hooks.operation_did_execute, self.on_operation_did_execute),
+        ):
+            handler = _weak_hook_handler(hook, method, description)
+            hook.append(handler)
+            self._hook_subscriptions.append((hook, handler))
         qconnect(self.loadFinished, self._on_load_finished)
 
     def _on_load_finished(self) -> None:
@@ -562,6 +643,14 @@ class AnkiWebView(QWebEngineView):
             QWebEngineSettings.WebAttribute.PlaybackRequiresUserGesture, value
         )
 
+    def setClipboardEnabled(self, value: bool) -> None:
+        settings = self.settings()
+        assert settings is not None
+        settings.setAttribute(
+            QWebEngineSettings.WebAttribute.JavascriptCanAccessClipboard, value
+        )
+        settings.setAttribute(QWebEngineSettings.WebAttribute.JavascriptCanPaste, value)
+
     def _getQtIntScale(self, screen: QWidget) -> int:
         # try to detect if Qt has scaled the screen
         # - qt will round the scale factor to a whole number, so a dpi of 125% = 1x,
@@ -580,7 +669,7 @@ class AnkiWebView(QWebEngineView):
 
     def standard_css(self) -> str:
         color_hl = theme_manager.var(colors.BORDER_FOCUS)
-
+        font_size = self.font().pointSizeF() * self.logicalDpiX() / 72
         if is_win:
             # T: include a font for your language on Windows, eg: "Segoe UI", "MS Mincho"
             family = tr.qt_misc_segoe_ui()
@@ -622,11 +711,13 @@ div[contenteditable="true"]:focus {{
                 color_hl=color_hl,
             )
 
+        system_font_size_css = f"font-size: {font_size}px; --bs-body-font-size: {font_size}px; --font-size: {font_size}px;"
         zoom = self.app_zoom_factor()
 
         return f"""
 body {{ zoom: {zoom}; background-color: var(--canvas); }}
 html {{ {font} }}
+:root.system-font-size, :root.night-mode.system-font-size {{ {system_font_size_css} }}
 {button_style}
 :root {{ --canvas: {colors.CANVAS["light"]} }}
 :root[class*=night-mode] {{ --canvas: {colors.CANVAS["dark"]} }}
@@ -886,14 +977,16 @@ html {{ {font} }}
         self.load_url(QUrl(f"{mw.serverURL()}_anki/pages/{name}.html{extra}"))
         self._uses_dynamic_styling = True
 
-    def load_sveltekit_page(self, path: str) -> None:
+    def load_sveltekit_page(self, path: str, cache_bust: bool = False) -> None:
         from aqt import mw
 
         self.set_open_links_externally(True)
+
+        extra = ""
+        if cache_bust:
+            extra += "?cb=" + str(time.time())
         if theme_manager.night_mode:
-            extra = "#night"
-        else:
-            extra = ""
+            extra += "#night"
 
         if hmr_mode:
             server = "http://127.0.0.1:5173/"
@@ -917,9 +1010,9 @@ html {{ {font} }}
             # this will fail when __del__ is called during app shutdown
             return
 
-        gui_hooks.theme_did_change.remove(self.on_theme_did_change)
-        gui_hooks.body_classes_need_update.remove(self.on_body_classes_need_update)
-        gui_hooks.operation_did_execute.remove(self.on_operation_did_execute)
+        while self._hook_subscriptions:
+            hook, handler = self._hook_subscriptions.pop()
+            hook.remove(handler)
         # defer page cleanup so that in-flight requests have a chance to complete first
         # https://forums.ankiweb.net/t/error-when-exiting-browsing-when-the-software-is-installed-in-the-path-c-program-files-anki/38363
         mw.progress.single_shot(5000, lambda: mw.mediaServer.clear_page_html(id(self)))
@@ -964,7 +1057,7 @@ html {{ {font} }}
     def on_operation_did_execute(
         self, changes: OpChanges, handler: object | None
     ) -> None:
-        if handler is self.parentWidget():
+        if handler is self:
             return
 
         changes_json = to_json_bytes(MessageToDict(changes)).decode()

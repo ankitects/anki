@@ -1,10 +1,11 @@
-# Copyright: Ankitects Pty Ltd and contributors
+# Copyright: Anki Software, LLC and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 from __future__ import annotations
 
 import asyncio
 import enum
+import itertools
 import logging
 import mimetypes
 import os
@@ -13,12 +14,13 @@ import secrets
 import sys
 import threading
 import traceback
+import weakref
 from collections.abc import Callable
 from dataclasses import dataclass
 from errno import EPROTOTYPE
 from http import HTTPStatus
 from pathlib import Path
-from typing import Any, Generic, cast
+from typing import TYPE_CHECKING, Any, Generic, cast
 
 import flask
 import stringcase
@@ -55,6 +57,10 @@ from aqt.utils import (
     tr,
 )
 
+if TYPE_CHECKING:
+    from aqt.webview import AnkiWebView
+
+
 # https://forums.ankiweb.net/t/anki-crash-when-using-a-specific-deck/22266
 waitress.wasyncore._DISCONNECTED = waitress.wasyncore._DISCONNECTED.union({EPROTOTYPE})  # type: ignore
 
@@ -74,6 +80,7 @@ class LocalFileRequest:
 
 UNTRUSTED_MEDIA_CSP = "; ".join(
     (
+        # Disallow everything by default
         "default-src 'none'",
         "script-src 'none'",
         "connect-src 'none'",
@@ -82,9 +89,37 @@ UNTRUSTED_MEDIA_CSP = "; ".join(
         "child-src 'none'",
         "base-uri 'none'",
         "form-action 'none'",
-        "sandbox",
+        # Allow same-origin styles, images, fonts and media, so that an SVG or HTML
+        # file can use the resources next to it. 'unsafe-inline' is needed for
+        # <style> elements and style= attributes inside SVGs.
+        "style-src 'self' 'unsafe-inline'",
+        "img-src 'self'",
+        "font-src 'self'",
+        "media-src 'self'",
+        # The sandbox blocks scripts, forms, popups and top-level navigation.
+        # allow-same-origin is required for fonts (font loads use CORS, and we send
+        # no CORS headers) and to avoid stuck :hover styles under site isolation.
+        # Never add allow-scripts: with allow-same-origin, that would give media
+        # access to the parent page.
+        "sandbox allow-same-origin",
     )
 )
+
+
+# Our pages are always shown top-level
+TRUSTED_PAGE_CSP = "frame-ancestors 'none'"
+
+
+def _untrusted_page_content_security_policy(port: int, script_src: str) -> str:
+    """CSP for pages that show user content, e.g. note fields in the editor."""
+    return "; ".join(
+        (
+            f"script-src {script_src}",
+            f"base-uri http://127.0.0.1:{port}",
+            "form-action 'none'",
+            TRUSTED_PAGE_CSP,
+        )
+    )
 
 
 def _legacy_editor_content_security_policy(port: int) -> str:
@@ -92,23 +127,34 @@ def _legacy_editor_content_security_policy(port: int) -> str:
         f"http://127.0.0.1:{port}/_anki/",
         f"http://127.0.0.1:{port}/_addons/",
     )
-    return "; ".join((f"script-src {' '.join(csp_paths)}",))
+    return _untrusted_page_content_security_policy(port, " ".join(csp_paths))
 
 
-_SVELTEKIT_SCRIPT_HASH_RE = re.compile(rb"'sha256-[A-Za-z0-9+/=]+'")
+_SVELTEKIT_CSP_META_RE = re.compile(
+    rb"<meta http-equiv=\"content-security-policy\" content=\"script-src 'self' ('sha256-[A-Za-z0-9+/=]+')\">"
+)
 
 
 def _sveltekit_render_script_hash(html: bytes) -> str | None:
     """Extract the hash SvelteKit computed for its inline render script.
 
-    SvelteKit (csp.mode = 'hash' in svelte.config.js) bakes this into a
+    SvelteKit (csp.mode = 'hash' in ts/vite.config.ts) bakes this into a
     <meta http-equiv="content-security-policy"> tag in the built HTML.
     """
-    match = _SVELTEKIT_SCRIPT_HASH_RE.search(html)
-    return match.group(0).decode("utf-8") if match else None
+    match = _SVELTEKIT_CSP_META_RE.search(html)
+    return match.group(1).decode("utf-8") if match else None
 
 
-def _sveltekit_content_security_policy(port: int, script_hash: str | None) -> str:
+def _strip_csp_meta(html: bytes) -> bytes:
+    stripped = _SVELTEKIT_CSP_META_RE.sub(b"", html)
+    if stripped == html:
+        raise RuntimeError("CSP meta tag not found in SvelteKit index page")
+    return stripped
+
+
+def _untrusted_sveltekit_content_security_policy(
+    port: int, script_hash: str | None
+) -> str:
     csp_paths = [
         f"http://127.0.0.1:{port}/_anki/",
         f"http://127.0.0.1:{port}/_app/",
@@ -116,15 +162,14 @@ def _sveltekit_content_security_policy(port: int, script_hash: str | None) -> st
     ]
     if script_hash:
         csp_paths.append(script_hash)
-    return "; ".join((f"script-src {' '.join(csp_paths)}",))
+    return _untrusted_page_content_security_policy(port, " ".join(csp_paths))
 
 
 @dataclass
 class BundledFileRequest:
     # path relative to aqt data folder
     path: str
-    # set for SvelteKit routes
-    is_sveltekit: bool = False
+    sveltekit_route: str | None = None
 
 
 @dataclass
@@ -164,6 +209,11 @@ class MediaServer(threading.Thread):
         self.is_shutdown = False
         # map of webview ids to pages
         self._legacy_pages: dict[int, LegacyPage] = {}
+        # used to identify request handlers
+        self._webviews: weakref.WeakValueDictionary[str, AnkiWebView] = (
+            weakref.WeakValueDictionary()
+        )
+        self._webview_counter = itertools.count()
 
     def run(self) -> None:
         try:
@@ -225,6 +275,19 @@ class MediaServer(threading.Thread):
             del self._legacy_pages[id]
         except KeyError:
             pass
+
+    def register_webview(self, webview: AnkiWebView) -> int:
+        from aqt.webview import WebviewIdInterceptor
+
+        webview_id = next(self._webview_counter)
+        self._webviews[str(webview_id)] = webview
+        webview.page().setUrlRequestInterceptor(
+            WebviewIdInterceptor(webview, webview_id)
+        )
+        return webview_id
+
+    def get_webview(self, id: str) -> AnkiWebView | None:
+        return self._webviews.get(id)
 
 
 @app.route("/favicon.ico")
@@ -413,17 +476,22 @@ def _handle_builtin_file_request(request: BundledFileRequest) -> Response:
         response = Response(data, mimetype=mimetype)
         if immutable:
             response.headers["Cache-Control"] = "max-age=31536000"
-        if request.is_sveltekit:
-            script_hash = (
-                _sveltekit_render_script_hash(data)
-                if path.endswith("index.html")
-                else None
-            )
-            response.headers["Content-Security-Policy"] = (
-                _sveltekit_content_security_policy(
-                    aqt.mw.mediaServer.getPort(), script_hash
+        if request.sveltekit_route:
+            is_index = path.endswith("index.html")
+            if is_untrusted_sveltekit_route(request.sveltekit_route):
+                script_hash = _sveltekit_render_script_hash(data) if is_index else None
+                response.headers["Content-Security-Policy"] = (
+                    _untrusted_sveltekit_content_security_policy(
+                        aqt.mw.mediaServer.getPort(), script_hash
+                    )
                 )
-            )
+            elif is_index:
+                # Replace the default CSP directive set in the SvelteKit config
+                response.set_data(_strip_csp_meta(data))
+                response.headers["Content-Security-Policy"] = TRUSTED_PAGE_CSP
+        elif mimetype == "text/html":
+            response.headers["Content-Security-Policy"] = TRUSTED_PAGE_CSP
+
         return response
     except FileNotFoundError:
         if dev_mode:
@@ -478,9 +546,9 @@ def handle_request(pathin: str) -> Response:
         return _text_response(HTTPStatus.FORBIDDEN, str(exc))
 
 
-def is_sveltekit_page(path: str) -> bool:
-    page_name = path.split("/")[0]
-    return page_name in [
+def get_sveltekit_route(path: str) -> str | None:
+    page_name = path.split("/", maxsplit=1)[0]
+    if page_name in [
         "graphs",
         "congrats",
         "card-info",
@@ -492,15 +560,21 @@ def is_sveltekit_page(path: str) -> bool:
         "image-occlusion",
         "preferences",
         "editor",
-    ]
+    ]:
+        return page_name
+    return None
+
+
+def is_untrusted_sveltekit_route(route: str) -> bool:
+    return route in ("editor", "image-occlusion")
 
 
 def _extract_internal_request(
     path: str,
 ) -> BundledFileRequest | DynamicRequest | NotFound | None:
     "Catch /_anki references and rewrite them to web export folder."
-    is_sveltekit = is_sveltekit_page(path)
-    if is_sveltekit:
+    sveltekit_route = get_sveltekit_route(path)
+    if sveltekit_route:
         path = f"_anki/sveltekit/_app/{path}"
     if path.startswith("_app/"):
         path = path.replace("_app", "_anki/sveltekit/_app")
@@ -545,7 +619,7 @@ def _extract_internal_request(
         path = f"{prefix}{additional_prefix}{base}{ext}"
         print(f"legacy {oldpath} remapped to {path}")
 
-    return BundledFileRequest(path=path[len(prefix) :], is_sveltekit=is_sveltekit)
+    return BundledFileRequest(path=path[len(prefix) :], sveltekit_route=sveltekit_route)
 
 
 def _extract_addon_request(path: str) -> LocalFileRequest | NotFound | None:
@@ -555,31 +629,32 @@ def _extract_addon_request(path: str) -> LocalFileRequest | NotFound | None:
         return None
 
     addon_path = path[len(prefix) :]
+    not_found_error = NotFound(message=f"couldn't locate item in add-on folder {path}")
 
     try:
         manager = aqt.mw.addonManager
     except AttributeError as error:
         if dev_mode:
             print(f"_redirectWebExports: {error}")
-        return None
+        return not_found_error
 
     try:
         addon, sub_path = addon_path.split("/", 1)
     except ValueError:
-        return None
+        return not_found_error
     if not addon:
-        return None
+        return not_found_error
 
     pattern = manager.getWebExports(addon)
     if not pattern:
-        return None
+        return not_found_error
 
     if re.fullmatch(pattern, sub_path):
         return LocalFileRequest(
             root=manager.addonsFolder(), path=addon_path, untrusted=False
         )
 
-    return NotFound(message=f"couldn't locate item in add-on folder {path}")
+    return not_found_error
 
 
 def _extract_request(
@@ -687,6 +762,19 @@ def import_done() -> bytes:
                 window.show()
 
     aqt.mw.taskman.run_on_main(update_window_modality)
+    return b""
+
+
+def import_dialog_require_close() -> bytes:
+    def handle_on_main() -> None:
+        if window := aqt.mw.app.activeModalWidget():
+            from aqt.import_export.import_dialog import ImportDialog
+
+            if isinstance(window, ImportDialog):
+                window.reject()
+
+    aqt.mw.taskman.run_on_main(handle_on_main)
+
     return b""
 
 
@@ -846,12 +934,15 @@ async def open_file_picker() -> bytes:
 
 
 def open_media() -> bytes:
+    from aqt.editor_legacy import pics
     from aqt.utils import openFolder
 
     req = generic_pb2.String()
     req.ParseFromString(request.data)
     path = os.path.join(aqt.mw.col.media.dir(), req.val)
-    aqt.mw.taskman.run_on_main(lambda: openFolder(path))
+    _, ext = os.path.splitext(path)
+    if ext[1:] in pics:
+        aqt.mw.taskman.run_on_main(lambda: openFolder(path))
 
     return b""
 
@@ -882,6 +973,30 @@ async def record_audio() -> bytes:
     path = await request_handler.get_result()
 
     return generic_pb2.String(val=path if path else "").SerializeToString()
+
+
+def play_file() -> bytes:
+    from aqt.editor import NewEditor
+    from aqt.sound import av_player
+
+    req = generic_pb2.String()
+    req.ParseFromString(request.data)
+    path = os.path.join(aqt.mw.col.media.dir(), req.val)
+
+    def handle_on_main() -> None:
+        window = aqt.dialogs.activeWindow()
+        if (
+            window is not None
+            and hasattr(window, "editor")
+            and isinstance(window.editor, NewEditor)
+        ):
+            av_player.play_file_with_caller(path, window.editor.editorMode)
+        else:
+            av_player.play_file(path)
+
+    aqt.mw.taskman.run_on_main(handle_on_main)
+
+    return b""
 
 
 def read_clipboard() -> bytes:
@@ -917,8 +1032,7 @@ def close_add_cards() -> bytes:
     def handle_on_main() -> None:
         from aqt.addcards import NewAddCards
 
-        window = aqt.mw.app.activeWindow()
-        if isinstance(window, NewAddCards):
+        if window := aqt.dialogs.getInstance(NewAddCards.__name__):
             window._close_if_user_wants_to_discard_changes(req.val)
 
     aqt.mw.taskman.run_on_main(lambda: QTimer.singleShot(0, handle_on_main))
@@ -929,8 +1043,7 @@ def close_edit_current() -> bytes:
     def handle_on_main() -> None:
         from aqt.editcurrent import NewEditCurrent
 
-        window = aqt.mw.app.activeWindow()
-        if isinstance(window, NewEditCurrent):
+        if window := aqt.dialogs.getInstance(NewEditCurrent.__name__):
             window.close()
 
     aqt.mw.taskman.run_on_main(lambda: QTimer.singleShot(0, handle_on_main))
@@ -941,7 +1054,10 @@ def open_link() -> bytes:
     req = generic_pb2.String()
     req.ParseFromString(request.data)
     url = req.val
-    aqt.mw.taskman.run_on_main(lambda: openLink(url))
+    if url.startswith("https:"):
+        aqt.mw.taskman.run_on_main(lambda: openLink(url))
+    else:
+        logger.warning("refused to open non-https link: %s", url)
     return b""
 
 
@@ -1010,7 +1126,7 @@ def open_fields_dialog() -> bytes:
     def handle_on_main() -> None:
         from aqt.editor import NewEditor
 
-        window = aqt.mw.app.activeWindow()
+        window = aqt.dialogs.activeWindow()
         assert window is not None
         if hasattr(window, "editor") and isinstance(window.editor, NewEditor):
             window.editor.onFields()
@@ -1023,7 +1139,7 @@ def open_cards_dialog() -> bytes:
     def handle_on_main() -> None:
         from aqt.editor import NewEditor
 
-        window = aqt.mw.app.activeWindow()
+        window = aqt.dialogs.activeWindow()
         assert window is not None
         if hasattr(window, "editor") and isinstance(window.editor, NewEditor):
             window.editor.onCardLayout()
@@ -1049,6 +1165,7 @@ post_handler_list = [
     set_scheduling_states,
     change_notetype,
     import_done,
+    import_dialog_require_close,
     search_in_browser,
     deck_options_require_close,
     deck_options_ready,
@@ -1062,6 +1179,7 @@ post_handler_list = [
     open_media,
     show_in_media_folder,
     record_audio,
+    play_file,
     read_clipboard,
     write_clipboard,
     close_add_cards,
@@ -1159,6 +1277,7 @@ def raw_backend_request(endpoint: str) -> Callable[[], bytes]:
         output = getattr(aqt.mw.col._backend, f"{endpoint}_raw")(request.data)
         op_changes_type = int(request.headers.get("Anki-Op-Changes", "0"))
         if op_changes_type:
+            webview_id = request.headers.get("Anki-Webview-Id")
             op_message_types = (OpChanges, OpChangesOnly, NestedOpChanges)
             try:
                 response = op_message_types[op_changes_type - 1]()
@@ -1170,8 +1289,10 @@ def raw_backend_request(endpoint: str) -> Callable[[], bytes]:
                 raise ValueError(f"unhandled op changes level: {op_changes_type}")
 
             def handle_on_main() -> None:
-                handler = aqt.mw.app.activeWindow()
-                on_op_finished(aqt.mw, changes, handler)
+                webview = (
+                    aqt.mw.mediaServer.get_webview(webview_id) if webview_id else None
+                )
+                on_op_finished(aqt.mw, changes, webview)
 
             aqt.mw.taskman.run_on_main(handle_on_main)
 
@@ -1228,7 +1349,7 @@ def _check_dynamic_request_permissions():
         )
 
     # check content type header to ensure this isn't an opaque request from another origin
-    if request.headers["Content-type"] != "application/binary":
+    if request.headers.get("Content-type") != "application/binary":
         aqt.mw.taskman.run_on_main(warn)
         abort(403)
 
@@ -1270,6 +1391,8 @@ def legacy_page_data() -> Response:
             response.headers["Content-Security-Policy"] = (
                 _legacy_editor_content_security_policy(aqt.mw.mediaServer.getPort())
             )
+        else:
+            response.headers["Content-Security-Policy"] = TRUSTED_PAGE_CSP
         return response
     else:
         return _text_response(HTTPStatus.NOT_FOUND, "page not found")

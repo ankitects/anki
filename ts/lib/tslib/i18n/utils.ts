@@ -1,4 +1,4 @@
-// Copyright: Ankitects Pty Ltd and contributors
+// Copyright: Anki Software, LLC and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import "intl-pluralrules";
@@ -7,6 +7,11 @@ import { i18nResources } from "@generated/backend";
 import type { ModuleName } from "@generated/ftl";
 import { FluentBundle, FluentResource } from "@generated/ftl";
 import { firstLanguage, setBundles } from "@generated/ftl";
+
+export function usesArabicScript(): boolean {
+    const firstLang = firstLanguage();
+    return ["ar", "fa", "ug"].some(lang => firstLang.startsWith(lang));
+}
 
 export function supportsVerticalText(): boolean {
     const firstLang = firstLanguage();
@@ -19,11 +24,7 @@ export function supportsVerticalText(): boolean {
 
 export function direction(): "ltr" | "rtl" {
     const firstLang = firstLanguage();
-    if (
-        firstLang.startsWith("ar")
-        || firstLang.startsWith("he")
-        || firstLang.startsWith("fa")
-    ) {
+    if (["he", "ar", "fa", "ug", "yi"].some(lang => firstLang.startsWith(lang))) {
         return "rtl";
     } else {
         return "ltr";

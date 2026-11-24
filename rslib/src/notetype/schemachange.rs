@@ -1,4 +1,4 @@
-// Copyright: Ankitects Pty Ltd and contributors
+// Copyright: Anki Software, LLC and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 //! Updates to notes/cards when the structure of a notetype is changed.
@@ -89,6 +89,7 @@ impl Collection {
                         mark_note_modified: true,
                         normalize_text,
                         update_tags: false,
+                        mtime: None,
                     })?;
                 }
             } else {
@@ -113,6 +114,7 @@ impl Collection {
                 mark_note_modified: true,
                 normalize_text,
                 update_tags: false,
+                mtime: None,
             })?;
         }
         Ok(())

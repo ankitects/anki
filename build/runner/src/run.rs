@@ -1,4 +1,4 @@
-// Copyright: Ankitects Pty Ltd and contributors
+// Copyright: Anki Software, LLC and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use std::process::Command;
@@ -82,6 +82,10 @@ fn split_args(args: Vec<String>) -> Vec<Vec<String>> {
 }
 
 pub fn run_command(command: &mut Command) {
+    // yarn aborts on unrecognised YARN_* config settings, and only configure
+    // needs YARN_BINARY, so keep it out of the commands we run.
+    command.env_remove("YARN_BINARY");
+
     if let Err(err) = command.ensure_success() {
         println!("{err}");
         std::process::exit(1);

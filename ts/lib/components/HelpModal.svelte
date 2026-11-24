@@ -1,16 +1,17 @@
 <!--
-Copyright: Ankitects Pty Ltd and contributors
+Copyright: Anki Software, LLC and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
     import * as tr from "@generated/ftl";
+    import { usesArabicScript } from "@tslib/i18n";
     import { renderMarkdown } from "@tslib/helpers";
     import Carousel from "bootstrap/js/dist/carousel";
     import { createEventDispatcher, onMount } from "svelte";
     import Modal from "./Modal.svelte";
 
-    import { infoCircle } from "$lib/components/icons";
-    import { pageTheme } from "$lib/sveltelib/theme";
+    import { infoCircle } from "#lib/components/icons.js";
+    import { pageTheme } from "#lib/sveltelib/theme.js";
 
     import Badge from "./Badge.svelte";
     import Col from "./Col.svelte";
@@ -45,7 +46,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let activeIndex = startIndex;
 </script>
 
-<Badge on:click={() => modal.show()} iconSize={125}>
+<Badge on:click={() => modal.show()} iconSize={125} flipX={usesArabicScript()}>
     <Icon icon={infoCircle} />
 </Badge>
 
@@ -123,7 +124,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         </Row>
     </div>
     <div slot="footer" class="modal-footer">
-        <button type="button" class="btn btn-primary" on:click={modal.onOkClicked}>
+        <button type="button" class="btn btn-primary" on:click={modal.acceptHandler}>
             {tr.helpOk()}
         </button>
     </div>

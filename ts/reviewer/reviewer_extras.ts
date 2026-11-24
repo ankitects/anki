@@ -1,4 +1,4 @@
-// Copyright: Ankitects Pty Ltd and contributors
+// Copyright: Anki Software, LLC and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 /* eslint
@@ -9,7 +9,7 @@
 // to the anki namespace. When all clients are using reviewer.js directly, we
 // can get rid of this.
 
-import { imageOcclusionAPI } from "$lib/../routes/image-occlusion/review";
+import { imageOcclusionAPI } from "#lib/../routes/image-occlusion/review.js";
 
 import { mutateNextCardStates } from "./answering";
 import { addBrowserClasses } from "./browser_selector";

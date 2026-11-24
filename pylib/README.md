@@ -29,7 +29,7 @@ pip install anki
 
 ## Add-on development
 
-If you are building an Anki add-on, this is the package that gives you access to the collection and scheduling internals. See the [Add-on Guide](https://addon-docs.ankiweb.net/) for full documentation.
+If you are building an Anki add-on, this is the package that gives you access to the collection and scheduling internals. See the [Add-on Guide](https://docs.ankiweb.net/addons/intro) for full documentation.
 
 ## Contributing
 

@@ -1,4 +1,4 @@
-// Copyright: Ankitects Pty Ltd and contributors
+// Copyright: Anki Software, LLC and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 // @vitest-environment jsdom
 
@@ -21,6 +21,14 @@ describe("filterHTML", () => {
                 true,
             ),
         ).toBe("<div style=\"font-weight: bold;\"></div>");
+        // vertical align is filtered from images
+        expect(
+            filterHTML(
+                "<img src=\"test.png\" style=\"vertical-align: baseline;\"><div style=\"vertical-align: baseline;\">test</div>",
+                true,
+                true,
+            ),
+        ).toBe("<img src=\"test.png\" style=\"\"><div style=\"vertical-align: baseline;\">test</div>");
     });
     test("background color", () => {
         // transparent is stripped, other colors are not

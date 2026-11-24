@@ -25,8 +25,14 @@ implemented as an add-on instead. We aim to keep the core Anki codebase lean
 and maintainable. Many great ideas are better served as add-ons, where they
 can iterate faster and serve specific user needs without affecting all users.
 
-See the [Add-on API documentation](https://addon-docs.ankiweb.net/) for
+See the [Add-on API documentation](/addons/intro) for
 guidance on building add-ons.
+
+## Pull Request Description
+
+When opening a pull request, fill in the provided template
+(`.github/pull_request_template.md`). It covers the required fields: linked
+issue, summary/motivation, how to test, and UI evidence for visual changes.
 
 ## Linked Issues
 
@@ -36,6 +42,11 @@ the problem before submitting a PR. This helps us ensure we're solving the
 right problems and prevents wasted effort on both sides.
 
 PRs without a linked issue may be automatically closed after a short period.
+
+## Dependency updates
+
+Dependabot PRs do not need a linked issue. Maintainers should follow
+[Dependabot updates](/developers/dependabot) when reviewing or landing them.
 
 ## Refactoring
 
@@ -120,6 +131,9 @@ new hook.
 For information on adding new translatable strings to Anki, please see
 [the translation guide](/translators/anki/developers).
 
+For information on translating the documentation, please see
+[translating the manual](/translators/anki/manual).
+
 ## Tests Must Pass
 
 Please make sure 'ninja check' completes successfully before submitting code.
@@ -148,8 +162,9 @@ example if tools such as `ninja` are installed outside standard locations),
 because pre-commit does not use a login shell and a different path can cause
 extra rebuilds.
 
-If your change is non-trivial and not covered by the existing unit tests, please
-consider adding a unit test at the same time.
+New or changed behavior must be covered by tests. Exceptions where tests are not
+required: version bumps, documentation-only changes, translation updates, dependency
+updates, and CI/build housekeeping (chore).
 
 ## Code Style
 

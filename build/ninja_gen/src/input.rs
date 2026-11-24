@@ -1,4 +1,4 @@
-// Copyright: Ankitects Pty Ltd and contributors
+// Copyright: Anki Software, LLC and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use std::collections::HashMap;
@@ -81,7 +81,7 @@ impl BuildInput {
         let mut resolve_and_add = |value: &str| {
             if let Some(stripped) = value.strip_prefix(':') {
                 let files = exisiting_outputs.get(stripped).unwrap_or_else(|| {
-                    println!("{:?}", &exisiting_outputs);
+                    println!("{exisiting_outputs:?}");
                     panic!("input referenced {value}, but rule missing/not processed");
                 });
                 for file in files {
