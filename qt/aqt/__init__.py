@@ -577,6 +577,19 @@ def setupGL(pm: aqt.profiles.ProfileManager, driver: VideoDriver | None = None) 
         nonlocal driver_failed
         if (
             not driver_failed
+            and category == "fatal"
+            and "Failed to create GBM buffer" in msg
+        ):
+            # QtWebEngine 6.11+ on some Linux GPUs (#5262). This is emitted from
+            # Chromium's GPU thread and Qt aborts as soon as we return, so we can't
+            # show a dialog or recover in-process; just switch drivers for next launch.
+            # Vulkan allocates its buffers through the same GBM path, so go straight
+            # to software rendering.
+            pm.set_video_driver(VideoDriver.Software)
+            driver_failed = True
+            return
+        if (
+            not driver_failed
             # Skip in CI
             and os.environ.get("QT_QPA_PLATFORM") != "offscreen"
             and (
@@ -619,8 +632,10 @@ def setupGL(pm: aqt.profiles.ProfileManager, driver: VideoDriver | None = None) 
         elif is_mac:
             QCoreApplication.setAttribute(Qt.ApplicationAttribute.AA_UseSoftwareOpenGL)
         elif is_lin:
-            if "QTWEBENGINE_CHROMIUM_FLAGS" not in os.environ:
-                os.environ["QTWEBENGINE_CHROMIUM_FLAGS"] = "--disable-gpu"
+            flags = os.environ.get("QTWEBENGINE_CHROMIUM_FLAGS", "").split()
+            if "--disable-gpu" not in flags:
+                flags.append("--disable-gpu")
+            os.environ["QTWEBENGINE_CHROMIUM_FLAGS"] = " ".join(flags)
         if qtmajor > 5:
             QQuickWindow.setGraphicsApi(QSGRendererInterface.GraphicsApi.Software)
     elif driver == VideoDriver.Metal:
