@@ -6,7 +6,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type { Readable } from "svelte/store";
 
     import type { EditingAreaAPI } from "./EditingArea.svelte";
-    import { mathjaxConfig } from "$lib/editable/mathjax-element.svelte";
+    import { mathjaxConfig } from "#lib/editable/mathjax-element.svelte.js";
 
     export interface FieldData {
         name: string;
@@ -28,8 +28,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     import { registerPackage } from "@tslib/runtime-require";
 
-    import contextProperty from "$lib/sveltelib/context-property";
-    import lifecycleHooks from "$lib/sveltelib/lifecycle-hooks";
+    import contextProperty from "#lib/sveltelib/context-property.js";
+    import lifecycleHooks from "#lib/sveltelib/lifecycle-hooks.js";
 
     const key = Symbol("editorField");
     const [context, setContextProperty] = contextProperty<EditorFieldAPI>(key);
@@ -52,7 +52,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type { Writable } from "svelte/store";
     import { writable } from "svelte/store";
 
-    import Collapsible from "$lib/components/Collapsible.svelte";
+    import Collapsible from "#lib/components/Collapsible.svelte";
 
     import type { Destroyable } from "./destroyable";
     import EditingArea from "./EditingArea.svelte";

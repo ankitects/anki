@@ -8,16 +8,16 @@
 import "./legacy.scss";
 import "./editor-base.scss";
 import "@tslib/runtime-require";
-import "$lib/sveltelib/export-runtime";
+import "#lib/sveltelib/export-runtime.js";
 
 import { setupI18n } from "@tslib/i18n";
 import { uiResolve } from "@tslib/ui";
 
-import * as contextKeys from "$lib/components/context-keys";
-import IconButton from "$lib/components/IconButton.svelte";
-import LabelButton from "$lib/components/LabelButton.svelte";
-import WithContext from "$lib/components/WithContext.svelte";
-import WithState from "$lib/components/WithState.svelte";
+import * as contextKeys from "#lib/components/context-keys.js";
+import IconButton from "#lib/components/IconButton.svelte";
+import LabelButton from "#lib/components/LabelButton.svelte";
+import WithContext from "#lib/components/WithContext.svelte";
+import WithState from "#lib/components/WithState.svelte";
 
 import NoteEditor, * as editorContextKeys from "./NoteEditor.svelte";
 
@@ -29,7 +29,7 @@ declare global {
     }
 }
 
-import { modalsKey } from "$lib/components/context-keys";
+import { modalsKey } from "#lib/components/context-keys.js";
 import { ModuleName } from "@tslib/i18n";
 import { mount } from "svelte";
 import type { EditorMode } from "./types";
