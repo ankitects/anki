@@ -100,14 +100,17 @@ fun formatBadge(
 
 /**
  * Whether the current deck is studied with a time budget whose goal was reached today, and has
- * not been continued: the congrats page then offers to continue with new cards.
+ * not been continued: the congrats page then offers to continue reviewing.
  */
 fun Collection.timeBudgetGoalReached(): Boolean {
     val info = sched.congratulationsInfo()
     return info.hasTimeBudget() && !info.timeBudget.continued
 }
 
-/** Keeps studying the current deck's time budget past today's goal: new cards are shown again. */
+/**
+ * Keeps studying the current deck's time budget past today's goal: reviews are shown whatever
+ * their recall, lowest first. New cards stay within their limits.
+ */
 fun Collection.continueTimeBudget() {
     backend.continueTimeBudget()
 }

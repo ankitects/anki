@@ -102,7 +102,8 @@ class SchedulerBase(DeprecatedNamesMixin):
 
     def continue_time_budget(self) -> None:
         """Keep studying the current deck's time budget for the rest of the
-        day after its goal was reached: new cards are shown again."""
+        day after its goal was reached: reviews are shown whatever their
+        recall, lowest first. New cards stay within their limits."""
         self.col._backend.continue_time_budget()
 
     def have_buried_siblings(self) -> bool:

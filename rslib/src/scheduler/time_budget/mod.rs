@@ -23,8 +23,10 @@
 //! New cards are shown while time is left, up to the daily new card limits
 //! of the deck and its subdecks if `limit_new_cards` is set. Once the goal is
 //! reached, the user may continue for the rest of the day
-//! ([Collection::continue_time_budget]): new cards are then shown again,
-//! beyond the time and the new card limits.
+//! ([Collection::continue_time_budget]): reviews are then shown whatever
+//! their recall, lowest first, so each card studied has a higher recall than
+//! the last. New cards stay within their limits: with `limit_new_cards`, the
+//! rest of the day's limit; without it, none (time was their only limit).
 
 pub(crate) mod history;
 
@@ -254,7 +256,7 @@ struct Candidate {
 
 impl Candidate {
     /// Whether the card may be shown, given the recall threshold and whether
-    /// new cards may be introduced (while time is left, or once continued).
+    /// new cards may be introduced.
     fn eligible(&self, threshold: f32, new_allowed: bool) -> bool {
         match self.group {
             CardGroup::New => new_allowed,
@@ -306,9 +308,19 @@ struct SessionState {
 }
 
 impl SessionState {
-    /// New cards are introduced while time is left, and once continued.
-    fn new_allowed(&self) -> bool {
-        self.remaining_secs > 0 || self.continued
+    /// New cards are introduced while time is left, and once continued only
+    /// within the daily new card limits.
+    fn new_allowed(&self, budget: &DeckTimeBudget) -> bool {
+        self.remaining_secs > 0 || (self.continued && budget.limit_new_cards)
+    }
+
+    /// The recall below which reviews are shown: any recall once continued.
+    fn threshold(&self, budget: &DeckTimeBudget) -> f32 {
+        if self.continued {
+            f32::INFINITY
+        } else {
+            budget.threshold(self.remaining_secs)
+        }
     }
 }
 
@@ -417,7 +429,8 @@ impl Collection {
     }
 
     /// Keeps studying the current deck's budget for the rest of the day:
-    /// new cards are shown again, beyond the time and new card limits.
+    /// reviews are shown whatever their recall, lowest first; new cards stay
+    /// within their limits.
     pub(crate) fn continue_time_budget(&mut self) -> Result<()> {
         let deck_id = self.get_current_deck_id();
         let Some(active) = self.active_time_budget(deck_id)? else {
@@ -473,12 +486,13 @@ impl Collection {
             // The deck list requests this in the background after showing
             // the times, so loading or replaying the model here also keeps
             // the first card of a session from waiting on it.
-            let threshold = active.budget.threshold(session.remaining_secs);
+            let threshold = session.threshold(&active.budget);
+            let new_allowed = session.new_allowed(&active.budget);
             let done = check_done
                 && !self
-                    .time_budget_candidates(&active, deck_id, session.continued)?
+                    .time_budget_candidates(&active, deck_id)?
                     .iter()
-                    .any(|candidate| candidate.eligible(threshold, session.new_allowed()));
+                    .any(|candidate| candidate.eligible(threshold, new_allowed));
             decks.push(time_budget_status_response::Deck {
                 deck_id: deck_id.0,
                 budget_secs: active.budget.budget_secs() as u32,
@@ -506,8 +520,8 @@ impl Collection {
         // without them is supported.
         self.state.card_queues = None;
         let session = self.time_budget_session(active)?;
-        let threshold = active.budget.threshold(session.remaining_secs);
-        let new_allowed = session.new_allowed();
+        let threshold = session.threshold(&active.budget);
+        let new_allowed = session.new_allowed(&active.budget);
         let day = self.timing_today()?.days_elapsed;
 
         let mut refilled = false;
@@ -574,12 +588,12 @@ impl Collection {
         session: &SessionState,
         day: u32,
     ) -> Result<()> {
-        let candidates = self.time_budget_candidates(active, study_deck, session.continued)?;
+        let candidates = self.time_budget_candidates(active, study_deck)?;
         let last_answered = self.card_answered_last_today()?;
         let selected = select_candidates(
             candidates,
-            active.budget.threshold(session.remaining_secs),
-            session.new_allowed(),
+            session.threshold(&active.budget),
+            session.new_allowed(&active.budget),
             &active.budget.order,
             last_answered,
         );
@@ -670,7 +684,6 @@ impl Collection {
         &mut self,
         active: &ActiveTimeBudget,
         study_deck: DeckId,
-        continued: bool,
     ) -> Result<Vec<Candidate>> {
         let study_deck = self
             .storage
@@ -698,8 +711,8 @@ impl Collection {
                 max_reviews == 0 || answers_today.get(card_id).copied().unwrap_or(0) < max_reviews
             })
             .collect();
-        let limit_new = active.budget.limit_new_cards && !continued;
-        let new_cards = self.time_budget_new_cards(&study_deck, &ids, limit_new)?;
+        let new_cards =
+            self.time_budget_new_cards(&study_deck, &ids, active.budget.limit_new_cards)?;
         if card_ids.is_empty() {
             return Ok(new_cards);
         }
@@ -999,6 +1012,7 @@ mod test {
                 min_dr: 60,
                 max_dr: 90,
                 order: DEFAULT_ORDER.to_vec(),
+                limit_new_cards: false,
             }
         );
         assert_eq!(config.budget_for(DeckId(2)), None);
@@ -1142,33 +1156,39 @@ mod test {
     }
 
     #[test]
-    fn continuing_shows_new_cards_past_the_goal() -> Result<()> {
+    fn continuing_shows_reviews_at_any_recall() -> Result<()> {
+        use RevlogReviewKind::*;
         let mut col = Collection::new();
-        let deck = DeckAdder::new("Budget")
-            .with_config(|config| config.inner.new_per_day = 1)
-            .add(&mut col);
-        let new_cards: Vec<CardId> = (0..2)
-            .map(|_| CardAdder::new().deck(deck.id).add(&mut col)[0].id)
-            .collect();
-        col.set_current_deck(deck.id)?;
-        set_budget(
+        let deck = DeckAdder::new("Budget").add(&mut col);
+        let review = review_card(
             &mut col,
             deck.id,
-            DeckTimeBudget {
-                minutes: 1,
-                limit_new_cards: true,
-                ..Default::default()
-            },
+            &[
+                (90, 3, Learning),
+                (80, 3, Review),
+                (60, 4, Review),
+                (2, 4, Review),
+            ],
         );
-        assert_eq!(queued_ids(&mut col), vec![new_cards[0]]);
+        let new_card = CardAdder::new().deck(deck.id).add(&mut col)[0].id;
+        col.set_current_deck(deck.id)?;
+        // the review is well above the maximum: only the new card is shown
+        let budget = DeckTimeBudget {
+            minutes: 1,
+            min_dr: 10,
+            max_dr: 20,
+            ..Default::default()
+        };
+        set_budget(&mut col, deck.id, budget.clone());
+        assert_eq!(queued_ids(&mut col), vec![new_card]);
         // a minute and a half studied today: the goal is reached
         col.storage.add_revlog_entry(
             &RevlogEntry {
                 id: RevlogId(TimestampMillis::now().0 - 1000),
-                cid: new_cards[0],
+                cid: new_card,
                 button_chosen: 3,
                 taken_millis: 90_000,
-                review_kind: RevlogReviewKind::Learning,
+                review_kind: Learning,
                 ..Default::default()
             },
             true,
@@ -1177,12 +1197,24 @@ mod test {
         let congrats = col.congrats_info()?.time_budget.unwrap();
         assert!(congrats.time_used_up && !congrats.continued);
 
-        // continuing shows new cards again, past the new card limit
+        // continuing shows the review whatever its recall; time was the new
+        // card's only limit, so it is not shown
         col.continue_time_budget()?;
-        assert_eq!(queued_ids(&mut col), new_cards);
+        assert_eq!(queued_ids(&mut col), vec![review]);
         assert!(col.congrats_info()?.time_budget.unwrap().continued);
         let status = col.time_budget_status(true)?;
         assert!(status.decks[0].continued && !status.decks[0].done);
+
+        // with the new card limit, new cards continue within it
+        set_budget(
+            &mut col,
+            deck.id,
+            DeckTimeBudget {
+                limit_new_cards: true,
+                ..budget
+            },
+        );
+        assert_eq!(queued_ids(&mut col), vec![review, new_card]);
         Ok(())
     }
 

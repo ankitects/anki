@@ -31,8 +31,8 @@ service SchedulerService {
   // current one is running low. True if it scored.
   rpc PrefetchTimeBudgetCards(generic.Empty) returns (generic.Bool);
   // Keeps studying the current deck's time budget for the rest of the day
-  // after its goal was reached: new cards are shown again, beyond the time
-  // and any new card limit.
+  // after its goal was reached: reviews are shown whatever their recall,
+  // lowest first. New cards stay within their limits.
   rpc ContinueTimeBudget(generic.Empty) returns (generic.Empty);
   rpc RestoreBuriedAndSuspendedCards(cards.CardIds)
       returns (collection.OpChanges);
@@ -210,7 +210,7 @@ message CongratsInfoResponse {
 message TimeBudgetCongrats {
   // The day's study time is used up.
   bool time_used_up = 1;
-  // ContinueTimeBudget was used today: new cards are no longer limited.
+  // ContinueTimeBudget was used today.
   bool continued = 2;
 }
 

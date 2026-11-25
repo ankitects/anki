@@ -20,7 +20,8 @@ that, the app has:
 - **Deck list**: decks with a budget show the minutes left instead of the due counts, and 0 min
   once nothing is left today (worked out in the background, as on the desktop).
 - **Completion screen**: once a budget deck is finished, the congrats page says the time goal
-  was reached, with a link to continue with new cards for the rest of the day.
+  was reached, with a link to keep reviewing for the rest of the day: cards are shown lowest
+  predicted recall first, past the maximum DR, and new cards stay within their limits.
 - **Study screen**: "Time left" and "Cards to study" instead of new/learning/review counts.
 - **Reviewer**: the next batch of cards is scored while a question is shown, in both the classic
   and the new study screen.
