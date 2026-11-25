@@ -20,7 +20,7 @@
     export let trigger: TriggerType = "hover focus";
 
     export let placement: "auto" | "top" | "bottom" | "left" | "right" = "top";
-    export let html = true;
+    export let html = false;
     export let offset: Tooltip.Offset = [0, 0];
     export let showDelay = 0;
     export let hideDelay = 0;
