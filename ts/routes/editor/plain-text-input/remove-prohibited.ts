@@ -6,7 +6,7 @@ import { createDummyDoc } from "@tslib/parsing";
 const parser = new DOMParser();
 
 function removeTag(element: HTMLElement, tagName: string): void {
-    for (const elem of element.getElementsByTagName(tagName)) {
+    for (const elem of element.querySelectorAll(tagName)) {
         elem.remove();
     }
 }

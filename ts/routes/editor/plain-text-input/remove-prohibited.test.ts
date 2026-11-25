@@ -7,7 +7,7 @@ import { expect, test } from "vitest";
 import removeProhibitedTags from "./remove-prohibited";
 
 test.each([
-    ["script", "<script>alert(1)</script>"],
+    ["script", "<script>alert(1)</script><script>foo()</script>"],
     ["link", "<link rel=\"stylesheet\" href=\"foo.css\">"],
     ["base", "<base href=\"https://foo.example/\">"],
 ])("%s tags are removed from field html", (_tag, markup) => {
