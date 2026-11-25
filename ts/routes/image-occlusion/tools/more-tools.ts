@@ -1,4 +1,4 @@
-// Copyright: Ankitects Pty Ltd and contributors
+// Copyright: Anki Software, LLC and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import * as tr from "@generated/ftl";
@@ -18,7 +18,7 @@ import {
     mdiZoomIn,
     mdiZoomOut,
     mdiZoomReset,
-} from "$lib/components/icons";
+} from "#lib/components/icons.js";
 
 import { deleteItem, duplicateItem, groupShapes, selectAllShapes, unGroupShapes } from "./lib";
 import {

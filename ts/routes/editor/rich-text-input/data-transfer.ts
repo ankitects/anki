@@ -1,4 +1,4 @@
-// Copyright: Ankitects Pty Ltd and contributors
+// Copyright: Anki Software, LLC and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import { ConfigKey_Bool } from "@generated/anki/config_pb";
@@ -200,7 +200,7 @@ function imageDataToUint8Array(data: ImageData): Uint8Array {
 
 async function checksum(data: string | Uint8Array): Promise<string> {
     const bytes = imageDataToUint8Array(data);
-    const hashBuffer = await crypto.subtle.digest("SHA-1", bytes);
+    const hashBuffer = await crypto.subtle.digest("SHA-1", bytes as Uint8Array<ArrayBuffer>);
     const hashArray = Array.from(new Uint8Array(hashBuffer));
     const hashHex = hashArray.map(b => b.toString(16).padStart(2, "0")).join("");
 

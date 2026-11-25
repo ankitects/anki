@@ -1,11 +1,11 @@
 <!--
-Copyright: Ankitects Pty Ltd and contributors
+Copyright: Anki Software, LLC and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
     import * as tr from "@generated/ftl";
-    import Modal from "$lib/components/Modal.svelte";
-    import { pageTheme } from "$lib/sveltelib/theme";
+    import Modal from "#lib/components/Modal.svelte";
+    import { pageTheme } from "#lib/sveltelib/theme.js";
     import type { HistoryEntry } from "./types";
     import { searchInBrowser } from "@generated/backend";
 

@@ -3,10 +3,10 @@
 
 # SonarCloud analysis
 
-<!-- <<<cog
+<!-- <<<<cog
 from cogdocs import get_file_contents
 cog.out(get_file_contents("sonarcloud"))
->>> -->
+>>>> -->
 
 SonarCloud provides informative static-analysis and coverage results. Its
 Quality Gate is not a required merge check, so findings guide review without
@@ -80,4 +80,4 @@ constraints prevent direct execution of contributor code and reduce the token's
 exposure, but they do not eliminate vulnerabilities in third-party Actions or
 analyzers.
 
-<!-- <<<end>>> -->
+<!-- <<<<end>>>> -->

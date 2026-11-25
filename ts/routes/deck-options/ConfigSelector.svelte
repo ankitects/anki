@@ -1,5 +1,5 @@
 <!--
-Copyright: Ankitects Pty Ltd and contributors
+Copyright: Anki Software, LLC and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
@@ -8,9 +8,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type Modal from "bootstrap/js/dist/modal";
     import { createEventDispatcher, getContext } from "svelte";
 
-    import { modalsKey } from "$lib/components/context-keys";
-    import Select from "$lib/components/Select.svelte";
-    import StickyContainer from "$lib/components/StickyContainer.svelte";
+    import { modalsKey } from "#lib/components/context-keys.js";
+    import Select from "#lib/components/Select.svelte";
+    import StickyContainer from "#lib/components/StickyContainer.svelte";
 
     import type { ConfigListEntry, DeckOptionsState } from "./lib";
     import SaveButton from "./SaveButton.svelte";

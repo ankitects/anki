@@ -1,15 +1,22 @@
-// Copyright: Ankitects Pty Ltd and contributors
+// Copyright: Anki Software, LLC and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use std::error::Error;
 use std::fs;
 use std::path::Path;
 
+use ninja_gen::archives::Platform;
 use regex::Regex;
 use reqwest::blocking::Client;
 use serde_json::Value;
+use strum::IntoEnumIterator;
 
-fn fetch_uv_release_info() -> Result<String, Box<dyn Error>> {
+struct UvRelease {
+    archive: String,
+    version: String,
+}
+
+fn fetch_uv_release_info() -> Result<UvRelease, Box<dyn Error>> {
     let client = Client::new();
 
     println!("Fetching latest uv release info from GitHub...");
@@ -20,30 +27,28 @@ fn fetch_uv_release_info() -> Result<String, Box<dyn Error>> {
         .send()?;
 
     let release_info: Value = response.json()?;
+    let version = release_info["tag_name"]
+        .as_str()
+        .expect("tag_name should be a string")
+        .to_string();
     let assets = release_info["assets"]
         .as_array()
         .expect("assets should be an array");
 
-    // Map platform names to their corresponding asset patterns
-    let platform_patterns = [
-        ("LinuxX64", "x86_64-unknown-linux-gnu"),
-        ("LinuxArm", "aarch64-unknown-linux-gnu"),
-        ("MacX64", "x86_64-apple-darwin"),
-        ("MacArm", "aarch64-apple-darwin"),
-        ("WindowsX64", "x86_64-pc-windows-msvc"),
-        ("WindowsArm", "aarch64-pc-windows-msvc"),
-    ];
-
     let mut match_blocks = Vec::new();
 
-    for (platform, pattern) in platform_patterns {
+    for platform in Platform::iter() {
+        let pattern = platform.as_rust_triple();
         // Find the asset matching the platform pattern (the binary)
         let asset = assets.iter().find(|asset| {
             let name = asset["name"].as_str().unwrap_or("");
             name.contains(pattern) && (name.ends_with(".tar.gz") || name.ends_with(".zip"))
         });
         if asset.is_none() {
-            eprintln!("No asset found for platform {platform} pattern {pattern}");
+            eprintln!("No asset found for platform {platform:?} pattern {pattern}");
+            match_blocks.push(format!(
+            "        Platform::{platform:?} => {{\n            panic!(\"Set UV_BINARY to a native {platform:?} uv executable\")\n        }}"
+            ));
             continue;
         }
         let asset = asset.unwrap();
@@ -61,7 +66,7 @@ fn fetch_uv_release_info() -> Result<String, Box<dyn Error>> {
         }
         let sha_asset = sha_asset.unwrap();
         let sha_url = sha_asset["browser_download_url"].as_str().unwrap();
-        println!("Fetching SHA256 for {platform}...");
+        println!("Fetching SHA256 for {platform:?}...");
         let sha_text = client
             .get(sha_url)
             .header("User-Agent", "Anki-Build-Script")
@@ -71,14 +76,14 @@ fn fetch_uv_release_info() -> Result<String, Box<dyn Error>> {
         let sha256 = sha_text.split_whitespace().next().unwrap_or("");
 
         match_blocks.push(format!(
-            "        Platform::{platform} => {{\n            OnlineArchive {{\n                url: \"{download_url}\",\n                sha256: \"{sha256}\",\n            }}\n        }}"
+            "        Platform::{platform:?} => {{\n            OnlineArchive {{\n                url: \"{download_url}\",\n                sha256: \"{sha256}\",\n            }}\n        }}"
         ));
     }
 
-    Ok(format!(
-        "pub fn uv_archive(platform: Platform) -> OnlineArchive {{\n    match platform {{\n{}\n    }}",
+    Ok(UvRelease {archive: format!(
+        "pub fn uv_archive(platform: Platform) -> OnlineArchive {{\n    match platform {{\n{}\n    }}\n}}",
         match_blocks.join(",\n")
-    ))
+    ), version})
 }
 
 fn read_python_rs() -> Result<String, Box<dyn Error>> {
@@ -108,11 +113,22 @@ fn write_python_rs(content: &str) -> Result<(), Box<dyn Error>> {
     Ok(())
 }
 
+fn write_uv_version(version: &str) -> Result<(), Box<dyn Error>> {
+    let path = Path::new(".tool-versions");
+    println!("Writing to {}", path.display());
+    fs::write(
+        path,
+        format!("# To update, run 'cargo run --bin update_uv' from the repo root.\nuv {version}\n"),
+    )?;
+    Ok(())
+}
+
 fn main() -> Result<(), Box<dyn Error>> {
-    let new_uv_archive = fetch_uv_release_info()?;
+    let release = fetch_uv_release_info()?;
     let content = read_python_rs()?;
-    let updated_content = update_uv_text(&content, &new_uv_archive)?;
+    let updated_content = update_uv_text(&content, &release.archive)?;
     write_python_rs(&updated_content)?;
+    write_uv_version(&release.version)?;
     println!("Successfully updated uv_archive function in python.rs");
     Ok(())
 }
@@ -126,7 +142,7 @@ mod tests {
         let content = fs::read_to_string("src/python.rs").unwrap();
         let original_lines = content.lines().count();
 
-        const EXPECTED_LINES_REMOVED: usize = 38;
+        const EXPECTED_LINES_REMOVED: usize = 41;
 
         let updated = update_uv_text(&content, "").unwrap();
         let updated_lines = updated.lines().count();

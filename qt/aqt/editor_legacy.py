@@ -1,4 +1,4 @@
-# Copyright: Ankitects Pty Ltd and contributors
+# Copyright: Anki Software, LLC and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 from __future__ import annotations
@@ -1526,6 +1526,7 @@ class EditorWebView(AnkiWebView):
         AnkiWebView.__init__(self, kind=AnkiWebViewKind.EDITOR)
         self.editor = editor
         self.setAcceptDrops(True)
+        self.setClipboardEnabled(True)
         self._store_field_content_on_next_clipboard_change = False
         # when we detect the user copying from a field, we store the content
         # here, and use it when they paste, so we avoid filtering field content

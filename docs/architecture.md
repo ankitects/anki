@@ -3,10 +3,10 @@
 
 # Anki Architecture
 
-<!-- <<<cog
+<!-- <<<<cog
 from cogdocs import get_file_contents
 cog.out(get_file_contents("architecture"))
->>> -->
+>>>> -->
 
 Very brief notes for now.
 
@@ -53,4 +53,4 @@ expose a protobuf object directly to callers, but when they do so, they use a
 type alias, so callers outside pylib should never need to import a generated
 \_pb2.py file.
 
-<!-- <<<end>>> -->
+<!-- <<<<end>>>> -->

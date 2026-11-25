@@ -1,11 +1,11 @@
 <!--
-Copyright: Ankitects Pty Ltd and contributors
+Copyright: Anki Software, LLC and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 
 <script lang="ts">
-    import NotetypeChooser from "$lib/components/NotetypeChooser.svelte";
-    import DeckChooser from "$lib/components/DeckChooser.svelte";
+    import NotetypeChooser from "#lib/components/NotetypeChooser.svelte";
+    import DeckChooser from "#lib/components/DeckChooser.svelte";
     import type { NotetypeNameId } from "@generated/anki/notetypes_pb";
     import type { DeckNameId } from "@generated/anki/decks_pb";
     import * as tr from "@generated/ftl";

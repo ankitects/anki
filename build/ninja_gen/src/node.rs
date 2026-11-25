@@ -1,4 +1,4 @@
-// Copyright: Ankitects Pty Ltd and contributors
+// Copyright: Anki Software, LLC and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use std::borrow::Cow;
@@ -18,6 +18,7 @@ use crate::input::BuildInput;
 
 pub fn node_archive(platform: Platform) -> OnlineArchive {
     match platform {
+        Platform::OpenBSDX64 => panic!("Set NODE_BINARY to a native OpenBSD Node executable"),
         Platform::LinuxX64 => OnlineArchive {
             url: "https://nodejs.org/dist/v22.17.0/node-v22.17.0-linux-x64.tar.xz",
             sha256: "325c0f1261e0c61bcae369a1274028e9cfb7ab7949c05512c5b1e630f7e80e12",
@@ -108,7 +109,7 @@ fn with_cmd_ext(bin: &str) -> Cow<'_, str> {
 
 pub fn setup_node(
     build: &mut Build,
-    archive: OnlineArchive,
+    platform: Platform,
     binary_exports: &[&'static str],
     mut data_exports: HashMap<&str, Vec<Cow<str>>>,
 ) -> Result<()> {
@@ -124,7 +125,7 @@ pub fn setup_node(
             download_and_extract(
                 build,
                 "node",
-                archive,
+                node_archive(platform),
                 hashmap! {
                     "bin" => vec![if cfg!(windows) { "node.exe" } else { "bin/node" }],
                     "npm" => vec![if cfg!(windows) { "npm.cmd " } else { "bin/npm" }]
@@ -238,6 +239,30 @@ impl BuildAction for Prettier {
             "tests/prettier.{}.{file_ext}",
             simple_hash(&self.inputs)
         ));
+    }
+}
+
+pub struct BufFormat {
+    pub inputs: BuildInput,
+    pub check_only: bool,
+}
+
+impl BuildAction for BufFormat {
+    fn command(&self) -> &str {
+        "$yarn buf format $mode proto"
+    }
+
+    fn files(&mut self, build: &mut impl build::FilesHandle) {
+        build.add_inputs("yarn", inputs![":yarn:bin"]);
+        build.add_inputs("buf", inputs![":node_modules:buf"]);
+        build.add_inputs("in", &self.inputs);
+        let (mode, kind) = if self.check_only {
+            ("--diff --exit-code", "check")
+        } else {
+            ("-w", "fix")
+        };
+        build.add_variable("mode", mode);
+        build.add_output_stamp(format!("tests/buf-format.{kind}"));
     }
 }
 
