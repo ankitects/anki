@@ -1,4 +1,4 @@
-// Copyright: Ankitects Pty Ltd and contributors
+// Copyright: Anki Software, LLC and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use anyhow::Result;
@@ -49,7 +49,7 @@ fn read_version() -> String {
 }
 
 pub fn build_audio(build: &mut Build) -> Result<()> {
-    if cfg!(target_os = "linux") {
+    if cfg!(target_os = "linux") || cfg!(target_os = "openbsd") {
         return Ok(());
     }
 

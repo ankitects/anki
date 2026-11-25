@@ -1,0 +1,221 @@
+---
+title: "anki モジュール"
+---
+
+コレクションと関連するメディアには、Anki のソースリポジトリ内の [pylib/anki](https://github.com/ankitects/anki/tree/main/pylib/anki) にある `anki` という Python パッケージを通じてアクセスします。
+
+## コレクション
+
+コレクションファイルに対する操作は、すべて `Collection` オブジェクトを通じて行います。現在開いている `Collection` には、グローバルな `mw.col` からアクセスできます。`mw` は「main window（メインウィンドウ）」を表します。Anki の外で `anki` モジュールを使う場合は、自分で `Collection` オブジェクトを作成してください。
+
+基本的な操作の例を以下に示します。これらは[`testFunction()`](./a-basic-addon)のような関数内に記述してください。アドオンは Anki の起動時、コレクションやプロファイルが読み込まれる前に初期化されるため、以下のコードをアドオン内に直接記述して実行することはできません。
+
+また、コレクションに直接アクセスする処理がすぐに完了しない場合、UI が一時的に応答しなくなることがあります。実際には、以下のコードはバックグラウンドスレッドで実行するのが一般的です。
+
+**期限が来ているカードを取得する:**
+
+```python
+card = mw.col.sched.getCard()
+if not card:
+    # 現在のデッキは終了
+```
+
+**カードに解答する:**
+
+```python
+mw.col.sched.answerCard(card, ease)
+```
+
+**ノートを編集する（各フィールドの末尾に " new" を追加）:**
+
+```python
+note = card.note()
+for (name, value) in note.items():
+    note[name] = value + " new"
+mw.col.update_note(note)
+```
+
+**タグ x が付いたノートのカード ID を取得する:**
+
+```python
+ids = mw.col.find_cards("tag:x")
+```
+
+**各 ID の問題と解答を取得する:**
+
+```python
+for id in ids:
+    card = mw.col.get_card(id)
+    question = card.question()
+    answer = card.answer()
+```
+
+**明日を復習期限にする:**
+
+```python
+ids = mw.col.find_cards("is:due")
+mw.col.sched.set_due_date(ids, "1")
+```
+
+**テキストファイルをコレクションにインポートする**
+
+Anki 2.1.55 以降が必要です。
+
+```python
+from anki.collection import ImportCsvRequest
+from aqt import mw
+col = mw.col
+path = "/home/dae/foo.csv"
+metadata = col.get_csv_metadata(path=path, delimiter=None)
+request = ImportCsvRequest(path=path, metadata=metadata)
+response = col.import_csv(request)
+print(response.log.found_notes, list(response.log.updated), list(response.log.new))
+```
+
+**.apkg ファイルをインポートする**
+
+Anki 23.10 以降が必要です。
+
+```python
+from anki.collection import ImportAnkiPackageRequest, ImportAnkiPackageOptions
+from aqt import mw
+
+col = mw.col
+col.import_anki_package(
+    ImportAnkiPackageRequest(
+        package_path="/path/to/deck.apkg",
+        options=ImportAnkiPackageOptions(
+            merge_notetypes=True,
+            with_scheduling=False,
+            with_deck_configs=True,
+        ),
+    )
+)
+```
+
+必要に応じてオプションを変更できます。
+
+**.apkg ファイルを書き出す**
+
+Anki 23.12 以降が必要です。
+
+```python
+from anki.collection import ExportAnkiPackageOptions, DeckIdLimit
+from aqt import mw
+
+col = mw.col
+col.export_anki_package(
+    out_path="/path/to/deck.apkg",
+    options=ExportAnkiPackageOptions(
+        with_scheduling=False,
+        with_deck_configs=False,
+        with_media=True,
+        legacy=False,
+    ),
+    limit=DeckIdLimit(deck_id=col.decks.id("My Deck")),
+)
+```
+
+必要に応じてオプションを変更できます。
+
+コレクション全体を書き出すには `limit=None` を指定します。ほかの制限の種類として `NoteIdsLimit` と `CardIdsLimit` があります。
+
+GUI でできる操作のほとんどには `anki` 内に対応する関数があり、Anki が提供する操作をアドオンから呼び出せます。
+
+## オブジェクトの読み書き
+
+Anki のほとんどのオブジェクトは、pylib のメソッドを通じて読み書きできます。
+
+```python
+card = col.get_card(card_id)
+card.ivl += 1
+col.update_card(card)
+```
+
+```python
+note = col.get_note(note_id)
+note["Front"] += " hello"
+col.update_note(note)
+```
+
+```python
+deck = col.decks.get(deck_id)
+deck["name"] += " hello"
+col.decks.save(deck)
+
+deck = col.decks.by_name("Default hello")
+...
+```
+
+```python
+config = col.decks.get_config(config_id)
+config["new"]["perDay"] = 20
+col.decks.save(config)
+```
+
+```python
+notetype = col.models.get(notetype_id)
+notetype["css"] += "\nbody { background: grey; }\n"
+col.models.save(note)
+
+notetype = col.models.by_name("Basic")
+...
+```
+
+データベースに直接アクセスするよりも、これらのメソッドを使ってください。同期が必要な項目として記録し、無効なデータがデータベースに書き込まれるケースを防いでくれます。
+
+特定のカードやノートを検索するには、`col.find_cards()` と `col.find_notes()` が便利です。
+
+## データベース
+
+:warning: データベースに直接書き込むと、簡単に問題が起きることがあります。可能な限り、上記のようなメソッドを使ってください。
+
+Anki の DB オブジェクトでは、次の関数を使えます。
+
+**`scalar()` は単一の項目を返します:**
+
+```python
+showInfo("card count: %d" % mw.col.db.scalar("select count() from cards"))
+```
+
+**`list()` は各行の1列目をリストで返します（例: \[1, 2, 3\]）:**
+
+```python
+ids = mw.col.db.list("select id from cards limit 3")
+```
+
+**`all()` は行のリストを返します。各行もリストです:**
+
+```python
+ids_and_ivl = mw.col.db.all("select id, ivl from cards")
+```
+
+**`execute()` は、中間リストを作らずに結果セットを反復処理する場合にも使えます。例:**
+
+```python
+for id, ivl in mw.col.db.execute("select id, ivl from cards limit 3"):
+    showInfo("card id %d has ivl %d" % (id, ivl))
+```
+
+**`execute()` では、名前付き引数に `?` を使って挿入や更新を実行できます。例:**
+
+```python
+mw.col.db.execute("update cards set ivl = ? where id = ?", newIvl, cardId)
+```
+
+前のセクションで説明した関数を使った場合と異なり、これらの変更は同期されません。
+
+**`executemany()` は、一括更新や挿入を実行できます。大規模な更新では、データごとに `execute()` を呼び出すよりもはるかに高速です。例:**
+
+```python
+data = [[newIvl1, cardId1], [newIvl2, cardId2]]
+mw.col.db.executemany(same_sql_as_above, data)
+```
+
+これらの変更も同期されません。
+
+アドオンで既存テーブルのスキーマを変更しないでください。Anki の将来のバージョンで問題が起きる可能性があります。
+
+アドオン固有のデータを保存する必要がある場合は、Anki の[設定](./addon-config#config-json)機能を検討してください。
+
+デバイス間で同期する必要があるデータは、小さなオプションであれば `mw.col.conf` に保存できます。同期のたびに送信されるため、大量のデータは保存しないでください。

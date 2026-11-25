@@ -1,4 +1,4 @@
-# Copyright: Ankitects Pty Ltd and contributors
+# Copyright: Anki Software, LLC and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 """Tests for mediasrv security utilities."""
@@ -12,6 +12,8 @@ from unittest import mock
 
 import pytest
 
+from anki.collection import OpChanges
+from aqt import mediasrv
 from aqt.mediasrv import (
     TRUSTED_PAGE_CSP,
     UNTRUSTED_MEDIA_CSP,
@@ -30,6 +32,7 @@ from aqt.mediasrv import (
     is_localhost_origin,
     legacy_page_data,
 )
+from aqt.webview import AnkiWebView
 
 
 class TestEnsureSafePath:
@@ -269,6 +272,20 @@ class TestEditorPageCSP:
         assert directives["form-action"] == "'none'"
         assert directives["frame-ancestors"] == "'none'"
 
+    @pytest.mark.parametrize(
+        "csp",
+        [
+            _legacy_editor_content_security_policy(port=12345),
+            _untrusted_sveltekit_content_security_policy(12345, "'sha256-abc='"),
+        ],
+    )
+    def test_editor_csp_keeps_base_url_on_local_server(self, csp: str) -> None:
+        """The page's API calls use root-relative URLs, so a <base> in field
+        content must not be able to point them at another origin. The legacy
+        editor injects its own same-origin <base>, so 'none' is not an option."""
+        directives = _csp_directives(csp)
+        assert directives["base-uri"] == "http://127.0.0.1:12345"
+
     def test_sveltekit_editor_csp_allows_render_script_hash(self) -> None:
         csp = _untrusted_sveltekit_content_security_policy(12345, "'sha256-abc='")
         directives = _csp_directives(csp)
@@ -481,3 +498,44 @@ class TestOpenLink:
     )
     def test_ignores_other_links(self, monkeypatch, url: str) -> None:
         self._open_link(monkeypatch, url).assert_not_called()
+
+
+class TestOperationRouting:
+    """Op changes from a webview request must not be echoed back to that webview."""
+
+    def test_op_changes_are_attributed_to_originating_webview(self) -> None:
+        changes = OpChanges(note_text=True)
+        webview = mock.Mock()
+        with (
+            mock.patch("aqt.mw") as mw,
+            mock.patch.object(mediasrv, "on_op_finished") as on_op_finished,
+            mediasrv.app.test_request_context(
+                method="POST",
+                data=b"",
+                headers={"Anki-Op-Changes": "1", "Anki-Webview-Id": "7"},
+            ),
+        ):
+            mw.col._backend.update_notes_raw.return_value = changes.SerializeToString()
+            mw.mediaServer.get_webview.side_effect = lambda id: (
+                webview if id == "7" else None
+            )
+            mw.taskman.run_on_main.side_effect = lambda fn: fn()
+
+            mediasrv.raw_backend_request("update_notes")()
+
+        on_op_finished.assert_called_once_with(mw, changes, webview)
+
+    def test_webview_does_not_receive_its_own_operations(self) -> None:
+        webview = mock.Mock(spec=AnkiWebView)
+        AnkiWebView.on_operation_did_execute(
+            webview, OpChanges(note_text=True), webview
+        )
+        webview.eval.assert_not_called()
+
+    def test_webview_receives_operations_from_elsewhere(self) -> None:
+        webview = mock.Mock(spec=AnkiWebView)
+        AnkiWebView.on_operation_did_execute(
+            webview, OpChanges(note_text=True), object()
+        )
+        webview.eval.assert_called_once()
+        assert "onOperationDidExecute" in webview.eval.call_args.args[0]

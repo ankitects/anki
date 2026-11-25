@@ -1,4 +1,4 @@
-// Copyright: Ankitects Pty Ltd and contributors
+// Copyright: Anki Software, LLC and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import "codemirror/lib/codemirror.css";
@@ -16,7 +16,7 @@ import "codemirror/addon/display/placeholder";
 import CodeMirror from "codemirror";
 import type { Readable } from "svelte/store";
 
-import storeSubscribe from "$lib/sveltelib/store-subscribe";
+import storeSubscribe from "#lib/sveltelib/store-subscribe.js";
 
 export { CodeMirror };
 

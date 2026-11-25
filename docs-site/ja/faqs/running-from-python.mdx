@@ -1,0 +1,37 @@
+---
+title: "Python から実行する"
+---
+
+インストール済みの Anki で起動時の問題やクラッシュが発生し、解決できない場合は、最終手段として Python から直接実行してみてください。
+
+以下は Windows 向けの手順です。こうした問題は Windows で特に多く見られますが、他のプラットフォームでも同様の方法を試せます。
+
+1. [Python 3.9.13](https://www.python.org/ftp/python/3.9.13/python-3.9.13-amd64.exe) をインストールします。インストール先を指定し、`c:\python` を選びます。
+2. スタートメニューを開き、コマンドプロンプトを起動します。
+3. 次のコマンドを入力して Enter キーを押します。
+
+```
+\python\python -m venv \anki-venv
+```
+
+4. 次のコマンドを入力します。完了まで時間がかかることがあります。
+
+```
+\anki-venv\scripts\pip install aqt orjson pyqt6-webengine
+```
+
+5. 最後に、次を実行します。
+
+```
+\anki-venv\scripts\anki
+```
+
+この方法で問題が解決した場合は、次回以降、手順2と5を行うと Anki を起動できます。
+
+それでも問題が起きる場合は、Qt のバージョンを変更してみてください。
+
+```
+\anki-venv\scripts\pip install pyqt5==5.15 pyqtwebengine==5.15.0
+```
+
+それでも解決せず、[問題が起きたときの対処法](/manual/troubleshooting)に記載された手順もすべて試した場合は、残念ながら解決できない可能性があります。

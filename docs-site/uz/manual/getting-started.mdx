@@ -1,0 +1,231 @@
+---
+title: "Ishni boshlash"
+---
+
+## Oʻrnatish va yangilash
+
+Anki ekotizimi Anki, AnkiMobile, AnkiDroid va AnkiWeb dasturlaridan tashkil topgan. Ularning hammasiga [rasmiy veb-saytimiz](https://apps.ankiweb.net) orqali oʻtish mumkin.
+
+Anki'ni kompyuteringizga oʻrnatish va yangilash boʻyicha yoʻriqnomalar uchun quyidagi havolalarga oʻting:
+
+- [Windows](./platform/windows/installing)
+- [Mac](./platform/mac/installing)
+- [Linux](./platform/linux/installing)
+
+## Videolar
+
+Anki bilan tezda tanishish uchun quyidagi tanishtiruv videolarini koʻring. Ayrimlari Anki'ning oldingi versiyasida tayyorlangan, lekin ularda tushuntirilgan tushunchalar bir xil.
+
+- [Ulashilgan toʻplamlar va takrorlash asoslari](http://www.youtube.com/watch?v=QS2G-k2hQyg&yt:cc=on)
+
+- [Sinxronlash](https://www.youtube.com/watch?v=YkiM4DPzSVc&list=PLGgmaKOIHykFoomqkBJAyGiDQ2kyiuTao&yt:cc=on)
+
+- [Kartalar tartibini almashtirish](http://www.youtube.com/watch?v=DnbKwHEQ1mA&yt:cc=on)
+
+- [Kartalarni bezash](http://www.youtube.com/watch?v=F1j1Zx0mXME&yt:cc=on)
+
+- [Javobni yozib kiritish](http://www.youtube.com/watch?v=5tYObQ3ocrw&yt:cc=on)
+
+## Asosiy tushunchalar
+
+<div id="key-concepts" />
+
+### Kartalar
+
+<div id="cards" />
+
+Savol va javob juftligi _karta_ deb ataladi. U old tomonida savol, orqa tomonida javob yozilgan qogʻoz kartochkaga oʻxshaydi. Lekin Anki'da karta jismoniy kartochkaga oʻxshamaydi va javobni koʻrsatganingizda savol sukut boʻyicha koʻrinib turadi. Masalan, kimyoning asoslarini oʻrganayotgan boʻlsangiz, quyidagi savolni koʻrishingiz mumkin:
+
+```text
+    Q: Chemical symbol for oxygen?
+```
+
+Javob O ekanini oʻylab topgach, **Show Answer** (Javobni koʻrsatish) tugmasini bosasiz va Anki sizga quyidagini koʻrsatadi:
+
+```text
+    Q: Chemical symbol for oxygen?
+    A: O
+```
+
+Javobingiz toʻgʻri ekaniga ishonch hosil qilgach, Anki'ga javobni qanchalik yaxshi eslaganingizni bildirasiz, Anki esa kartani qachon qayta koʻrsatishni oʻzi tanlaydi. Masalan, Anki kartani 3 kundan keyin qayta koʻrsatishga qaror qilishi mumkin. Bunday holda kartaning intervali (keyingi koʻrsatilishigacha boʻlgan muddat) 3 kun boʻladi, deymiz.
+
+#### Karta holatlari
+
+<div id="card-states" />
+
+<div id="types-of-cards" />
+
+- **New (Yangi):** Yuklab olgan yoki oʻzingiz yaratgan, lekin hali hech oʻrganmagan kartalar.
+
+- **Learning (Oʻrganilayotgan):** Yaqinda birinchi marta koʻrilgan va hali oʻrganilayotgan kartalar.
+
+- **Review (Takrorlash):** Oʻrganib boʻlgan kartalar. Ular belgilangan muddat (interval) oʻtgach, yana koʻrsatiladi.
+  Takrorlash kartalarining ikki turi bor:
+    - **Young (Yosh):** Intervali 21 kundan kam boʻlgan karta.
+    - **Mature (Yetuk):** Intervali 21 kun yoki undan koʻp boʻlgan karta.
+
+- **Relearn (Qayta oʻrganish):** Takrorlash bosqichida unutgan kartalaringiz. Ular qayta oʻrganish holatiga qaytariladi.
+
+### Toʻplamlar
+
+<div id="decks" />
+
+_Toʻplam_ (deck) — kartalar guruhi. Kartalarni turli toʻplamlarga joylab, butun kolleksiyani birdaniga emas, uning bir qismini oʻrganishingiz mumkin. Har bir toʻplamning oʻz sozlamalari boʻlishi mumkin, masalan, kuniga nechta yangi karta koʻrsatilishi yoki kartalar qancha kutilgandan keyin qayta koʻrsatilishi.
+
+Toʻplamlar boshqa toʻplamlarni ham oʻz ichiga olishi mumkin, shu orqali ularni daraxt shaklida tartibga solasiz. Anki daraxtdagi darajalarni ajratish uchun ikkita ikki nuqta ("::") ishlatadi. Masalan, "Chinese::Hanzi" deb nomlangan toʻplam "Chinese" toʻplami ichidagi "Hanzi" toʻplamini bildiradi. "Hanzi" ni tanlasangiz, faqat Hanzi kartalari koʻrsatiladi; "Chinese" ni tanlasangiz, Hanzi kartalari ham kirgan holda barcha xitoycha kartalar koʻrsatiladi.
+
+Toʻplamlarni daraxtga joylash uchun har bir daraja orasiga ikkita ikki nuqta qoʻyib nomlashingiz yoki ularni toʻplamlar roʻyxatida sichqoncha bilan surib tashlashingiz (drag and drop) mumkin. Boshqa toʻplam ichiga joylangan toʻplamlar koʻpincha "ichki toʻplamlar" (subdeck), eng yuqori darajadagilari esa "asosiy toʻplamlar" (parent deck) deb ataladi.
+
+Anki "Default" nomli toʻplam bilan boshlanadi; qandaydir sabab bilan boshqa toʻplamlardan ajralib qolgan kartalar shu yerga tushadi. Agar "Default" toʻplamida karta boʻlmasa va siz boshqa toʻplamlar qoʻshgan boʻlsangiz, Anki uni yashiradi. Xohlasangiz, bu toʻplamning nomini oʻzgartirib, boshqa kartalar uchun ishlatishingiz ham mumkin.
+
+Toʻplamlar roʻyxatda alifbo tartibida joylashadi. Nomlarida raqam boʻlsa, bu kutilmagan tartib berishi mumkin. Masalan, "My Deck 10" "My Deck 9" dan oldin keladi, chunki 1 raqami 9 dan oldin turadi. "My deck 9" oldinroq chiqishini xohlasangiz, uning nomini "My deck 09" ga oʻzgartiring, shunda u "My deck 10" dan oldin turadi.
+
+Toʻplamlar muayyan mavzular (masalan, "food verbs" yoki "lesson 1") uchun emas, balki kartalarning keng kategoriyalari uchun ishlatilsa, eng yaxshi natija beradi. Bu haqida batafsil maʼlumot olish uchun [toʻplamlardan toʻgʻri foydalanish](./editing#using-decks-appropriately) boʻlimiga qarang.
+
+Toʻplamlar tartibi kartalarning oʻrganilish tartibiga qanday taʼsir qilishini bilish uchun [koʻrsatish tartibi](./studying#display-order) boʻlimiga qarang.
+
+### Yozuvlar va maydonlar
+
+<div id="notes--fields" />
+
+Kartochkalar tayyorlayotganda bir xil maʼlumotga oid bir nechta karta yaratish koʻpincha foydali boʻladi. Masalan, fransuz tilini oʻrganayotgan boʻlsangiz va _bonjour_ soʻzi inglizcha "hello" (salom) degan maʼnoni bildirishini bilib olgan boʻlsangiz, bitta kartada "bonjour" koʻrsatilib, "hello" ni eslash, boshqasida esa "hello" koʻrsatilib, "bonjour" ni eslash talab qilinishini xohlashingiz mumkin. Birinchi karta fransuzcha soʻzni tanib olish qobiliyatingizni, ikkinchisi esa uni oʻzingiz aytib bera olishingizni tekshiradi.
+
+Qogʻoz kartochkalarda bunday holatda maʼlumotni ikki marta, har bir karta uchun bir martadan yozib chiqishdan boshqa chorangiz yoʻq. Ayrim kartochka dasturlari old va orqa tomonni almashtirish imkonini berib, ishni yengillashtiradi. Bu qogʻoz kartochkalarga qaraganda yaxshiroq, lekin ikkita katta kamchiligi bor:
+
+- Bunday dasturlar tanib olish va aytib berish natijalaringizni alohida kuzatmaydi, shuning uchun kartalar eng maqbul vaqtda koʻrsatilmaydi: yo kerak boʻlganidan koʻproq unutasiz, yo keragidan ortiq takrorlaysiz.
+
+- Savol va javobni almashtirish faqat har ikki tomonda aynan bir xil mazmun boʻlishi kerak boʻlgandagina ishlaydi. Yaʼni, masalan, har bir kartaning orqa tomonida qoʻshimcha maʼlumot koʻrsatib boʻlmaydi.
+
+Anki bu muammolarni kartalaringiz mazmunini alohida maʼlumot boʻlaklariga ajratish orqali hal qiladi. Keyin qaysi maʼlumot boʻlagi har bir kartada koʻrinishini Anki'ga aytasiz, Anki esa kartalarni oʻzi yaratadi va keyinchalik kiritgan tahrirlaringizni ham ularga qoʻllab boradi.
+
+Aytaylik, fransuz tilidagi soʻzlarni oʻrganmoqchisiz va har bir kartaning orqa tomonida darslikdagi sahifa raqami ham boʻlsin. Kartalarimiz quyidagicha koʻrinishi kerak:
+
+```text
+    Q: Bonjour
+    A: Hello
+       Page #12
+```
+
+Va bunday:
+
+```text
+    Q: Hello
+    A: Bonjour
+       Page #12
+```
+
+Ikkala kartada ham uchta oʻzaro bogʻliq maʼlumot bor: fransuzcha soʻz, inglizcha maʼno va sahifa raqami. Ularni birlashtirsak, shunday koʻrinadi:
+
+```text
+    French: Bonjour
+    English: Hello
+    Page: 12
+```
+
+Anki'da bunday oʻzaro bogʻliq maʼlumotlar toʻplami _yozuv_ (note) deb ataladi, har bir maʼlumot boʻlagi esa _maydon_ (field) ichida saqlanadi. Bu misolda yozuvda uchta maydon bor: "French", "English" va "Page".
+
+Maydonlarni qoʻshish va tahrirlash uchun yozuv qoʻshayotganda yoki tahrirlayotganda **Fields...** (Maydonlar...) tugmasini bosing. Maydonlar haqida batafsil maʼlumot uchun [Maydonlarni sozlash](./editing#customizing-fields) boʻlimiga qarang.
+
+### Karta turlari
+
+<div id="card-types" />
+
+Anki yozuvlarimiz asosida kartalar yaratishi uchun unga qaysi maydonlar har bir kartaning old yoki orqa tomonida koʻrsatilishini bildiruvchi "andoza" kerak. Bu andoza _karta turi_ (card type) deb ataladi. Har bir yozuv turi bir yoki bir nechta karta turiga ega boʻlishi mumkin; yozuv qoʻshganingizda Anki har bir karta turi uchun bittadan karta yaratadi.
+
+Barcha karta turlarida ikkita _shablon_ (template) boʻladi: biri savol uchun, biri javob uchun. Yuqoridagi fransuz tili misolida tanib olish kartamizning orqa tomoni quyidagicha koʻrinishini xohlagan edik:
+
+```text
+    Q: Bonjour
+    A: Hello
+       Page #12
+```
+
+Buning uchun javob shablonini quyidagicha sozlashimiz mumkin:
+
+```text
+    Q: {{French}}
+    A: {{English}}<br>
+       Page #{{Page}}
+```
+
+Karta shablonlarida maydon nomlari ikkita jingalak qavs ichiga olinadi, masalan, `{{French}}` yoki `{{English}}`. Anki ularni maydonlardagi haqiqiy matn bilan almashtiradi. Bu ["maydonni almashtirish"](./templates/fields) (field replacement) deb ataladi. Ikkita jingalak qavsga olinmagan matn har bir kartada bir xil koʻrinadi. Masalan, har bir yozuvga "Page \#" deb qoʻlda yozishimiz shart emas, chunki shablon buni har bir kartaga oʻzi qoʻshadi. `<br />` tegi Anki'ga keyingi qatorga oʻtishni aytadigan maxsus koddir. Batafsil maʼlumot uchun [shablonlar](./templates/intro) boʻlimiga qarang.
+
+Aytib berish (production) kartasining shablonlari ham shunga oʻxshash ishlaydi:
+
+```text
+    Q: {{English}}
+    A: {{French}}<br>
+       Page #{{Page}}
+```
+
+Karta turi yaratilgandan keyin, har safar yangi yozuv qoʻshganingizda, shu karta turiga asosan karta yaratiladi. Karta turlari kartalaringiz koʻrinishini bir xil saqlashni osonlashtiradi va maʼlumot kiritish uchun ketadigan mehnatni ancha kamaytiradi. Ular tufayli Anki bir-biriga bogʻliq kartalarning bir-biriga juda yaqin vaqtda koʻrsatilmasligini taʼminlay oladi. Shuningdek, yozuvdagi xato yoki notoʻgʻri maʼlumotni bir marta tuzatsangiz, unga bogʻliq barcha kartalar birdaniga yangilanadi.
+
+Karta turlarini qoʻshish va tahrirlash uchun yozuv qoʻshayotganda yoki tahrirlayotganda **Cards...** (Kartalar...) tugmasini bosing. Karta turlari haqida batafsil maʼlumot uchun [Kartalar va shablonlar](./templates/intro) boʻlimiga qarang.
+
+### Yozuv turlari
+
+<div id="note-types" />
+
+Anki turli materiallar uchun turli xil yozuvlar yaratish imkonini beradi. Har bir yozuv turining oʻz maydonlari va karta turlari boʻladi. Oʻrganayotgan har bir keng mavzu uchun alohida yozuv turi yaratish yaxshi gʻoya. Yuqoridagi fransuz tili misolida buning uchun "French" nomli yozuv turi yaratishimiz mumkin. Davlat poytaxtlarini oʻrganmoqchi boʻlsak, buning uchun ham "Country" va "Capital City" kabi maydonlarga ega alohida yozuv turi yaratish mumkin.
+
+Anki bir nechta standart yozuv turi bilan birga keladi. Ular yangi foydalanuvchilar uchun Anki'ni osonlashtirish maqsadida berilgan, ammo uzoq muddatda oʻrganayotgan materialingizga mos oʻz yozuv turlaringizni yaratish tavsiya etiladi. Standart yozuv turlari:
+
+- **Basic**\
+  "Front" (old tomon) va "Back" (orqa tomon) maydonlariga ega va bitta karta yaratadi. "Front" ga kiritgan matningiz kartaning old tomonida, "Back" ga kiritganingiz esa orqa tomonida koʻrinadi.
+
+- **Basic (and reversed card)**\
+  "Basic" ga oʻxshaydi, lekin kiritgan matningiz uchun ikkita karta yaratadi:
+  old→orqa va orqa→old.
+
+- **Basic (optional reversed card)**\
+  "Basic" ga oʻxshaydi, lekin "Add Reverse" nomli uchinchi maydoni bor. Shu maydonga biror matn kiritsangiz, teskari karta (orqa→old) ham yaratiladi. Batafsil maʼlumot uchun [Kartalar va shablonlar](./templates/intro) boʻlimiga qarang.
+
+- **Basic (type in the answer)**\
+  Aslida "Basic" bilan bir xil, faqat old tomonida javobingizni yozib kiritish uchun qoʻshimcha matn maydoni bor. Orqa tomonni ochganingizda Anki yozganingiz bilan haqiqiy javob orasidagi farqlarni koʻrsatadi. Batafsil maʼlumot uchun
+  [Javobingizni tekshirish](./templates/fields#checking-your-answer) boʻlimiga qarang.
+
+- **Cloze**\
+  Matnning bir qismini tanlab, uni yashirish (cloze deletion) imkonini beruvchi yozuv turi (masalan, "Humans landed on the moon in \[…​\]" → "Humans landed on the
+  moon in 1969"). Batafsil maʼlumot uchun [cloze deletion](./editing#cloze-deletion) boʻlimiga qarang.
+
+- **Image Occlusion**\
+  Cloze yozuv turiga oʻxshaydi, lekin matn emas, rasmlar bilan ishlaydi. Bu anatomiya va geografiya kabi rasmlarga katta tayanadigan materiallarni oʻrganishda ayniqsa foydali. Batafsil maʼlumot uchun qoʻllanmaning [Image Occlusion](./editing#image-occlusion)
+  boʻlimiga qarang.
+
+Oʻz yozuv turlaringizni qoʻshish va mavjudlarini oʻzgartirish uchun Anki'ning asosiy oynasidagi **Tools &gt; Manage Note Types** (Asboblar &gt; Yozuv turlarini boshqarish) boʻlimidan foydalaning.
+
+Yozuvlar va yozuv turlari alohida bir toʻplam bilan cheklanmaydi, balki butun kolleksiyangiz uchun umumiy. Demak, bitta toʻplamda turli yozuv turlaridan foydalanish yoki bir yozuvdan yaratilgan kartalarni turli toʻplamlarga joylash mumkin. **Add** (Qoʻshish) oynasi orqali yozuv qoʻshayotganda qaysi yozuv turi va qaysi toʻplamdan foydalanishni tanlaysiz, bu ikki tanlov bir-biriga umuman bogʻliq emas. Yozuvlarni yaratib boʻlgandan keyin ham [yozuv turini oʻzgartirishingiz](./browsing#notes) mumkin.
+
+### Kolleksiya
+
+<div id="collection" />
+
+Sizning _kolleksiyangiz_ — Anki'da saqlangan barcha materiallar: kartalar, yozuvlar, toʻplamlar, yozuv turlari, toʻplam sozlamalari va hokazo.
+
+## Ulashilgan toʻplamlar
+
+YouTube'da [Ulashilgan toʻplamlar va takrorlash asoslari](http://www.youtube.com/watch?v=QS2G-k2hQyg&yt:cc=on) haqida video koʻrishingiz mumkin.
+
+Anki bilan ishni boshlashning eng oson yoʻli — boshqa birov ulashgan kartalar toʻplamini yuklab olish:
+
+1. Toʻplamlar roʻyxatining pastidagi **Get Shared** (Ulashilganlarni olish) tugmasini bosing.
+
+2. Qiziqtirgan toʻplamni topgach, toʻplam paketini yuklab olish uchun **Download** (Yuklab olish) tugmasini bosing.
+
+3. Yuklab olingan paketni ikki marta bosib Anki'ga import qiling yoki
+   **File &gt; Import** (Fayl &gt; Import) orqali oching.
+
+Eslatma: Ulashilgan toʻplamlarni hozircha toʻgʻridan-toʻgʻri AnkiWeb hisobingizga qoʻshib boʻlmaydi. Avval ularni kompyuter dasturiga, AnkiMobile yoki AnkiDroid'ga import qilishingiz, keyin toʻplamlarni AnkiWeb'ga yuklash uchun [sinxronlashingiz](./syncing) kerak.
+
+Murakkab mavzuni oʻrganishning eng samarali yoʻli — oʻz toʻplamingizni yaratish. Tillar va fanlar kabi mavzularni faqat faktlarni yodlash bilan tushunib boʻlmaydi: ularni samarali oʻrganish uchun tushuntirish va kontekst kerak. Bundan tashqari, maʼlumotni oʻzingiz kiritayotganda eng muhim jihatlarni oʻzingiz tanlashga majbur boʻlasiz, bu esa yaxshiroq tushunishga olib keladi.
+
+Agar til oʻrganayotgan boʻlsangiz, soʻzlar va ularning tarjimalaridan iborat uzun roʻyxatni yuklab olgingiz kelishi mumkin. Lekin bu sizga tilni oʻrgatmaydi, xuddi ilmiy tenglamalarni yodlash astrofizikani oʻrgatmaganidek. Toʻgʻri oʻrganish uchun darsliklar, oʻqituvchilar yoki real hayotdagi gaplar bilan tanishish kerak boʻlishi mumkin.
+
+```text
+    Do not learn if you do not understand.
+    --SuperMemo
+```
+
+Ulashilgan toʻplamlarning koʻpchiligini darsliklar, kurslar, televizor va boshqa manbalar orqali Anki'dan tashqarida material oʻrganayotgan odamlar yaratadi. Ular oʻrganganlaridan qiziqarli nuqtalarni tanlab, Anki'ga kiritadi. Materialni allaqachon tushunganlari uchun kartalarga fon maʼlumoti yoki tushuntirish qoʻshishga urinmasliklari mumkin. Shuning uchun boshqa birov ularning toʻplamini yuklab olib, foydalanmoqchi boʻlganda, fon maʼlumoti va tushuntirishlar yoʻqligi sababli uni juda qiyin deb topishi mumkin.
+
+Bu ulashilgan toʻplamlar foydasiz degani emas. Agar siz ABC darsligini oʻrganayotgan boʻlsangiz va kimdir ABC dagi gʻoyalardan iborat toʻplam ulashgan boʻlsa, bu biroz vaqt tejashning ajoyib yoʻli. Poytaxt nomlari yoki davlat bayroqlari kabi asosan faktlar roʻyxatidan iborat oddiy mavzular uchun esa, ehtimol, tashqi materialning keragi ham yoʻq. Biroq murakkab mavzularda ulashilgan toʻplamlardan tashqi materialni _toʻldiruvchi_ vosita sifatida foydalaning, uning _oʻrnini bosuvchi_ sifatida emas.

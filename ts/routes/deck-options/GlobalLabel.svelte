@@ -1,11 +1,11 @@
 <!--
-Copyright: Ankitects Pty Ltd and contributors
+Copyright: Anki Software, LLC and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
     import * as tr from "@generated/ftl";
-    import { mdiEarth } from "$lib/components/icons";
-    import Icon from "$lib/components/Icon.svelte";
+    import { mdiEarth } from "#lib/components/icons.js";
+    import Icon from "#lib/components/Icon.svelte";
 
     export let title: string;
 </script>

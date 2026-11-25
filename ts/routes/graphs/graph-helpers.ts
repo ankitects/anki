@@ -1,4 +1,4 @@
-// Copyright: Ankitects Pty Ltd and contributors
+// Copyright: Anki Software, LLC and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 /* eslint
@@ -9,7 +9,7 @@ import type { GraphPreferences } from "@generated/anki/stats_pb";
 import type { Bin, Selection } from "d3";
 import { sum } from "d3";
 
-import type { PreferenceStore } from "$lib/sveltelib/preferences";
+import type { PreferenceStore } from "#lib/sveltelib/preferences.js";
 
 // amount of data to fetch from backend
 export enum RevlogRange {
