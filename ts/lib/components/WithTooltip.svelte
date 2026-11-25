@@ -38,9 +38,9 @@
             offset,
             delay: { show: showDelay, hide: hideDelay },
             trigger,
-            sanitizeFn() {
-                trustedHTML(tooltip);
-            },
+            // @types/bootstrap types this as () => void
+            sanitizeFn: ((html: string) =>
+                trustedHTML(html)) as unknown as Tooltip.Options["sanitizeFn"],
         });
     }
 
