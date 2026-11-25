@@ -1,0 +1,98 @@
+---
+title: "Anki'ni Linux'da oʻrnatish va yangilash"
+sidebarTitle: "Oʻrnatish va yangilash"
+description: "Oʻrnatish va yangilash"
+---
+
+## Talablar
+
+Tayyor paket (packaged) versiyasi yangi 64 bitli Intel/AMD Linux (glibc 2.35+)
+yoki ARM/AArch64 (glibc 2.39+) hamda libwayland-client va systemd kabi keng
+tarqalgan kutubxonalarni talab qiladi. Boshqa arxitekturada yoki juda sodda
+(barebones) Linux distributivida (distro) ishlayotgan boʻlsangiz, tayyor paket
+versiyasidan foydalana olmaysiz, lekin uning oʻrniga [Python wheel](/releases/betas/intro#via-pypi/pip)
+paketlaridan foydalanishingiz mumkin.
+
+Debian va uning hosilalari (masalan, Ubuntu va [Linux yoqilgan Chromebook'lar](https://support.google.com/chromebook/answer/9145439))
+oʻrnatishdan oldin quyidagi buyruqdan foydalaning:
+
+```shell
+sudo apt install libxcb-xinerama0 libxcb-cursor0 libnss3 libxcb-icccm4 libxcb-keysyms1
+```
+
+Arch va uning hosilalari (masalan, Manjaro) oʻrnatishdan oldin quyidagi
+buyruqdan foydalaning:
+
+```shell
+sudo pacman -S libxinerama xcb-util-cursor nss
+```
+
+Anki oʻrnatilgach ishga tushmasa, sizda [boshqa kutubxonalar yetishmayotgan](./missing-libraries) boʻlishi mumkin.
+
+Ubuntu 24.04 da Anki ishga tushmasa, [ushbu mavzuga](https://forums.ankiweb.net/t/issues-running-on-ubuntu-24-04/40974) qarang.
+
+Anki'ning build tizimi faqat glibc'ni qoʻllab-quvvatlaydi, shuning uchun musl
+asosidagi distributivlar hozircha qoʻllab-quvvatlanmaydi.
+
+## Oʻrnatish
+
+Anki'ni oʻrnatish uchun:
+
+1. Anki'ni [https://apps.ankiweb.net](https://apps.ankiweb.net) saytidan Downloads (Yuklamalar) papkangizga yuklab oling.
+2. Agar tizimingizda zstd oʻrnatilmagan boʻlsa, uni paket menejeringiz yordamida oʻrnatishingiz kerak (masalan, Debian/Ubuntu'da `sudo apt install zstd`, Arch'da esa `sudo pacman -S zstd`).
+3. Terminalni ochib, quyidagi buyruqlarni bajaring, fayl nomini oʻzingizniki bilan almashtiring.
+
+```shell
+tar xaf Downloads/anki-2X.XX-linux-x86_64.tar.zst
+cd anki-linux-2X.XX-*
+sudo ./install.sh
+```
+
+Ayrim Linux tizimlarida `tar xaf --use-compress-program=unzstd` dan foydalanish kerak boʻlishi mumkin.
+
+4. Shundan keyin `anki` deb yozib, <kbd>Enter</kbd> tugmasini bosib, Anki'ni ishga
+   tushirishingiz mumkin. Muammo chiqsa, chap tomondagi havolalarga qarang.
+
+## Yangilash
+
+Ilgari Anki'ni .deb/.rpm va shunga oʻxshash paketdan ishlatgan boʻlsangiz, bu
+yerda berilgan paketni oʻrnatishdan oldin tizim versiyasini oʻchirib tashlang.
+
+Oldingi paketdan yangilayotgan boʻlsangiz, eng yangi versiyaga oʻtish uchun
+oʻrnatish qadamlarini qaytaring. Foydalanuvchi maʼlumotlaringiz saqlanib
+qoladi.
+
+Oldingi versiyaga qaytmoqchi (downgrade) boʻlsangiz, avval
+[shu sahifadagi](http://changes.ankiweb.net) maʼlumot bilan tanishib chiqing.
+
+## Qoʻshimchalarning (add-on) mosligi
+
+Ayrim qoʻshimchalar (add-onlar) Anki'ning eng yangi versiyasi bilan har doim ham
+ishlamasligi mumkin. Anki'ni eng yangi versiyaga yangilab, usiz yashay
+olmaydigan qoʻshimchangiz ishlamay qolganini koʻrsangiz, Anki'ning eski
+versiyalarini [versiyalar sahifasidan](https://github.com/ankitects/anki/releases)
+yuklab olishingiz mumkin.
+
+## Tizim Qt versiyalari
+
+Anki sukut boʻyicha rasmiy PyQt buildlaridan foydalanadi. Bu Anki'ni kerakli
+Python/Qt versiyalari boʻlmagan distributivlarda oʻrnatishni osonlashtiradi,
+lekin Linux distributivingiz taqdim etadigan ayrim Qt imkoniyatlaridan,
+masalan, baʼzi Qt mavzulari (themes) yoki FCITX kiritish usuli (input method)
+qoʻllab-quvvatlashidan foydalana olmasligingizni anglatadi.
+
+Linux distributivingiz Anki'ning yangi paketlarini taqdim etsa, ulardan
+foydalanish eng oson boʻlishi mumkin.
+
+## Muammolar
+
+Anki'ni oʻrnatish yoki ishga tushirishda muammo chiqsa, quyidagi sahifalarga
+qarang:
+
+- [Yetishmayotgan kutubxonalar](./missing-libraries)
+- [Koʻrinish (ekran) muammolari](./display-issues)
+- [Boʻm-boʻsh asosiy oyna](./blank-window)
+- [Linux distributiv paketlari](./distro-packages)
+- [Notoʻgʻri GTK mavzusi](./gtk-theme)
+- [Wayland](./wayland)
+- [Kiritish usullari](./input-methods)
