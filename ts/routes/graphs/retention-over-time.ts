@@ -15,10 +15,10 @@ import { GraphRange, setDataAvailable } from "./graph-helpers";
 import { hideTooltip, showTooltip } from "./tooltip-utils.svelte";
 
 /** Days in the rolling window, including the day itself. */
-export const WINDOW_DAYS = 7;
+export const WINDOW_DAYS = 14;
 
 export interface RetentionPoint {
-    /** 0 is today, -1 yesterday. The window covers this day and the 6 before it. */
+    /** 0 is today, -1 yesterday. The window covers this day and the 13 before it. */
     day: number;
     reviews: number;
     /** Undefined when there were no reviews in the window. */
@@ -40,7 +40,7 @@ function firstDay(days: Map<number, DayTotals>, range: GraphRange): number {
     }
 }
 
-/** One point per day: the totals of that day and the 6 days before it. */
+/** One point per day: the totals of that day and the 13 days before it. */
 export function rollingRetention(
     days: Map<number, DayTotals>,
     range: GraphRange,

@@ -175,15 +175,11 @@ class DeckAdapter(
         binding.deckNew.isVisible = timeBudget == null
         binding.deckLearn.isVisible = timeBudget == null
         if (timeBudget != null) {
-            // RWKV-Instant time budget: the time left (or a checkmark once done) instead of
-            // counts; subdecks studied with their parent's budget show nothing
+            // RWKV-Instant time budget: the time left (0 once done) instead of counts;
+            // subdecks studied with their parent's budget show nothing
             binding.deckReview.text = formatBadge(binding.deckReview.context, timeBudget)
             binding.deckReview.setTextColor(
-                when {
-                    timeBudget.done -> deckNameDefaultColor
-                    timeBudget.remainingSecs > 0 -> reviewCountColor
-                    else -> zeroCountColor
-                },
+                if (!timeBudget.done && timeBudget.remainingSecs > 0) reviewCountColor else zeroCountColor,
             )
         } else {
             setCounts(binding, node)

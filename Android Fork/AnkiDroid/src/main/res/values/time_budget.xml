@@ -20,7 +20,9 @@
     <string name="time_budget_hide_advanced">Hide advanced settings</string>
     <string name="time_budget_advanced_intro">These apply to all enabled decks.</string>
     <string name="time_budget_order">Card order</string>
-    <string name="time_budget_order_help">Choose which cards are shown first. Reviews are shown lowest predicted recall first; new cards follow the deck\'s new card limit and order, and are only shown while time is left.</string>
+    <string name="time_budget_order_help">Choose which cards are shown first. Reviews are shown lowest predicted recall first; new cards follow the deck\'s order, and are only shown while time is left.</string>
+    <string name="time_budget_limit_new_cards">Select new cards limit</string>
+    <string name="time_budget_help_limit_new_cards">Stop showing new cards once the daily new card limit of the deck (or a subdeck) is reached. Otherwise new cards are only limited by time.</string>
     <string name="time_budget_move_up">Move up</string>
     <string name="time_budget_move_down">Move down</string>
     <string name="time_budget_first_review">First daily review</string>

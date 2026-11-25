@@ -137,7 +137,7 @@ statistics-true-retention-all-time = All time
 # percentage cannot be calculated and is displayed as "N/A."
 statistics-true-retention-not-applicable = N/A
 statistics-retention-over-time-title = Retention Over Time
-statistics-retention-over-time-subtitle = Pass rate over the previous 7 days, for cards with an interval ≥ 1 day.
+statistics-retention-over-time-subtitle = Pass rate over the previous 14 days, for cards with an interval > 1 day.
 # Tooltip line, eg "Retention: 91.2% (120 reviews)"
 statistics-retention-over-time-value = Retention: { $percent }% ({ $reviews } reviews)
 # Caption under the graph. min/max are the minimum and maximum desired

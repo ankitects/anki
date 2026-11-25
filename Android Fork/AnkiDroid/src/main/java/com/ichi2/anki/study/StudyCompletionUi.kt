@@ -14,6 +14,7 @@ import com.ichi2.anki.common.utils.android.showThemedToast
 import com.ichi2.anki.launchCatchingTask
 import com.ichi2.anki.pages.CongratsPage
 import com.ichi2.anki.snackbar.showSnackbar
+import com.ichi2.anki.timebudget.timeBudgetGoalReached
 import kotlin.math.round
 
 /** Presents the end of a review session in the activity that owns its result. */
@@ -23,21 +24,27 @@ object StudyCompletionUi {
     }
 
     fun displayFromShortcut(activity: FragmentActivity) {
-        if (displayNewCongratsScreen(activity)) {
-            openCongratsPage(activity)
-        } else {
-            activity.launchCatchingTask {
-                val state = withCol { currentDeckStudyState() }
-                showThemedToast(activity, finishedMessage(activity, state), false)
+        activity.launchCatchingTask {
+            if (displayNewCongratsScreen(activity) || withCol { timeBudgetGoalReached() }) {
+                openCongratsPage(activity)
+                return@launchCatchingTask
             }
+            val state = withCol { currentDeckStudyState() }
+            showThemedToast(activity, finishedMessage(activity, state), false)
         }
     }
 
-    fun onReviewsCompleted(
+    /**
+     * Decks studied with a time budget always show the congrats page once the day's goal is
+     * reached, so the user can continue with new cards.
+     */
+    suspend fun onReviewsCompleted(
         activity: FragmentActivity,
         state: DeckStudyState,
     ) {
-        if (displayNewCongratsScreen(activity)) {
+        val timeBudgetGoalReached =
+            state.availability == StudyAvailability.NoCardsAvailable && withCol { timeBudgetGoalReached() }
+        if (displayNewCongratsScreen(activity) || timeBudgetGoalReached) {
             openCongratsPage(activity)
             return
         }

@@ -281,6 +281,9 @@ impl Collection {
         let undone_op = step.kind;
         let reverted_to = step.timestamp;
         let changes = step.changes;
+        let undone_answer = (undone_op == Op::AnswerCard && mode == UndoMode::Undoing)
+            .then(|| answered_card(&changes))
+            .flatten();
         let counter = step.counter;
         self.state.undo.mode = mode;
         let res = self.transact(undone_op.clone(), |col| {
@@ -295,8 +298,21 @@ impl Collection {
             })
         });
         self.state.undo.mode = UndoMode::NormalOp;
+        if res.is_ok() {
+            self.time_budget_after_undo(undone_answer);
+        }
         res
     }
+}
+
+/// The card whose answer the changes record.
+fn answered_card(changes: &[UndoableChange]) -> Option<CardId> {
+    changes.iter().find_map(|change| match change {
+        UndoableChange::Revlog(crate::revlog::undo::UndoableRevlogChange::Added(entry)) => {
+            Some(entry.cid)
+        }
+        _ => None,
+    })
 }
 
 impl From<&[UndoableChange]> for StateChanges {
