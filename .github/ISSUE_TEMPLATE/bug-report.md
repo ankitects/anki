@@ -1,6 +1,6 @@
 ---
 name: Problem report
-about: Something behaves wrong, is missing, slow or confusing. Describe the problem; a solution is optional. Not sure how to describe the problem? Please post on the user forum first.
+about: Is something behaving wrong, missing, slow or confusing? Describe the problem. You can provide a suggested solution but it is optional. Not sure how to describe the problem? Please post on the user forum first.
 title: ""
 labels: ""
 assignees: ""
@@ -9,8 +9,8 @@ assignees: ""
 <!-- Thanks for helping improve Anki! Text inside these markers won't appear in the issue.
 
 Before you start:
-- Search existing issues and the forum; this may already be reported.
-- Read the contributing guide: https://github.com/ankitects/anki/blob/main/docs/contributing.md
+- Search existing issues on github and the [forum](https://forums.ankiweb.net/); this may already be reported.
+- Read the contribution guide: https://github.com/ankitects/anki/blob/main/docs/contributing.md
 - If this is about Anki's behavior, check that it still happens on the latest version
   with add-ons disabled (hold Shift while starting Anki).
 
@@ -22,19 +22,18 @@ Issues that are vague or don't describe the problem may be closed without furthe
 ## Problem description
 
 <!-- Required.-->
-<!-- What happens, what you observe: something that behaves wrong, something you need to do
-and can't, or where something gets in the way. Describe the situation, the problem you
-want to solve, not the feature you have in mind. -->
+<!-- What happens, what do you observe: something that behaves wrong, is there something you need to do
+and can't, or does something get in the way? Describe the situation, the problem you
+want to solve, not just the feature you have in mind. -->
 
 ### What you expected instead
 
-<!-- What should happen, or what you need to be able to do, and what it costs
-you that it doesn't. -->
+<!-- What should happen, or what you need to be able to do, and problems this causes -->
 
 ### Steps to reproduce
 
 <!-- If it can be reproduced, list the steps. Screenshots or a short recording help a lot.
-Delete this section if it's a missing capability or a limitation in the code. -->
+Delete this section if it's not applicable (e.g a missing capability or a limitation in the code.) -->
 
 1.
 2.
@@ -43,7 +42,7 @@ Delete this section if it's a missing capability or a limitation in the code. --
 ### Debug info
 
 <!-- For anything involving Anki's behavior on your machine.
-In Anki: Help > About > Copy Debug Info, then paste between the backticks.
+In Anki: Help > About > Copy Debug Info, then paste it between the below backticks.
 Delete this section if it's not about Anki's behavior. -->
 
 ```
@@ -58,7 +57,7 @@ Paste debug info here
 
 <!-- Workarounds, add-ons, other tools, or just living with it. -->
 
-## Proposed solution (optional)
+## Proposed solution
 
 <!-- Have an idea of how to solve or fix it? How it would work, what it would look like,
 where the bug comes from. Mockups and code sketches are welcome. A well-described problem
@@ -67,6 +66,3 @@ is what lets us find the best solution, so this part is optional. -->
 ## Related links
 
 <!-- Forum threads, issues, PRs or add-ons related to this. -->
-
-```
-```
