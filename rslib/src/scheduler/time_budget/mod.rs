@@ -484,8 +484,7 @@ impl Collection {
                 budget_secs: active.budget.budget_secs() as u32,
                 remaining_secs: session
                     .remaining_secs
-                    .clamp(i32::MIN as i64, i32::MAX as i64)
-                    as i32,
+                    .clamp(i32::MIN as i64, i32::MAX as i64) as i32,
                 done,
                 continued: session.continued,
             });
