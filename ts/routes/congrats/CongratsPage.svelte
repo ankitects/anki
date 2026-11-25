@@ -3,7 +3,10 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import type { CongratsInfoResponse } from "@generated/anki/scheduler_pb";
+    import type {
+        CongratsInfoResponse,
+        TimeBudgetCongrats,
+    } from "@generated/anki/scheduler_pb";
     import { congratsInfo } from "@generated/backend";
     import * as tr from "@generated/ftl";
     import { bridgeLink } from "@tslib/bridgecommand";
@@ -18,6 +21,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let refreshPeriodically = true;
 
     const congrats = tr.schedulingCongratulationsFinished();
+    const continueTimeBudgetMsg = tr.schedulingTimeBudgetContinue({
+        continueStudying: bridgeLink(
+            "continueTimeBudget",
+            tr.schedulingTimeBudgetContinueStudying(),
+        ),
+    });
+    // a deck studied with a time budget, before continuing past its goal
+    let timeBudget: TimeBudgetCongrats | undefined;
+    $: timeBudget = info.timeBudget?.continued === false ? info.timeBudget : undefined;
     let nextLearnMsg: string;
     $: nextLearnMsg = buildNextLearnMsg(info);
     const today_reviews = tr.schedulingTodayReviewLimitReached();
@@ -46,7 +58,21 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <Container --gutter-block="1rem" --gutter-inline="2px" breakpoint="sm">
     <Col --col-justify="center">
         <div class="congrats">
-            <h1>{congrats}</h1>
+            {#if timeBudget}
+                <h1>
+                    {timeBudget.timeUsedUp
+                        ? tr.schedulingTimeBudgetGoalReached()
+                        : tr.schedulingTimeBudgetNothingLeft()}
+                </h1>
+
+                {#if info.bridgeCommandsSupported}
+                    <p>
+                        {@html continueTimeBudgetMsg}
+                    </p>
+                {/if}
+            {:else}
+                <h1>{congrats}</h1>
+            {/if}
 
             <p>{nextLearnMsg}</p>
 

@@ -87,18 +87,30 @@ fun formatRemaining(
     return context.getString(R.string.time_budget_minutes_left, minutes)
 }
 
-/** A checkmark once nothing is left to study today, else the time left. */
+/** The time left, or 0 min once nothing is left to study today. */
 fun formatBadge(
     context: Context,
     badge: TimeBudgetBadge,
 ): String =
     when {
         badge.inherited -> ""
-        badge.done -> DONE_MARK
+        badge.done -> formatRemaining(context, 0)
         else -> formatRemaining(context, badge.remainingSecs)
     }
 
-const val DONE_MARK = "✅"
+/**
+ * Whether the current deck is studied with a time budget whose goal was reached today, and has
+ * not been continued: the congrats page then offers to continue with new cards.
+ */
+fun Collection.timeBudgetGoalReached(): Boolean {
+    val info = sched.congratulationsInfo()
+    return info.hasTimeBudget() && !info.timeBudget.continued
+}
+
+/** Keeps studying the current deck's time budget past today's goal: new cards are shown again. */
+fun Collection.continueTimeBudget() {
+    backend.continueTimeBudget()
+}
 
 /**
  * Scores the next batch of a time-budget session while the question is on screen, so the next

@@ -3,8 +3,16 @@
 
 use anki_proto::stats::graphs_response::RetentionOverTime;
 
-use super::retention::counts_toward_true_retention;
 use super::GraphsContext;
+use crate::revlog::RevlogEntry;
+
+/// A rated review of a card with an interval of more than a day. Unlike true
+/// retention, cards at an interval of exactly one day are left out.
+fn counts_toward_retention_over_time(review: &RevlogEntry) -> bool {
+    review.has_rating_and_affects_scheduling()
+        // positive intervals are in days, negative ones in seconds
+        && (review.last_interval > 1 || review.last_interval < -86_400)
+}
 
 impl GraphsContext {
     /// Daily review and pass counts behind the rolling retention graph.
@@ -13,7 +21,7 @@ impl GraphsContext {
         for review in self
             .revlog
             .iter()
-            .filter(|review| counts_toward_true_retention(review))
+            .filter(|review| counts_toward_retention_over_time(review))
         {
             let day = (review.id.as_secs().elapsed_secs_since(self.next_day_start) / 86_400) as i32;
             let entry = data.days.entry(day).or_default();
@@ -56,6 +64,15 @@ mod test {
                 review(today + 1, 3, RevlogReviewKind::Review),
                 // not counted: no rating
                 review(today + 2, 0, RevlogReviewKind::Manual),
+                // not counted: an interval of only a day
+                RevlogEntry {
+                    last_interval: 1,
+                    ..review(today + 3, 3, RevlogReviewKind::Review)
+                },
+                RevlogEntry {
+                    last_interval: -86_400,
+                    ..review(today + 4, 3, RevlogReviewKind::Relearning)
+                },
             ],
             cards: vec![],
             next_day_start,

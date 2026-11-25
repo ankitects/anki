@@ -63,6 +63,7 @@ private class TimeBudgetDialog(
     private lateinit var maxReviews: EditText
     private lateinit var minDr: EditText
     private lateinit var maxDr: EditText
+    private lateinit var limitNewCards: CheckBox
     private lateinit var orderList: LinearLayout
     private val order = settings.order.toMutableList()
 
@@ -126,6 +127,13 @@ private class TimeBudgetDialog(
         advanced.addView(labelledField(R.string.time_budget_max_reviews, R.string.time_budget_help_max_reviews, maxReviews))
         advanced.addView(labelledField(R.string.time_budget_min_dr, R.string.time_budget_help_min_dr, minDr))
         advanced.addView(labelledField(R.string.time_budget_max_dr, R.string.time_budget_help_max_dr, maxDr))
+        limitNewCards =
+            CheckBox(context).apply {
+                setText(R.string.time_budget_limit_new_cards)
+                isChecked = settings.limitNewCards
+            }
+        advanced.addView(limitNewCards)
+        advanced.addView(text(context.getString(R.string.time_budget_help_limit_new_cards)).apply { alpha = 0.7f })
 
         advanced.addView(
             text(context.getString(R.string.time_budget_order)).apply {
@@ -327,6 +335,7 @@ private class TimeBudgetDialog(
             minDr = minDrValue,
             maxDr = maxDrValue,
             order = CardGroup.completeOrder(order),
+            limitNewCards = limitNewCards.isChecked,
         )
     }
 }

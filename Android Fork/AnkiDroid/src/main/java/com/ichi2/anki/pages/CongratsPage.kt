@@ -24,6 +24,7 @@ import com.ichi2.anki.OnErrorListener
 import com.ichi2.anki.R
 import com.ichi2.anki.SingleFragmentActivity
 import com.ichi2.anki.common.destinations.DeckOptionsDestination
+import com.ichi2.anki.common.destinations.ReviewDeckDestination
 import com.ichi2.anki.common.destinations.StudyOptionsDestination
 import com.ichi2.anki.common.destinations.navigate
 import com.ichi2.anki.dialogs.customstudy.CustomStudyDialog
@@ -35,6 +36,7 @@ import com.ichi2.anki.observability.undoableOp
 import com.ichi2.anki.showException
 import com.ichi2.anki.study.StudyAvailability
 import com.ichi2.anki.study.currentDeckStudyState
+import com.ichi2.anki.timebudget.continueTimeBudget
 import com.ichi2.anki.ui.internationalization.sentenceCase
 import com.ichi2.anki.utils.ext.showDialogFragment
 import com.ichi2.utils.listItems
@@ -154,7 +156,18 @@ class CongratsPage : PageFragment() {
         mapOf(
             "unbury" to { viewModel.onUnbury() },
             "customStudy" to { onStudyMore() },
+            "continueTimeBudget" to { onContinueTimeBudget() },
         )
+
+    /** Keeps studying a time-budget deck past today's goal, in the reviewer. */
+    private fun onContinueTimeBudget() {
+        launchCatchingTask {
+            withCol { continueTimeBudget() }
+            Timber.i("continuing time budget")
+            navigate(ReviewDeckDestination.CurrentDeck)
+            requireActivity().finish()
+        }
+    }
 
     private fun onStudyMore() {
         launchCatchingTask {

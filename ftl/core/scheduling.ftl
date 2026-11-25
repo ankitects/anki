@@ -90,6 +90,13 @@ scheduling-how-to-custom-study = If you wish to study outside of the regular sch
 # used in scheduling-how-to-custom-study
 # "... you can use the custom study feature."
 scheduling-custom-study = custom study
+# Shown when a deck studied with an RWKV time budget is finished for the day.
+scheduling-time-budget-goal-reached = You've reached your time goal for today!
+scheduling-time-budget-nothing-left = There's nothing left to study in this deck's time budget today.
+scheduling-time-budget-continue = { $continueStudying } to keep learning new cards.
+# used in scheduling-time-budget-continue
+# "Continue studying to keep learning new cards."
+scheduling-time-budget-continue-studying = Continue studying
 
 ## Scheduler upgrade
 

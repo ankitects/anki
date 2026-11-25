@@ -191,7 +191,7 @@ class DeckBrowser:
             self.web.evalWithCallback("window.pageYOffset", self.__renderPage)
 
     def _check_time_budgets_done(self, data: RenderData) -> None:
-        """Shows a checkmark for time-budget decks with nothing left today.
+        """Shows 0 min for time-budget decks with nothing left today.
         This needs the RWKV model, which may first be loaded or rebuilt from
         the review log, so the deck list is shown before it is known."""
 
@@ -324,11 +324,9 @@ class DeckBrowser:
 
         budget = None if node.filtered else ctx.time_budgets.get(DeckId(node.deck_id))
         if budget is not None:
-            # RWKV-Instant time budget: show the time left (or a checkmark
-            # once done) instead of counts
-            if budget.done:
-                budget_class = "time-budget-done"
-            elif budget.remaining_secs > 0:
+            # RWKV-Instant time budget: show the time left (0 once done)
+            # instead of counts
+            if not budget.done and budget.remaining_secs > 0:
                 budget_class = "time-budget"
             else:
                 budget_class = "zero-count"

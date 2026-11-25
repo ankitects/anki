@@ -51,6 +51,10 @@ impl crate::services::SchedulerService for Collection {
         self.prefetch_time_budget_cards().map(Into::into)
     }
 
+    fn continue_time_budget(&mut self) -> Result<()> {
+        self.continue_time_budget()
+    }
+
     fn studied_today(&mut self) -> Result<generic::String> {
         self.studied_today().map(Into::into)
     }

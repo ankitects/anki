@@ -43,7 +43,10 @@ def test_settings_round_trip_with_shared_limits() -> None:
             "minDr": 70,
             "maxDr": 95,
             "order": ["firstReview", "new", "reReview"],
+            "limitNewCards": False,
         }
+        save_settings(col, TimeBudgetSettings(limit_new_cards=True))
+        assert load_settings(col).limit_new_cards
     finally:
         col.close()
 
@@ -84,11 +87,14 @@ def test_format_remaining_rounds_up_and_clamps() -> None:
     assert _plain(format_remaining(-30)) == "0 min"
 
 
-def test_done_decks_show_a_checkmark() -> None:
+def test_done_decks_show_no_time_left() -> None:
     from anki.scheduler.base import TimeBudgetDeck
     from aqt.time_budget import format_status
 
-    assert format_status(TimeBudgetDeck(remaining_secs=6 * 60, done=True)) == "✅"
+    assert (
+        _plain(format_status(TimeBudgetDeck(remaining_secs=6 * 60, done=True)))
+        == "0 min"
+    )
     assert (
         _plain(format_status(TimeBudgetDeck(remaining_secs=6 * 60, done=False)))
         == "6 min"

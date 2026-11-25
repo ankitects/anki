@@ -100,6 +100,11 @@ class SchedulerBase(DeprecatedNamesMixin):
         "Score the next cards of a time-budget session ahead of time, if due."
         return self.col._backend.prefetch_time_budget_cards()
 
+    def continue_time_budget(self) -> None:
+        """Keep studying the current deck's time budget for the rest of the
+        day after its goal was reached: new cards are shown again."""
+        self.col._backend.continue_time_budget()
+
     def have_buried_siblings(self) -> bool:
         return self.congratulations_info().have_sched_buried
 

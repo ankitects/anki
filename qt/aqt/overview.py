@@ -120,6 +120,8 @@ class Overview:
             self.on_unbury()
         elif url == "description":
             self.edit_description()
+        elif url == "continueTimeBudget":
+            self.continue_time_budget()
         elif url.lower().startswith("http"):
             openLink(url)
         return False
@@ -176,6 +178,19 @@ class Overview:
         ).run_in_background()
 
     onUnbury = on_unbury
+
+    def continue_time_budget(self) -> None:
+        """Keep studying a time-budget deck past the day's goal."""
+
+        def success(_: None) -> None:
+            self.mw.col.startTimebox()
+            self.mw.moveToState("review")
+
+        QueryOp(
+            parent=self.mw,
+            op=lambda col: col.sched.continue_time_budget(),
+            success=success,
+        ).with_progress().run_in_background()
 
     # HTML
     ############################################################

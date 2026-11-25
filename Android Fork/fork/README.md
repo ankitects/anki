@@ -14,10 +14,13 @@ that, the app has:
 
 - **RWKV Time Budgets** in the deck list's menu (⋮) and in each deck's long-press menu: minutes
   per day for each top-level deck, and, under advanced settings, max reviews per card per day,
-  minimum/maximum DR and the card order. The settings are stored in the collection (config key
+  minimum/maximum DR, the card order and whether new cards stop at the deck's (and subdecks')
+  daily new card limit. The settings are stored in the collection (config key
   `rwkvTimeBudget`), so they sync through AnkiWeb with the desktop app.
-- **Deck list**: decks with a budget show the minutes left instead of the due counts, and ✅
+- **Deck list**: decks with a budget show the minutes left instead of the due counts, and 0 min
   once nothing is left today (worked out in the background, as on the desktop).
+- **Completion screen**: once a budget deck is finished, the congrats page says the time goal
+  was reached, with a link to continue with new cards for the rest of the day.
 - **Study screen**: "Time left" and "Cards to study" instead of new/learning/review counts.
 - **Reviewer**: the next batch of cards is scored while a question is shown, in both the classic
   and the new study screen.
@@ -33,6 +36,7 @@ as on the desktop. It is not synced: each device replays its review log once.
 | `deckpicker/DisplayDeckNode.kt`, `deckpicker/DeckPickerViewModel.kt`, `widgets/DeckAdapter.kt` | Deck list |
 | `DeckPicker.kt`, `dialogs/DeckPickerContextMenu.kt`, `contextmenu/DeckPickerMenuContentProvider.kt`, `res/menu*/deck_picker.xml` | Menu entries |
 | `StudyOptionsViewModel.kt`, `StudyOptionsFragment.kt` | Study screen |
+| `study/StudyCompletionUi.kt`, `pages/CongratsPage.kt` | Completion screen |
 | `Reviewer.kt`, `ui/windows/reviewer/ReviewerViewModel.kt` | Prefetch |
 | `AnkiDroid/build.gradle.kts` | `forkVersionCode`, `forkVersionName`, `forkAcraUrl` properties |
 | `fork/build-apk.sh`, `fork/backend.patch` | Build |

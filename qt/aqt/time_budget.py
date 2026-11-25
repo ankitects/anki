@@ -75,6 +75,8 @@ class TimeBudgetSettings:
     min_dr: int = DEFAULT_MIN_DR
     max_dr: int = DEFAULT_MAX_DR
     order: list[str] = field(default_factory=lambda: list(DEFAULT_ORDER))
+    # stop new cards at the daily new card limits of the deck and subdecks
+    limit_new_cards: bool = False
 
     @classmethod
     def from_json(cls, data: dict[str, Any]) -> TimeBudgetSettings:
@@ -96,6 +98,7 @@ class TimeBudgetSettings:
             min_dr=int(data.get("minDr", default.min_dr)),
             max_dr=int(data.get("maxDr", default.max_dr)),
             order=complete_order(data.get("order") or []),
+            limit_new_cards=bool(data.get("limitNewCards", default.limit_new_cards)),
         )
 
     def to_json(self) -> dict[str, Any]:
@@ -108,6 +111,7 @@ class TimeBudgetSettings:
             "minDr": self.min_dr,
             "maxDr": self.max_dr,
             "order": self.order,
+            "limitNewCards": self.limit_new_cards,
         }
 
 
@@ -127,12 +131,9 @@ def status_by_deck(status: Sequence[TimeBudgetDeck]) -> dict[DeckId, TimeBudgetD
     return {DeckId(deck.deck_id): deck for deck in status}
 
 
-DONE_MARK = "\N{WHITE HEAVY CHECK MARK}"
-
-
 def format_status(deck: TimeBudgetDeck) -> str:
-    """A checkmark once nothing is left to study today, else the time left."""
-    return DONE_MARK if deck.done else format_remaining(deck.remaining_secs)
+    """The time left, or 0 min once nothing is left to study today."""
+    return format_remaining(0 if deck.done else deck.remaining_secs)
 
 
 def format_remaining(remaining_secs: int) -> str:
@@ -246,6 +247,10 @@ class TimeBudgetDialog(QDialog):
         ):
             spin.setToolTip(tip)
             form.addRow(label, spin)
+        self.limit_new_cards = QCheckBox(tr.qt_misc_time_budget_limit_new_cards(), self)
+        self.limit_new_cards.setChecked(self.settings.limit_new_cards)
+        self.limit_new_cards.setToolTip(tr.qt_misc_time_budget_help_limit_new_cards())
+        form.addRow(self.limit_new_cards)
 
         # card order: drag to reorder
         self.order = QListWidget(self)
@@ -370,6 +375,7 @@ class TimeBudgetDialog(QDialog):
             min_dr=self.min_dr.value(),
             max_dr=self.max_dr.value(),
             order=self.selected_order(),
+            limit_new_cards=self.limit_new_cards.isChecked(),
         )
 
     def accept(self) -> None:

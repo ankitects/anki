@@ -37,6 +37,7 @@ impl Collection {
             secs_until_next_learn,
             bridge_commands_supported: true,
             deck_description,
+            time_budget: self.time_budget_congrats(deck.id)?,
         })
     }
 }
@@ -60,7 +61,8 @@ mod test {
                 is_filtered_deck: false,
                 secs_until_next_learn: 86_400,
                 bridge_commands_supported: true,
-                deck_description: "".to_string()
+                deck_description: "".to_string(),
+                time_budget: None,
             }
         )
     }

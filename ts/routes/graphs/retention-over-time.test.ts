@@ -13,10 +13,10 @@ function day(reviews: number, passed: number) {
 }
 
 describe("rollingRetention", () => {
-    test("sums the day and the six days before it", () => {
+    test("sums the day and the 13 days before it", () => {
         const days = new Map([
-            [-7, day(10, 0)], // just outside today's window
-            [-6, day(4, 2)],
+            [-14, day(10, 0)], // just outside today's window
+            [-13, day(4, 2)],
             [0, day(6, 6)],
         ]);
         const points = rollingRetention(days, GraphRange.Month);
@@ -25,15 +25,15 @@ describe("rollingRetention", () => {
         expect(today.day).toBe(0);
         expect(today.reviews).toBe(10);
         expect(today.retention).toBeCloseTo(0.8);
-        // a week ago, the window holds -13..-7
-        expect(points.find((p) => p.day === -7)!.retention).toBe(0);
+        // two weeks ago, the window holds -27..-14
+        expect(points.find((p) => p.day === -14)!.retention).toBe(0);
     });
 
     test("leaves gaps where the window has no reviews", () => {
         const points = rollingRetention(new Map([[-20, day(2, 1)]]), GraphRange.Month);
         expect(points.find((p) => p.day === -20)!.retention).toBe(0.5);
-        expect(points.find((p) => p.day === -14)!.retention).toBe(0.5);
-        expect(points.find((p) => p.day === -13)!.retention).toBeUndefined();
+        expect(points.find((p) => p.day === -7)!.retention).toBe(0.5);
+        expect(points.find((p) => p.day === -6)!.retention).toBeUndefined();
     });
 
     test("all time starts at the oldest day", () => {
