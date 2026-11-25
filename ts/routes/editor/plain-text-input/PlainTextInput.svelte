@@ -5,7 +5,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script context="module" lang="ts">
     import { registerPackage } from "@tslib/runtime-require";
 
-    import lifecycleHooks from "$lib/sveltelib/lifecycle-hooks";
+    import lifecycleHooks from "#lib/sveltelib/lifecycle-hooks.js";
 
     import type { CodeMirrorAPI } from "../CodeMirror.svelte";
     import type { EditingInputAPI, FocusableInputAPI } from "../EditingArea.svelte";
@@ -40,7 +40,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { onMount, tick } from "svelte";
     import { writable } from "svelte/store";
 
-    import { pageTheme } from "$lib/sveltelib/theme";
+    import { pageTheme } from "#lib/sveltelib/theme.js";
 
     import { baseOptions, gutterOptions, htmlanki } from "../code-mirror";
     import CodeMirror from "../CodeMirror.svelte";

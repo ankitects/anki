@@ -3,7 +3,7 @@
 
 import { on } from "@tslib/events";
 
-import { placeCaretAfter, placeCaretBefore } from "$lib/domlib/place-caret";
+import { placeCaretAfter, placeCaretBefore } from "#lib/domlib/place-caret.js";
 
 import { setInnerHTML } from "@tslib/dom";
 import { trustedHTML } from "@tslib/trusted-types";

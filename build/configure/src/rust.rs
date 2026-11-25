@@ -133,7 +133,7 @@ fn build_proto_descriptors_and_interfaces(build: &mut Build) -> Result<()> {
 }
 
 fn build_rsbridge(build: &mut Build) -> Result<()> {
-    let features = if cfg!(target_os = "linux") {
+    let features = if cfg!(target_os = "linux") || cfg!(target_os = "openbsd") {
         "rustls"
     } else {
         "native-tls"
@@ -246,7 +246,7 @@ pub fn check_minilints(build: &mut Build) -> Result<()> {
     let files = inputs![
         glob![
             "**/*.{py,rs,ts,svelte,mjs,md}",
-            "{target,extra,.mypy_cache,node_modules,ts/.svelte-kit}/**"
+            "{target,extra,.mypy_cache,node_modules,ts/.svelte-kit,ts/node_modules}/**"
         ],
         "Cargo.lock",
         "cargo/licenses.json",

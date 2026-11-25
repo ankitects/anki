@@ -36,6 +36,7 @@ const IGNORED_FOLDERS: &[&str] = &[
     ".mypy_cache",
     "./extra",
     "./ts/.svelte-kit",
+    "./ts/node_modules",
     "./.venv",
     "./qt/installer/windows-template",
     "./qt/installer/mac-template",

@@ -6,10 +6,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import * as tr from "@generated/ftl";
     import { renderMarkdown } from "@tslib/helpers";
 
-    import Container from "$lib/components/Container.svelte";
-    import Row from "$lib/components/Row.svelte";
-    import StickyContainer from "$lib/components/StickyContainer.svelte";
-    import TitledContainer from "$lib/components/TitledContainer.svelte";
+    import Container from "#lib/components/Container.svelte";
+    import Row from "#lib/components/Row.svelte";
+    import StickyContainer from "#lib/components/StickyContainer.svelte";
+    import TitledContainer from "#lib/components/TitledContainer.svelte";
 
     import type { ChangeNotetypeState } from "./lib";
     import { MapContext } from "./lib";

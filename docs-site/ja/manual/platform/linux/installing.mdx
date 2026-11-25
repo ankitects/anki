@@ -1,0 +1,75 @@
+---
+title: "LinuxでのAnkiのインストールとアップグレード"
+sidebarTitle: "インストールとアップグレード"
+description: "インストールとアップグレード"
+---
+
+## 動作要件
+
+パッケージ版を使うには、glibc 2.35以降を備えた最近の64ビットIntel/AMD版Linux、またはglibc 2.39以降を備えたARM/AArch64版Linuxと、libwayland-clientやsystemdなどの一般的なライブラリが必要です。別のアーキテクチャや最小構成のLinuxディストリビューションでは、パッケージ版は使えませんが、代わりに[Python wheel](https://betas.ankiweb.net/#via-pypipip)を使える可能性があります。
+
+Debianや、Ubuntu、[Linuxを有効にしたChromebook](https://support.google.com/chromebook/answer/9145439)などのDebian系環境では、インストール前に次のコマンドを実行してください。
+
+```shell
+sudo apt install libxcb-xinerama0 libxcb-cursor0 libnss3 libxcb-icccm4 libxcb-keysyms1
+```
+
+Archや、ManjaroなどのArch系環境では、インストール前に次のコマンドを実行してください。
+
+```shell
+sudo pacman -S libxinerama xcb-util-cursor nss
+```
+
+インストール後にAnkiが起動しない場合は、[ほかのライブラリが不足している](./missing-libraries)可能性があります。
+
+Ubuntu 24.04でAnkiが起動しない場合は、[こちらのスレッド](https://forums.ankiweb.net/t/issues-running-on-ubuntu-24-04/40974)を参照してください。
+
+Ankiのビルドシステムはglibcのみに対応しているため、muslベースのディストリビューションには現在対応していません。
+
+## インストール
+
+Ankiをインストールするには、次の手順に従ってください。
+
+1. [https://apps.ankiweb.net](https://apps.ankiweb.net)からAnkiをダウンロードし、ダウンロードフォルダーに保存します。
+2. zstdがまだインストールされていない場合は、パッケージマネージャーでインストールします。たとえば、Debian/Ubuntuでは`sudo apt install zstd`、Archでは`sudo pacman -S zstd`を使います。
+3. ターミナルを開き、ファイル名を適宜置き換えて、次のコマンドを実行します。
+
+```shell
+tar xaf Downloads/anki-2X.XX-linux-x86_64.tar.zst
+cd anki-linux-2X.XX-*
+sudo ./install.sh
+```
+
+Linux環境によっては、`tar xaf --use-compress-program=unzstd`を使う必要があります。
+
+4. `anki`と入力して<kbd>Enter</kbd>キーを押すと、Ankiを起動できます。問題が発生した場合は、左側のリンクを参照してください。
+
+## アップグレード
+
+以前に.debや.rpmなどからAnkiをインストールしていた場合は、ここで提供するパッケージをインストールする前に、システムにインストール済みのAnkiを必ず削除してください。
+
+以前のパッケージからアップグレードする場合は、インストール手順を繰り返すだけで最新版に更新できます。ユーザーデータは保持されます。
+
+以前のバージョンに戻す場合は、必ず先に[ダウングレードの手順](http://changes.ankiweb.net)を確認して実行してください。
+
+## アドオンの互換性
+
+一部のアドオンは、Ankiの最新リリースで動作しないことがあります。最新版にアップグレードした後、欠かせないアドオンが動作しなくなった場合は、[リリースページ](https://github.com/ankitects/anki/releases)から以前のAnkiをダウンロードできます。
+
+## システムのQtバージョン
+
+Ankiは初期設定で公式のPyQtビルドを使います。これにより、必要なPythonやQtのバージョンがないディストリビューションにもAnkiをインストールしやすくなります。ただし、一部のQtテーマやFCITX入力メソッドへの対応など、ディストリビューションが提供するQtの機能を使えない場合があります。
+
+お使いのLinuxディストリビューションが最新のAnkiパッケージを提供している場合は、そのパッケージを使うのが最も簡単かもしれません。
+
+## 問題が発生した場合
+
+Ankiのインストール時や起動時に問題が発生した場合は、次のページを参照してください。
+
+- [ライブラリの不足](./missing-libraries)
+- [表示の問題](./display-issues)
+- [メインウィンドウに何も表示されない問題](./blank-window)
+- [ディストリビューションのパッケージ](./distro-packages)
+- [GTKテーマの問題](./gtk-theme)
+- [Wayland](./wayland)
+- [入力メソッド](./input-methods)

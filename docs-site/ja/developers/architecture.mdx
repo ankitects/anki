@@ -1,0 +1,35 @@
+---
+title: "Anki のアーキテクチャ"
+---
+
+現時点では、ごく簡単な説明のみです。
+
+## バックエンドと GUI
+
+Anki は大きく分けて、論理上2つの部分で構成されています。
+
+ファイル構成を視覚的に確認できる図はこちらです。
+[https://mango-dune-07a8b7110.1.azurestaticapps.net/?repo=ankitects%2Fanki](https://mango-dune-07a8b7110.1.azurestaticapps.net/?repo=ankitects%2Fanki)
+（または [https://githubnext.com/projects/repo-visualization#explore-for-yourself](https://githubnext.com/projects/repo-visualization#explore-for-yourself)を開き、`ankitects/anki` と入力してください。）
+
+### ライブラリ（rslib と pylib）
+
+Python ライブラリ（pylib）は、コレクションを開く、カードを取得して回答するなどの「バックエンド」メソッドを提供します。Anki の GUI から使われるほか、GUI を使わずに Anki のデッキにアクセスするコマンドラインプログラムにも組み込めます。
+
+Python からは `import anki` でライブラリにアクセスできます。コードは `pylib/anki/` フォルダーにあります。
+
+現在、バックエンドのロジックの大半は Rust ライブラリ（`rslib/` にある rslib）にあります。pylib からの呼び出しは rslib に要求を転送し、結果を返します。
+
+pylib には rsbridge（`pylib/rsbridge/`）という非公開の Python モジュールが含まれており、Rust コードをラップして Python から使えるようにします。
+
+### GUI（aqt と ts）
+
+Anki の _GUI_ は、Qt（Qt 用の Python バインディングである PyQt 経由）と TypeScript/HTML/CSS で構成されています。Qt のコードは `qt/aqt/` にあり、Python から `import aqt` で読み込めます。Web コードは `qt/aqt/data/web/` と `ts/` に分かれています。新しいコードの大半は後者に置かれ、ビルド時に前者へコピーされます。
+
+## Protobuf
+
+Anki は Protocol Buffers を使ってバックエンドのメソッドや、コレクションファイル内の一部の項目の保存形式を定義しています。定義は `proto/anki/` にあります。
+
+Python/Rust ブリッジではデータのやり取りに使われ、一部の TypeScript コードも利用します。これにより、言語間で型安全にデータをやり取りできます。
+
+現時点で protobuf は公開 API と見なされていません。一部の pylib メソッドは protobuf オブジェクトを呼び出し元に直接公開しますが、その場合は型エイリアスを使います。したがって、pylib の外部の呼び出し元が生成済みの `_pb2.py` ファイルをインポートする必要はありません。

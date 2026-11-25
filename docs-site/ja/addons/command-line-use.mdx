@@ -1,0 +1,21 @@
+---
+title: "コマンドラインからの使用"
+---
+
+`anki` モジュールは Anki の GUI とは別に使用できます。`.anki2` ファイルを直接読み書きするのではなく、このモジュールを使うことを強くおすすめします。
+
+pip でインストールします。
+
+```shell
+$ pip install anki
+```
+
+次のように `.py` ファイルから使えます。
+
+```python
+from anki.collection import Collection
+col = Collection("/path/to/collection.anki2")
+print(col.sched.deck_due_tree())
+```
+
+詳しくは[anki モジュール](./the-anki-module)をご覧ください。

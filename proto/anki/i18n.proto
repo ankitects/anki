@@ -3,11 +3,11 @@
 
 syntax = "proto3";
 
-option java_multiple_files = true;
-
 package anki.i18n;
 
 import "anki/generic.proto";
+
+option java_multiple_files = true;
 
 service I18nService {
   rpc TranslateString(TranslateStringRequest) returns (generic.String);

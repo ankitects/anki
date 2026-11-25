@@ -1,0 +1,51 @@
+---
+title: "編集環境と IDE"
+---
+
+Anki が使うすべての言語を十分にサポートしているため、Visual Studio Code をおすすめします。推奨されるワークスペース設定については、以下をご覧ください。
+
+Python の編集では、PyCharm/IntelliJ の型チェックと補完の方が VS Code より少し優れていますが、VS Code も短期間で大きく改善されました。
+
+IDE を使い始める前に、いくつか準備があります。
+
+## 初期設定
+
+### Python 環境
+
+外部 Python モジュールのコード補完には、ビルドプロセスで生成される venv を使えます。Anki をビルドすると、`out/pyenv` に venv が作成されます。VS Code で Ctrl/Cmd+Shift+P を押し、「Python: Select Interpreter」を選びます。
+
+### Rust
+
+ビルドプロセスに必要な Rust をインストールしてください。
+
+### 先にビルドする
+
+コード補完では通常のビルドプロセスで生成されるファイルも使います。正しく動作させるため、コード補完を使う前に `./run` または `tools/build` を実行してください。
+
+## Visual Studio Code
+
+### 推奨ワークスペース設定を行う
+
+Anki の開発に適した既定のワークスペース設定を使うには、プロジェクトのルートに移動して次を実行します。
+
+```
+mkdir .vscode && cd .vscode
+ln -sf ../.vscode.dist/* .
+```
+
+### 推奨拡張機能をインストールする
+
+ワークスペースの設定後、VS Code でリポジトリのルートを開くと、推奨拡張機能の一覧が表示されます。必要なものをインストールしてください。
+
+## PyCharm/IntelliJ
+
+### Python 環境を設定する
+
+PyCharm に `anki` と `aqt` のインポートを認識させるには、「Settings」>「Project Structure」でソースパスを追加します。用意されている `.idea.dist` ディレクトリをコピーすると、パスを自動設定できます。
+
+```
+mkdir .idea && cd .idea
+ln -sf ../.idea.dist/* .
+```
+
+また、「Settings」>「Python」>「Interpreter」で新しい Python インタープリターを追加し、Anki のビルド後に利用できる `out/pyenv` 内の Python 実行ファイルを指定します。

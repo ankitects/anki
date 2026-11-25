@@ -1,10 +1,9 @@
 // Copyright: Anki Software, LLC and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import { updateAllState } from "$lib/components/WithState.svelte";
-import { execCommand } from "$lib/domlib";
-
-import { filterHTML } from "$lib/html-filter";
+import { updateAllState } from "#lib/components/WithState.svelte";
+import { execCommand } from "#lib/domlib/index.js";
+import { filterHTML } from "#lib/html-filter/index.js";
 import { untrustedHTML } from "@tslib/trusted-types";
 
 export function pasteHTML(
