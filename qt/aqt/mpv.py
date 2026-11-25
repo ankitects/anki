@@ -463,7 +463,9 @@ class MPV(MPVBase):
         self._init_event = threading.Event()
 
         super().__init__(*args, **kwargs)
-        threading.Thread(target=self._register_callbacks, daemon=True).start()
+        threading.Thread(
+            target=self._register_callbacks, name="mpv-init", daemon=True
+        ).start()
 
     def _register_callbacks(self):
         self._callbacks = {}
