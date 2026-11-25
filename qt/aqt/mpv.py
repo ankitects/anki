@@ -37,6 +37,7 @@ import sys
 import tempfile
 import threading
 import time
+from concurrent.futures import Future
 from queue import Empty, Full, Queue
 from shutil import which
 
@@ -460,7 +461,7 @@ class MPV(MPVBase):
     def __init__(self, *args, **kwargs):
         self._callbacks_queue = Queue()
         self._callbacks_initialized = False
-        self._init_event = threading.Event()
+        self._init_future: Future[None] = Future()
 
         super().__init__(*args, **kwargs)
         threading.Thread(
@@ -505,8 +506,11 @@ class MPV(MPVBase):
             # completely set up.
             if hasattr(self, "on_init"):
                 self.on_init()
-        finally:
-            self._init_event.set()
+        except BaseException as exc:
+            self._init_future.set_exception(exc)
+            raise
+        else:
+            self._init_future.set_result(None)
 
     #
     # Socket communication
