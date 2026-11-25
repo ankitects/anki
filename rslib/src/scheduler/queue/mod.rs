@@ -219,6 +219,7 @@ impl Collection {
     pub(crate) fn clear_study_queues(&mut self) {
         self.state.card_queues = None;
         self.state.time_budget_batch = None;
+        self.state.time_budget_undone_card = None;
     }
 
     pub(crate) fn maybe_clear_study_queues_after_op(&mut self, op: &OpChanges) {

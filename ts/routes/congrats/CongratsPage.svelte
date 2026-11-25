@@ -22,9 +22,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     const congrats = tr.schedulingCongratulationsFinished();
     const continueTimeBudgetMsg = tr.schedulingTimeBudgetContinue({
-        continueStudying: bridgeLink(
+        continueReviewing: bridgeLink(
             "continueTimeBudget",
-            tr.schedulingTimeBudgetContinueStudying(),
+            tr.schedulingTimeBudgetContinueReviewing(),
         ),
     });
     // a deck studied with a time budget, before continuing past its goal

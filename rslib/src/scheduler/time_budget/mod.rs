@@ -542,11 +542,28 @@ impl Collection {
             usable = self.usable_batch_cards(threshold, new_allowed);
         }
         let batch = self.state.time_budget_batch.as_ref().expect("filled above");
-        let (new_count, learning_count, review_count) = if usable.is_empty() {
+        let (mut new_count, mut learning_count, mut review_count) = if usable.is_empty() {
             (0, 0, 0)
         } else {
             (batch.new_count, batch.learning_count, batch.review_count)
         };
+        // a card whose answer was undone is shown again first, as in Anki's
+        // own queues
+        if let Some(undone) = self.time_budget_undone_candidate(study_deck)? {
+            if let Some(index) = usable
+                .iter()
+                .position(|card| card.card_id == undone.card_id)
+            {
+                usable.remove(index);
+            } else if undone.group == CardGroup::New {
+                new_count += 1;
+            } else if undone.learning {
+                learning_count += 1;
+            } else {
+                review_count += 1;
+            }
+            usable.insert(0, undone);
+        }
 
         let cards = if intraday_learning_only {
             vec![]
@@ -614,7 +631,54 @@ impl Collection {
         Ok(())
     }
 
+    /// After an undo: the batch was scored with the undone answer, so it is
+    /// dropped, and the undone card is shown again first.
+    pub(crate) fn time_budget_after_undo(&mut self, undone_answer: Option<CardId>) {
+        self.state.time_budget_batch = None;
+        self.state.time_budget_undone_card = undone_answer;
+    }
+
+    /// The card whose answer was undone, if it is still in the study deck's
+    /// tree and can be studied.
+    fn time_budget_undone_candidate(&mut self, study_deck: DeckId) -> Result<Option<Candidate>> {
+        let Some(card_id) = self.state.time_budget_undone_card else {
+            return Ok(None);
+        };
+        let Some(card) = self.storage.get_card(card_id)? else {
+            return Ok(None);
+        };
+        let study_deck = self
+            .storage
+            .get_deck(study_deck)?
+            .or_not_found(study_deck)?;
+        if !self
+            .storage
+            .deck_id_with_children(&study_deck)?
+            .contains(&card.deck_id)
+        {
+            return Ok(None);
+        }
+        let group = match card.queue {
+            CardQueue::New => CardGroup::New,
+            CardQueue::Learn | CardQueue::Review | CardQueue::DayLearn => {
+                if self.answers_today_by_card()?.contains_key(&card_id) {
+                    CardGroup::ReReview
+                } else {
+                    CardGroup::FirstReview
+                }
+            }
+            _ => return Ok(None),
+        };
+        Ok(Some(Candidate {
+            card_id,
+            retrievability: 0.0,
+            learning: matches!(card.queue, CardQueue::Learn | CardQueue::DayLearn),
+            group,
+        }))
+    }
+
     pub(crate) fn remove_from_time_budget_batch(&mut self, card_id: CardId) {
+        self.state.time_budget_undone_card = None;
         if let Some(batch) = self.state.time_budget_batch.as_mut() {
             if let Some(index) = batch.cards.iter().position(|card| card.card_id == card_id) {
                 let card = batch.cards.remove(index);
@@ -1152,6 +1216,64 @@ mod test {
             queued_ids(&mut col),
             vec![in_child[0], in_parent[0], in_parent[1]]
         );
+        Ok(())
+    }
+
+    #[test]
+    fn answers_can_be_undone() -> Result<()> {
+        use RevlogReviewKind::*;
+        let mut col = Collection::new();
+        let deck = DeckAdder::new("Budget").add(&mut col);
+        let first = review_card(&mut col, deck.id, &[(20, 3, Learning), (10, 1, Review)]);
+        let second = review_card(&mut col, deck.id, &[(30, 3, Learning), (10, 1, Review)]);
+        col.set_current_deck(deck.id)?;
+        set_budget(
+            &mut col,
+            deck.id,
+            DeckTimeBudget {
+                max_dr: 100,
+                ..Default::default()
+            },
+        );
+        let shown = queued_ids(&mut col)[0];
+        col.answer_good();
+        col.prefetch_time_budget_cards()?;
+        col.undo()?;
+        // the undone card is shown again, first
+        assert_eq!(queued_ids(&mut col)[0], shown);
+        col.answer_good();
+        col.undo()?;
+        col.redo()?;
+        col.undo()?;
+        assert_eq!(queued_ids(&mut col)[0], shown);
+        assert!(queued_ids(&mut col).contains(&first) && queued_ids(&mut col).contains(&second));
+        Ok(())
+    }
+
+    #[test]
+    fn new_card_answers_can_be_undone() -> Result<()> {
+        let mut col = Collection::new();
+        let deck = DeckAdder::new("Budget").add(&mut col);
+        let new_cards: Vec<CardId> = (0..3)
+            .map(|_| CardAdder::new().deck(deck.id).add(&mut col)[0].id)
+            .collect();
+        col.set_current_deck(deck.id)?;
+        set_budget(&mut col, deck.id, DeckTimeBudget::default());
+        for _ in 0..3 {
+            assert_eq!(queued_ids(&mut col)[0], new_cards[0]);
+            col.answer_again();
+            col.prefetch_time_budget_cards()?;
+            col.get_queued_cards(1, false)?;
+            col.undo()?;
+            let queue = col.get_queued_cards(100, false)?;
+            assert_eq!(queue.cards[0].card.id, new_cards[0]);
+            assert_eq!(queue.cards[0].kind, QueueEntryKind::New);
+        }
+        // answering after the undo works, with the model rebuilt or not
+        col.answer_good();
+        col.answer_good();
+        col.prefetch_time_budget_cards()?;
+        col.answer_good();
         Ok(())
     }
 

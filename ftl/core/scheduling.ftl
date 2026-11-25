@@ -93,10 +93,10 @@ scheduling-custom-study = custom study
 # Shown when a deck studied with an RWKV time budget is finished for the day.
 scheduling-time-budget-goal-reached = You've reached your time goal for today!
 scheduling-time-budget-nothing-left = There's nothing left to study in this deck's time budget today.
-scheduling-time-budget-continue = { $continueStudying } to keep reviewing, weakest cards first.
+scheduling-time-budget-continue = { $continueReviewing } to keep going, weakest cards first.
 # used in scheduling-time-budget-continue
-# "Continue studying to keep reviewing, weakest cards first."
-scheduling-time-budget-continue-studying = Continue studying
+# "Continue reviewing to keep going, weakest cards first."
+scheduling-time-budget-continue-reviewing = Continue reviewing
 
 ## Scheduler upgrade
 
