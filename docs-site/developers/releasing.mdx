@@ -108,6 +108,13 @@ candidates, and the stable release all come from the same branch.
     to the new version, then pushes the change. This job uses the `release`
     environment, so a reviewer must approve it before it runs.
 
+### Documentation deployment
+
+Stable releases replace `mintlify-docs` from the release commit. Ensure the release
+branch includes any documentation fixes already published there. For publishing
+fixes without an app release, see
+[docs-site/README.md](https://github.com/ankitects/anki/blob/main/docs-site/README.md#deployment).
+
 ### Security and hotfix releases
 
 For security fixes, an admin should first create a
