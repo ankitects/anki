@@ -486,3 +486,149 @@ pub const CHUNK_SIZE: usize = 250;
 pub struct ApplyChunkRequest {
     pub chunk: Chunk,
 }
+
+#[cfg(test)]
+mod test {
+    use super::*;
+    use crate::card::FsrsMemoryState;
+    use crate::search::SortMode;
+
+    const PENDING: Usn = Usn(-1);
+
+    fn memory_state(stability: f32) -> Option<FsrsMemoryState> {
+        Some(FsrsMemoryState {
+            stability,
+            difficulty: 5.0,
+        })
+    }
+
+    /// A collection holding one review card with FSRS data. The stored card is
+    /// modified locally (usn -1) unless the caller changes that.
+    fn col_with_fsrs_card() -> (Collection, Card) {
+        let mut col = Collection::new();
+        let nt = col.get_notetype_by_name("Basic").unwrap().unwrap();
+        let mut note = nt.new_note();
+        note.set_field(0, "front").unwrap();
+        col.add_note(&mut note, DeckId(1)).unwrap();
+        let card_id = col.search_cards(note.id, SortMode::NoOrder).unwrap()[0];
+        let mut card = col.storage.get_card(card_id).unwrap().unwrap();
+        card.ctype = CardType::Review;
+        card.queue = CardQueue::Review;
+        card.due = 100;
+        card.interval = 10;
+        card.memory_state = memory_state(10.0);
+        card.desired_retention = Some(0.9);
+        card.decay = Some(0.2);
+        card.last_review_time = Some(TimestampSecs(1_000_000));
+        card.usn = PENDING;
+        col.storage.update_card(&card).unwrap();
+        (col, card)
+    }
+
+    fn apply(col: &Collection, entry: CardEntry, pending_usn: Usn) -> HashMap<CardId, bool> {
+        let mut map = HashMap::new();
+        col.add_or_update_card_if_newer(entry, pending_usn, &mut map)
+            .unwrap();
+        map
+    }
+
+    #[test]
+    fn card_not_in_collection_is_not_flagged_for_fsrs_reconcile() {
+        let (col, card) = col_with_fsrs_card();
+        let mut entry = CardEntry::from(card);
+        entry.id = CardId(entry.id.0 + 1);
+
+        assert!(apply(&col, entry, PENDING).is_empty());
+    }
+
+    #[test]
+    fn locally_unmodified_card_is_not_flagged_for_fsrs_reconcile() {
+        let (col, mut card) = col_with_fsrs_card();
+        card.usn = Usn(5);
+        col.storage.update_card(&card).unwrap();
+        let mut incoming = card.clone();
+        incoming.memory_state = memory_state(20.0);
+
+        assert!(apply(&col, incoming.into(), PENDING).is_empty());
+    }
+
+    #[test]
+    fn card_without_fsrs_data_on_either_side_is_not_flagged_for_fsrs_reconcile() {
+        let (col, mut card) = col_with_fsrs_card();
+        card.memory_state = None;
+        card.desired_retention = None;
+        card.decay = None;
+        col.storage.update_card(&card).unwrap();
+        let mut incoming = card.clone();
+        incoming.due += 5;
+        incoming.interval += 5;
+
+        assert!(apply(&col, incoming.into(), PENDING).is_empty());
+    }
+
+    #[test]
+    fn identical_incoming_card_is_not_flagged_for_fsrs_reconcile() {
+        let (col, card) = col_with_fsrs_card();
+
+        assert!(apply(&col, card.into(), PENDING).is_empty());
+    }
+
+    #[test]
+    fn memory_state_difference_is_flagged_without_reschedule() {
+        let (col, card) = col_with_fsrs_card();
+        let mut incoming = card.clone();
+        incoming.memory_state = memory_state(card.memory_state.unwrap().stability + 1.0);
+
+        assert_eq!(
+            apply(&col, incoming.into(), PENDING),
+            HashMap::from([(card.id, false)])
+        );
+    }
+
+    #[test]
+    fn last_review_time_difference_is_flagged_without_reschedule() {
+        let (col, card) = col_with_fsrs_card();
+        let mut incoming = card.clone();
+        incoming.last_review_time = Some(TimestampSecs(1_000_100));
+
+        assert_eq!(
+            apply(&col, incoming.into(), PENDING),
+            HashMap::from([(card.id, false)])
+        );
+    }
+
+    #[test]
+    fn due_and_interval_difference_is_flagged_with_reschedule() {
+        let (col, card) = col_with_fsrs_card();
+        let mut incoming = card.clone();
+        incoming.due += 20;
+        incoming.interval += 20;
+
+        assert_eq!(
+            apply(&col, incoming.into(), PENDING),
+            HashMap::from([(card.id, true)])
+        );
+    }
+
+    #[test]
+    fn reschedule_flag_is_kept_across_entries_for_the_same_card() {
+        let (col, card) = col_with_fsrs_card();
+        let mut metadata_only = card.clone();
+        metadata_only.memory_state = memory_state(card.memory_state.unwrap().stability + 1.0);
+        let mut schedule = card.clone();
+        schedule.due += 20;
+        schedule.interval += 20;
+
+        for (first, second) in [
+            (metadata_only.clone(), schedule.clone()),
+            (schedule, metadata_only),
+        ] {
+            let mut map = HashMap::new();
+            col.add_or_update_card_if_newer(first.into(), PENDING, &mut map)
+                .unwrap();
+            col.add_or_update_card_if_newer(second.into(), PENDING, &mut map)
+                .unwrap();
+            assert_eq!(map, HashMap::from([(card.id, true)]));
+        }
+    }
+}

@@ -7,6 +7,7 @@ use std::collections::HashMap;
 use std::future::Future;
 use std::sync::LazyLock;
 
+use anki_proto::scheduler::bury_or_suspend_cards_request::Mode as BuryOrSuspendMode;
 use anki_proto::sync::sync_status_response;
 use axum::http::StatusCode;
 use fsrs::DEFAULT_PARAMETERS;
@@ -25,7 +26,9 @@ use wiremock::Mock;
 use wiremock::MockServer;
 use wiremock::ResponseTemplate;
 
+use crate::card::Card;
 use crate::card::CardQueue;
+use crate::card::CardType;
 use crate::card::FsrsMemoryState;
 use crate::collection::CollectionBuilder;
 use crate::config::BoolKey;
@@ -1244,6 +1247,445 @@ async fn fsrs_state_is_recomputed_from_reviews_on_both_devices() -> Result<()> {
 }
 
 #[tokio::test]
+async fn fsrs_reconciles_when_server_copy_is_newer() -> Result<()> {
+    with_active_server(|client| async move {
+        let ctx = SyncTestContext::new(client);
+        let (mut col1, mut col2, card_id) = two_devices_with_easy_card(&ctx, true).await?;
+
+        // Stale FSRS-only edit on col2.
+        col2.get_and_update_card(card_id, |card| {
+            card.memory_state = Some(FsrsMemoryState {
+                stability: card.memory_state.unwrap().stability + 1.0,
+                difficulty: card.memory_state.unwrap().difficulty,
+            });
+            card.desired_retention = Some(0.97);
+            card.decay = Some(0.12);
+            Ok(())
+        })?;
+
+        // col1 reviews the card later, so its copy is the newer one.
+        std::thread::sleep(std::time::Duration::from_millis(1100));
+        make_card_due(&mut col1, card_id)?;
+        col1.answer_good();
+
+        let col1_card = col1.storage.get_card(card_id)?.unwrap();
+        let col2_stale_card = col2.storage.get_card(card_id)?.unwrap();
+        assert!(col1_card.mtime > col2_stale_card.mtime);
+        assert_ne!(col1_card.memory_state, col2_stale_card.memory_state);
+
+        let out = ctx.normal_sync(&mut col1).await;
+        assert_eq!(out.required, SyncActionRequired::NoChanges);
+        let out = ctx.normal_sync(&mut col2).await;
+        assert_eq!(out.required, SyncActionRequired::NoChanges);
+
+        let col2_card = col2.storage.get_card(card_id)?.unwrap();
+        assert_eq!(col2_card.memory_state, col1_card.memory_state);
+        assert_eq!(col2_card.last_review_time, col1_card.last_review_time);
+        assert_eq!(col2_card.interval, col1_card.interval);
+        assert_eq!(col2_card.due, col1_card.due);
+
+        let out = ctx.normal_sync(&mut col1).await;
+        assert_eq!(out.required, SyncActionRequired::NoChanges);
+        assert_card_rows_converged(&col1.storage.get_card(card_id)?.unwrap(), &col2_card);
+
+        Ok(())
+    })
+    .await
+}
+
+#[tokio::test]
+async fn fsrs_deck_move_is_not_rescheduled() -> Result<()> {
+    with_active_server(|client| async move {
+        let ctx = SyncTestContext::new(client);
+
+        let mut col1 = ctx.col1();
+        col1.set_config_bool(BoolKey::Fsrs, true, false)?;
+        let mut config = col1.get_deck_config(DeckConfigId(1), false)?.unwrap();
+        config.inner.desired_retention = 0.9;
+        col1.add_or_update_deck_config(&mut config)?;
+        let deck_a = col1.get_or_create_normal_deck("fsrs deck a")?;
+        let mut deck_b = col1.get_or_create_normal_deck("fsrs deck b")?;
+        deck_b.normal_mut().unwrap().desired_retention = Some(0.70);
+        col1.add_or_update_deck(&mut deck_b)?;
+
+        let nt = col1.get_notetype_by_name("Basic")?.unwrap();
+        let mut note = nt.new_note();
+        note.set_field(0, "fsrs-deck-move")?;
+        col1.add_note(&mut note, deck_a.id)?;
+        col1.set_current_deck(deck_a.id)?;
+        let card_id = col1.answer_easy().card_id;
+
+        sync_fsrs_collections(&ctx, col1).await?;
+        let mut col1 = ctx.col1();
+        let mut col2 = ctx.col2();
+
+        // The server holds a newer row, but only because of a flag change.
+        col1.set_card_flag(&[card_id], 1)?;
+        // The deck move on col2 is the newest local change.
+        std::thread::sleep(std::time::Duration::from_millis(1100));
+        col2.set_deck(&[card_id], deck_b.id)?;
+        let moved_card = col2.storage.get_card(card_id)?.unwrap();
+        assert_eq!(moved_card.deck_id, deck_b.id);
+        assert!(moved_card.mtime > col1.storage.get_card(card_id)?.unwrap().mtime);
+
+        let out = ctx.normal_sync(&mut col1).await;
+        assert_eq!(out.required, SyncActionRequired::NoChanges);
+        let out = ctx.normal_sync(&mut col2).await;
+        assert_eq!(out.required, SyncActionRequired::NoChanges);
+
+        let synced_card = col2.storage.get_card(card_id)?.unwrap();
+        assert_eq!(synced_card.deck_id, deck_b.id);
+        assert_eq!(synced_card.interval, moved_card.interval);
+        assert_eq!(synced_card.due, moved_card.due);
+        assert_eq!(synced_card.desired_retention, Some(0.70));
+
+        let out = ctx.normal_sync(&mut col1).await;
+        assert_eq!(out.required, SyncActionRequired::NoChanges);
+        assert_card_rows_converged(&col1.storage.get_card(card_id)?.unwrap(), &synced_card);
+
+        Ok(())
+    })
+    .await
+}
+
+#[tokio::test]
+async fn fsrs_relearning_card_keeps_local_schedule() -> Result<()> {
+    with_active_server(|client| async move {
+        let ctx = SyncTestContext::new(client);
+        let (mut col1, mut col2, card_id) = two_devices_with_easy_card(&ctx, true).await?;
+
+        make_card_due(&mut col1, card_id)?;
+        col1.answer_good();
+        std::thread::sleep(std::time::Duration::from_millis(1100));
+        make_card_due(&mut col2, card_id)?;
+        col2.answer_again();
+
+        let relearning_card = col2.storage.get_card(card_id)?.unwrap();
+        assert_eq!(relearning_card.ctype, CardType::Relearn);
+
+        let out = ctx.normal_sync(&mut col1).await;
+        assert_eq!(out.required, SyncActionRequired::NoChanges);
+        let out = ctx.normal_sync(&mut col2).await;
+        assert_eq!(out.required, SyncActionRequired::NoChanges);
+
+        let synced_card = col2.storage.get_card(card_id)?.unwrap();
+        assert_eq!(synced_card.ctype, relearning_card.ctype);
+        assert_eq!(synced_card.queue, relearning_card.queue);
+        assert_eq!(synced_card.due, relearning_card.due);
+        assert_eq!(synced_card.interval, relearning_card.interval);
+        assert_eq!(synced_card.original_due, relearning_card.original_due);
+
+        let revlog = col2.storage.get_revlog_entries_for_card(card_id)?;
+        assert_eq!(revlog.len(), 3);
+        let again_review = revlog.iter().max_by_key(|entry| entry.id).unwrap();
+        assert_eq!(again_review.button_chosen, 1);
+        assert_eq!(
+            synced_card.last_review_time,
+            Some(again_review.id.as_secs())
+        );
+        assert_memory_state_matches_merged_log(&mut col2, card_id)?;
+
+        let out = ctx.normal_sync(&mut col1).await;
+        assert_eq!(out.required, SyncActionRequired::NoChanges);
+        assert_card_rows_converged(&col1.storage.get_card(card_id)?.unwrap(), &synced_card);
+
+        Ok(())
+    })
+    .await
+}
+
+#[tokio::test]
+async fn fsrs_suspended_card_keeps_local_schedule() -> Result<()> {
+    with_active_server(|client| async move {
+        let ctx = SyncTestContext::new(client);
+        let (mut col1, mut col2, card_id) = two_devices_with_easy_card(&ctx, true).await?;
+
+        make_card_due(&mut col1, card_id)?;
+        col1.answer_good();
+        std::thread::sleep(std::time::Duration::from_millis(1100));
+        col2.bury_or_suspend_cards(&[card_id], BuryOrSuspendMode::Suspend)?;
+        let suspended_card = col2.storage.get_card(card_id)?.unwrap();
+        assert_eq!(suspended_card.queue, CardQueue::Suspended);
+
+        let out = ctx.normal_sync(&mut col1).await;
+        assert_eq!(out.required, SyncActionRequired::NoChanges);
+        let out = ctx.normal_sync(&mut col2).await;
+        assert_eq!(out.required, SyncActionRequired::NoChanges);
+
+        let synced_card = col2.storage.get_card(card_id)?.unwrap();
+        assert_eq!(synced_card.queue, CardQueue::Suspended);
+        assert_eq!(synced_card.due, suspended_card.due);
+        assert_eq!(synced_card.interval, suspended_card.interval);
+        assert_eq!(col2.storage.get_revlog_entries_for_card(card_id)?.len(), 2);
+        assert_memory_state_matches_merged_log(&mut col2, card_id)?;
+
+        let out = ctx.normal_sync(&mut col1).await;
+        assert_eq!(out.required, SyncActionRequired::NoChanges);
+        assert_card_rows_converged(&col1.storage.get_card(card_id)?.unwrap(), &synced_card);
+
+        Ok(())
+    })
+    .await
+}
+
+#[tokio::test]
+async fn sm2_sync_conflict_is_unchanged() -> Result<()> {
+    with_active_server(|client| async move {
+        let ctx = SyncTestContext::new(client);
+        let (mut col1, mut col2, card_id) = two_devices_with_easy_card(&ctx, false).await?;
+
+        make_card_due(&mut col1, card_id)?;
+        col1.answer_good();
+        std::thread::sleep(std::time::Duration::from_millis(1100));
+        make_card_due(&mut col2, card_id)?;
+        col2.answer_easy();
+        let local_card = col2.storage.get_card(card_id)?.unwrap();
+        assert_ne!(
+            local_card.interval,
+            col1.storage.get_card(card_id)?.unwrap().interval
+        );
+
+        let out = ctx.normal_sync(&mut col1).await;
+        assert_eq!(out.required, SyncActionRequired::NoChanges);
+        let out = ctx.normal_sync(&mut col2).await;
+        assert_eq!(out.required, SyncActionRequired::NoChanges);
+
+        let synced_card = col2.storage.get_card(card_id)?.unwrap();
+        assert_eq!(synced_card.due, local_card.due);
+        assert_eq!(synced_card.interval, local_card.interval);
+        assert_eq!(synced_card.ease_factor, local_card.ease_factor);
+        assert_eq!(synced_card.queue, local_card.queue);
+        assert_eq!(synced_card.ctype, local_card.ctype);
+        assert_eq!(synced_card.memory_state, None);
+        assert_eq!(synced_card.desired_retention, None);
+        assert_eq!(synced_card.decay, None);
+
+        let out = ctx.normal_sync(&mut col1).await;
+        assert_eq!(out.required, SyncActionRequired::NoChanges);
+        assert_card_rows_converged(&col1.storage.get_card(card_id)?.unwrap(), &synced_card);
+
+        Ok(())
+    })
+    .await
+}
+
+#[tokio::test]
+async fn fsrs_reconcile_without_load_balancer_converges() -> Result<()> {
+    with_active_server(|client| async move {
+        let ctx = SyncTestContext::new(client);
+
+        let mut col1 = ctx.col1();
+        col1.set_config_bool(BoolKey::Fsrs, true, false)?;
+        col1.set_config_bool(BoolKey::LoadBalancerEnabled, false, false)?;
+        let nt = col1.get_notetype_by_name("Basic")?.unwrap();
+        let mut note = nt.new_note();
+        note.set_field(0, "fsrs-no-load-balancer")?;
+        col1.add_note(&mut note, DeckId(1))?;
+        let card_id = col1.answer_easy().card_id;
+
+        sync_fsrs_collections(&ctx, col1).await?;
+        let mut col1 = ctx.col1();
+        let mut col2 = ctx.col2();
+        assert!(!col1.get_config_bool(BoolKey::LoadBalancerEnabled));
+        assert!(!col2.get_config_bool(BoolKey::LoadBalancerEnabled));
+
+        std::thread::sleep(std::time::Duration::from_millis(1100));
+        make_card_due(&mut col1, card_id)?;
+        col1.answer_good();
+        std::thread::sleep(std::time::Duration::from_millis(1));
+
+        let config = col2.get_deck_config(DeckConfigId(1), false)?.unwrap();
+        let ignore_before = ignore_revlogs_before_ms_from_config(&config)?;
+        let request = UpdateMemoryStateRequest {
+            params: config.fsrs_params().clone(),
+            preset_desired_retention: config.inner.desired_retention,
+            historical_retention: config.inner.historical_retention,
+            max_interval: config.inner.maximum_review_interval,
+            reschedule: false,
+            deck_desired_retention: HashMap::new(),
+        };
+        col2.transact(Op::UpdateDeckConfig, |col| {
+            col.update_memory_state(vec![UpdateMemoryStateEntry {
+                req: Some(request),
+                search: SearchNode::CardIds(card_id.to_string()),
+                ignore_before,
+            }])?;
+            Ok(())
+        })?;
+
+        let stale_card = col2.storage.get_card(card_id)?.unwrap();
+        let reviewed_card = col1.storage.get_card(card_id)?.unwrap();
+        assert!(
+            stale_card.memory_state != reviewed_card.memory_state
+                || stale_card.last_review_time != reviewed_card.last_review_time
+                || stale_card.interval != reviewed_card.interval
+                || stale_card.due != reviewed_card.due
+        );
+
+        let out = ctx.normal_sync(&mut col1).await;
+        assert_eq!(out.required, SyncActionRequired::NoChanges);
+        let out = ctx.normal_sync(&mut col2).await;
+        assert_eq!(out.required, SyncActionRequired::NoChanges);
+
+        let reconciled_card = col2.storage.get_card(card_id)?.unwrap();
+        let reviewed_card = col1.storage.get_card(card_id)?.unwrap();
+        assert_eq!(reconciled_card.memory_state, reviewed_card.memory_state);
+        assert_eq!(
+            reconciled_card.last_review_time,
+            reviewed_card.last_review_time
+        );
+        assert_eq!(reconciled_card.interval, reviewed_card.interval);
+        assert_eq!(reconciled_card.due, reviewed_card.due);
+
+        let out = ctx.normal_sync(&mut col1).await;
+        assert_eq!(out.required, SyncActionRequired::NoChanges);
+        assert_card_rows_converged(&col1.storage.get_card(card_id)?.unwrap(), &reconciled_card);
+
+        Ok(())
+    })
+    .await
+}
+
+#[tokio::test]
+async fn fsrs_forgotten_card_is_not_restored_by_sync() -> Result<()> {
+    with_active_server(|client| async move {
+        let ctx = SyncTestContext::new(client);
+        let (mut col1, mut col2, card_id) = two_devices_with_easy_card(&ctx, true).await?;
+
+        make_card_due(&mut col1, card_id)?;
+        col1.answer_good();
+        std::thread::sleep(std::time::Duration::from_millis(1100));
+        // Same flags as the "Forget" action: log the change, keep positions
+        // and counts as they are.
+        col2.reschedule_cards_as_new(&[card_id], true, false, false, None)?;
+
+        let forgotten_card = col2.storage.get_card(card_id)?.unwrap();
+        assert_eq!(forgotten_card.ctype, CardType::New);
+        assert_eq!(forgotten_card.queue, CardQueue::New);
+        assert_eq!(forgotten_card.memory_state, None);
+        let revlog = col2.storage.get_revlog_entries_for_card(card_id)?;
+        assert_eq!(revlog.len(), 2);
+        assert_eq!(
+            revlog
+                .iter()
+                .max_by_key(|entry| entry.id)
+                .unwrap()
+                .review_kind,
+            RevlogReviewKind::Manual
+        );
+
+        let out = ctx.normal_sync(&mut col1).await;
+        assert_eq!(out.required, SyncActionRequired::NoChanges);
+        let out = ctx.normal_sync(&mut col2).await;
+        assert_eq!(out.required, SyncActionRequired::NoChanges);
+
+        let synced_card = col2.storage.get_card(card_id)?.unwrap();
+        assert_eq!(synced_card.ctype, CardType::New);
+        assert_eq!(synced_card.queue, CardQueue::New);
+        assert_eq!(synced_card.memory_state, forgotten_card.memory_state);
+        assert_eq!(
+            synced_card.last_review_time,
+            forgotten_card.last_review_time
+        );
+
+        let out = ctx.normal_sync(&mut col1).await;
+        assert_eq!(out.required, SyncActionRequired::NoChanges);
+        assert_card_rows_converged(&col1.storage.get_card(card_id)?.unwrap(), &synced_card);
+
+        Ok(())
+    })
+    .await
+}
+
+#[tokio::test]
+async fn fsrs_reconcile_uses_params_changed_on_other_device() -> Result<()> {
+    with_active_server(|client| async move {
+        let ctx = SyncTestContext::new(client);
+
+        let mut col1 = ctx.col1();
+        col1.set_config_bool(BoolKey::Fsrs, true, false)?;
+        let mut config = col1.get_deck_config(DeckConfigId(1), false)?.unwrap();
+        config.inner.fsrs_params_6 = DEFAULT_PARAMETERS.into();
+        col1.add_or_update_deck_config(&mut config)?;
+        let nt = col1.get_notetype_by_name("Basic")?.unwrap();
+        let mut note_a = nt.new_note();
+        note_a.set_field(0, "fsrs-params-a")?;
+        col1.add_note(&mut note_a, DeckId(1))?;
+        let card_a = col1.answer_easy().card_id;
+        let mut note_b = nt.new_note();
+        note_b.set_field(0, "fsrs-params-b")?;
+        col1.add_note(&mut note_b, DeckId(1))?;
+        let card_b = col1.answer_easy().card_id;
+        assert_ne!(card_a, card_b);
+
+        sync_fsrs_collections(&ctx, col1).await?;
+        let mut col1 = ctx.col1();
+        let mut col2 = ctx.col2();
+
+        // col1 changes the preset params and recomputes both cards with them.
+        let mut new_params: Vec<f32> = DEFAULT_PARAMETERS.into();
+        for param in &mut new_params[0..4] {
+            *param *= 2.0;
+        }
+        let mut config = col1.get_deck_config(DeckConfigId(1), false)?.unwrap();
+        config.inner.fsrs_params_6 = new_params.clone();
+        col1.add_or_update_deck_config(&mut config)?;
+        let config = col1.get_deck_config(DeckConfigId(1), false)?.unwrap();
+        let ignore_before = ignore_revlogs_before_ms_from_config(&config)?;
+        col1.transact(Op::UpdateDeckConfig, |col| {
+            col.update_memory_state(vec![UpdateMemoryStateEntry {
+                req: Some(UpdateMemoryStateRequest {
+                    params: config.fsrs_params().clone(),
+                    preset_desired_retention: config.inner.desired_retention,
+                    historical_retention: config.inner.historical_retention,
+                    max_interval: config.inner.maximum_review_interval,
+                    reschedule: false,
+                    deck_desired_retention: HashMap::new(),
+                }),
+                search: SearchNode::CardIds(format!("{},{}", card_a.0, card_b.0)),
+                ignore_before,
+            }])?;
+            Ok(())
+        })?;
+        let out = ctx.normal_sync(&mut col1).await;
+        assert_eq!(out.required, SyncActionRequired::NoChanges);
+
+        // col2 still has the old params and reviews card A afterwards.
+        std::thread::sleep(std::time::Duration::from_millis(1100));
+        make_card_due(&mut col2, card_a)?;
+        col2.answer_good();
+        let reviewed_card_a = col2.storage.get_card(card_a)?.unwrap();
+        assert_eq!(
+            col2.get_deck_config(DeckConfigId(1), false)?
+                .unwrap()
+                .fsrs_params()
+                .to_vec(),
+            DEFAULT_PARAMETERS.to_vec()
+        );
+
+        let out = ctx.normal_sync(&mut col2).await;
+        assert_eq!(out.required, SyncActionRequired::NoChanges);
+
+        let synced_config = col2.get_deck_config(DeckConfigId(1), false)?.unwrap();
+        assert_eq!(synced_config.fsrs_params().to_vec(), new_params);
+        assert_eq!(
+            col2.storage.get_card(card_b)?.unwrap().memory_state,
+            col1.storage.get_card(card_b)?.unwrap().memory_state
+        );
+        let synced_card_a = col2.storage.get_card(card_a)?.unwrap();
+        assert_ne!(synced_card_a.memory_state, reviewed_card_a.memory_state);
+        assert_memory_state_matches_merged_log(&mut col2, card_a)?;
+
+        let out = ctx.normal_sync(&mut col1).await;
+        assert_eq!(out.required, SyncActionRequired::NoChanges);
+        assert_card_rows_converged(&col1.storage.get_card(card_a)?.unwrap(), &synced_card_a);
+
+        Ok(())
+    })
+    .await
+}
+
+#[tokio::test]
 async fn sanity_check_should_roll_back_and_force_full_sync() -> Result<()> {
     with_active_server(|client| async move {
         let ctx = SyncTestContext::new(client);
@@ -1549,6 +1991,74 @@ async fn sync_fsrs_collections(ctx: &SyncTestContext, mut col1: Collection) -> R
     );
     ctx.full_download(col2).await;
 
+    Ok(())
+}
+
+/// Syncs a collection holding one card answered Easy to a second device, and
+/// returns both collections plus the card id.
+async fn two_devices_with_easy_card(
+    ctx: &SyncTestContext,
+    fsrs: bool,
+) -> Result<(Collection, Collection, CardId)> {
+    let mut col1 = ctx.col1();
+    if fsrs {
+        col1.set_config_bool(BoolKey::Fsrs, true, false)?;
+    }
+    let nt = col1.get_notetype_by_name("Basic")?.unwrap();
+    let mut note = nt.new_note();
+    note.set_field(0, "easy-card")?;
+    col1.add_note(&mut note, DeckId(1))?;
+    let card_id = col1.answer_easy().card_id;
+    sync_fsrs_collections(ctx, col1).await?;
+    Ok((ctx.col1(), ctx.col2(), card_id))
+}
+
+/// Makes the review card due today so it can be answered again.
+fn make_card_due(col: &mut Collection, card_id: CardId) -> Result<()> {
+    col.storage
+        .db
+        .execute("update cards set due = 0 where id = ?", [card_id])?;
+    col.clear_study_queues();
+    Ok(())
+}
+
+/// Compares the card row fields that sync and FSRS reconciliation touch.
+fn assert_card_rows_converged(a: &Card, b: &Card) {
+    assert_eq!(a.deck_id, b.deck_id);
+    assert_eq!(a.ctype, b.ctype);
+    assert_eq!(a.queue, b.queue);
+    assert_eq!(a.due, b.due);
+    assert_eq!(a.interval, b.interval);
+    assert_eq!(a.original_due, b.original_due);
+    assert_eq!(a.memory_state, b.memory_state);
+    assert_eq!(a.desired_retention, b.desired_retention);
+    assert_eq!(a.decay, b.decay);
+    assert_eq!(a.last_review_time, b.last_review_time);
+}
+
+/// The stored memory state must match one recomputed from the card's revlog
+/// with its home deck's preset. `compute_memory_state` runs one card at a
+/// time while reconciliation runs a batch, so allow float noise.
+fn assert_memory_state_matches_merged_log(col: &mut Collection, card_id: CardId) -> Result<()> {
+    let stored = col
+        .storage
+        .get_card(card_id)?
+        .unwrap()
+        .memory_state
+        .unwrap();
+    let expected = col.compute_memory_state(card_id)?.state.unwrap();
+    assert!(
+        (stored.stability - expected.stability).abs() < 1e-4,
+        "stability {} vs {}",
+        stored.stability,
+        expected.stability
+    );
+    assert!(
+        (stored.difficulty - expected.difficulty).abs() < 1e-4,
+        "difficulty {} vs {}",
+        stored.difficulty,
+        expected.difficulty
+    );
     Ok(())
 }
 
