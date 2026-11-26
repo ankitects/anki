@@ -22,6 +22,14 @@
       "source": "/faqs/when-problems-occur",
       "destination": "/manual/troubleshooting"
     },
+    {
+      "source": "/faqs/why-does-ankimobile-cost-more-than-a-typical-mobile-app",
+      "destination": "/ankimobile/support"
+    },
+    {
+      "source": "/ar/faqs/why-does-ankimobile-cost-more-than-a-typical-mobile-app",
+      "destination": "/ankimobile/support"
+    },
     { "source": "/addons.html", "destination": "/manual/addons" },
     { "source": "/background.html", "destination": "/manual/background" },
     { "source": "/backups.html", "destination": "/manual/backups" },
@@ -333,8 +341,7 @@
                     "icon": "mobile",
                     "pages": [
                       "faqs/requesting-a-refund-for-ankimobile",
-                      "faqs/retrieving-ankimobile-crash-logs",
-                      "faqs/why-does-ankimobile-cost-more-than-a-typical-mobile-app"
+                      "faqs/retrieving-ankimobile-crash-logs"
                     ]
                   },
                   {
@@ -842,8 +849,7 @@
                     "icon": "mobile",
                     "pages": [
                       "ar/faqs/requesting-a-refund-for-ankimobile",
-                      "ar/faqs/retrieving-ankimobile-crash-logs",
-                      "ar/faqs/why-does-ankimobile-cost-more-than-a-typical-mobile-app"
+                      "ar/faqs/retrieving-ankimobile-crash-logs"
                     ]
                   },
                   {
