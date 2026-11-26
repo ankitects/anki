@@ -493,6 +493,7 @@ impl Collection {
         Ok(())
     }
 
+    #[allow(clippy::too_many_arguments)]
     fn reconcile_cards_with_items_after_sync(
         &mut self,
         items: Vec<(CardId, FsrsItemForMemoryState)>,
