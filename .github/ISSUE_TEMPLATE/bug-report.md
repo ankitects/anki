@@ -9,9 +9,9 @@ assignees: ""
 <!-- Thanks for helping improve Anki! Text inside these markers won't appear in the issue.
 
 Before you start:
-- Search existing issues on github and the [forum](https://forums.ankiweb.net/); this may already be reported.
+- Search existing issues on github and the [forum](https://forums.ankiweb.net/); it may already be reported.
 - Read the contribution guide: https://github.com/ankitects/anki/blob/main/docs/contributing.md
-- If this is about Anki's behavior, check that it still happens on the latest version
+- If the issue is about Anki's behavior, check that it still happens on the latest version
   with add-ons disabled (hold Shift while starting Anki).
 
 Only "Problem description" is required. Fill in the other sections when they apply and
