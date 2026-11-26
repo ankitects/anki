@@ -125,7 +125,10 @@ def test_mpvmanager_can_play_generated_wav(
         MpvManager, "default_argv", MpvManager.default_argv + ["--ao=null", "--vo=null"]
     )
     manager = MpvManager(tmp_path, tmp_path, taskman)
-    manager.play(SoundOrVideoTag(filename=str(generated_wav.name)), lambda: None)
+    try:
+        manager.play(SoundOrVideoTag(filename=str(generated_wav.name)), lambda: None)
+    finally:
+        manager.close()
 
 
 @pytest.mark.skipif(is_lin, reason="mpv is not bundled for Linux")
