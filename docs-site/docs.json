@@ -22,6 +22,14 @@
       "source": "/faqs/when-problems-occur",
       "destination": "/manual/troubleshooting"
     },
+    {
+      "source": "/faqs/why-does-ankimobile-cost-more-than-a-typical-mobile-app",
+      "destination": "/faqs/how-can-i-donate"
+    },
+    {
+      "source": "/ar/faqs/why-does-ankimobile-cost-more-than-a-typical-mobile-app",
+      "destination": "/ar/faqs/how-can-i-donate"
+    },
     { "source": "/addons.html", "destination": "/manual/addons" },
     { "source": "/background.html", "destination": "/manual/background" },
     { "source": "/backups.html", "destination": "/manual/backups" },
