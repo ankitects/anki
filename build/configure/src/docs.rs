@@ -52,6 +52,7 @@ fn check_cog(build: &mut Build) -> Result<()> {
         "docs",
         inputs![glob!["docs/*.md"], glob!["docs-site/*.mdx"],],
         inputs![
+            glob!["docs-site/developers/**/*.mdx"],
             "pylib/tools/genhooks.py",
             "tools/mintlify_hooks.py",
             "tools/auto_update_untranslated.py",
