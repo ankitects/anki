@@ -59,22 +59,13 @@ tr.deck td:nth-child(4) {
     text-align: center;
 }
 
-th.count {
-    min-width: 5em;
-    width: 5em;
-    box-sizing: border-box;
-    padding-inline: 8px;
-    text-align: center;
-}
-
 // Keep the options column left-aligned so it stays like the original layout.
 th.optscol,
 tr.deck td:nth-child(5) {
     width: 1em;
     min-width: 1em;
-    padding-left: 0;
-    padding-right: 12px;
-    text-align: left;
+    padding-inline: 0 12px;
+    text-align: start;
 }
 
 tr.top-level-drag-row td {
@@ -139,8 +130,10 @@ tr:hover:not(.top-level-drag-row) {
 }
 
 .count {
-    min-width: 4em;
-    text-align: right;
+    min-width: 5em;
+    box-sizing: border-box;
+    text-align: center;
+    padding-inline: 12px;
 }
 
 .optscol {
