@@ -40,8 +40,11 @@ pub(crate) struct FsrsReconcileCandidates {
 }
 
 impl FsrsReconcileCandidates {
-    /// Flagged cards whose schedule may change: only new reviews move a
-    /// schedule, never deck moves, (un)suspend, flags or remote resets.
+    /// Flagged cards that received a new review: their schedule may change.
+    /// Deck moves, (un)suspend, flags or remote resets never move a schedule.
+    /// Reconciliation also reschedules a flagged card whose winning row has
+    /// an older `last_review_time` than its newest review (see
+    /// `should_reschedule_reconciled_card`).
     pub(crate) fn cards_to_reschedule(&self) -> HashSet<CardId> {
         self.cards
             .intersection(&self.cards_with_new_reviews)

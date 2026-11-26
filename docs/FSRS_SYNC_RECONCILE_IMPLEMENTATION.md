@@ -110,7 +110,7 @@ Why this is necessary:
 - Detection belongs in the incoming card merge path because that is where both versions are visible at once.
 - The condition is intentionally limited to **locally pending** cards, because that is the case where we know the local side still has unsynced state that can conflict with the incoming remote row.
 - `cards_with_new_reviews` records which cards received a new rating review in this download. `add_revlog_entry` returns `Some` only when the row was inserted, so entries already present locally do not count; resets, manual reschedules and cramming entries do not count either.
-- Chunks interleave revlog and card rows, so whether a card is rescheduled is decided only after the whole download, as `cards ∩ cards_with_new_reviews`.
+- Chunks interleave revlog and card rows, so whether a card is rescheduled is decided only after the whole download, as `cards ∩ cards_with_new_reviews` (plus the stale-winner rule of section 8, decided per card during reconciliation).
 - The code still preserves the existing winner rule for the raw row merge. The reconcile pass is a follow-up correction, not a replacement for the current sync protocol.
 - The server applies chunks with a throwaway `FsrsReconcileCandidates` and never reconciles.
 
@@ -146,7 +146,7 @@ Why this is necessary:
 - We do not want to reconcile every overlapping card update.
 - We only care about cards that are already carrying FSRS-derived state or whose FSRS-derived state clearly diverges.
 - `last_review_time` is included because it affects FSRS behavior and can become stale independently of raw memory state values.
-- Schedule differences are included because stale FSRS state is not only about `cards.data`; it can also show up as wrong interval or due values. A schedule difference alone (deck move, suspend, flag) only gets the FSRS metadata reconciled; it never reschedules the card (section 8).
+- Schedule differences are included because stale FSRS state is not only about `cards.data`; it can also show up as wrong interval or due values. A schedule difference alone (deck move, suspend, flag) only gets the FSRS metadata reconciled; it never reschedules the card, unless the winning row also misses the newest review (section 8).
 
 ## 4. Group Reconciliation By Current Deck Config
 
@@ -292,7 +292,7 @@ Why this is necessary:
   - persist it directly
 - The reconciled row must be strictly newer than the merged row, or the server keeps its own stale copy (`existing.mtime < entry.mtime`). mtime has one-second resolution and the winning row may be from the same second or from a device whose clock is ahead, so the mtime is bumped to the previous mtime + 1 second when `now` is not later.
 
-## 8. Only Reschedule When New Reviews Arrived
+## 8. Only Reschedule When The Winning Row Misses A Review
 
 File:
 
@@ -306,12 +306,29 @@ let schedule_reconcile_cards: HashSet<_> = card_ids
     .copied()
     .filter(|card_id| cards_to_reschedule.contains(card_id))
     .collect();
+
+// Per card, with the merged row's last_review_time read before
+// set_reconciled_last_review_time overwrites it:
+fn should_reschedule_reconciled_card(
+    flagged_with_new_review: bool,
+    merged_last_review_time: Option<TimestampSecs>,
+    review_schedule: Option<&ReviewSchedule>,
+) -> bool {
+    let Some(schedule) = review_schedule else {
+        return false;
+    };
+    flagged_with_new_review
+        || merged_last_review_time.is_some_and(|merged| merged < schedule.reviewed_at)
+}
 ```
 
 Why this is necessary:
 
-- A flagged card is rescheduled only if this download inserted a new rating review for it. Deck moves, (un)suspend, flags, FSRS-metadata-only differences, and remote resets or manual reschedules never trigger a reschedule.
-- `card_schedule_differs()` still flags a card (section 3), so a deck move gets its desired retention, decay and memory state reconciled, but keeps its schedule.
+- A flagged card is rescheduled when this download inserted a new rating review for it: another device answered it.
+- A flagged card is also rescheduled when the merged (winning) row's `last_review_time` is older than the newest rating review. The winning device had not seen that review. Example: device A answers the card; device B, without that review, flags it or moves it to another deck and syncs first, so B's row has the newer mtime. When A syncs, no new review arrives (the review is A's own), yet B's row carries the stale `due` and `interval`. Without this rule A would keep B's schedule next to a memory state and `last_review_time` that include A's review, and upload that row to B.
+- A merged row without `last_review_time` does not trigger the second rule: it does not tell which reviews the winning device had seen.
+- Otherwise deck moves, (un)suspend, flags, FSRS-metadata-only differences, and remote resets or manual reschedules never trigger a reschedule. `card_schedule_differs()` still flags a card (section 3), so a deck move gets its desired retention, decay and memory state reconciled, but keeps its schedule.
+- Known limitation: if the stale winning row is not a review card (for example B's row is still New or Learning because B never saw A's reviews), the guards of section 9 keep it unchanged. Rebuilding card type, queue and learning steps from the revlog is out of scope.
 
 ## 9. Take The Schedule From The Newest Review
 
@@ -346,7 +363,7 @@ fn reschedule_reconciled_card_after_sync(
 
 Why this is necessary:
 
-- The device that did not answer must converge on the schedule the answering device picked. That schedule is recorded in the newest rating review's revlog `interval`: the answer path writes the card's final `scheduled_days` there, after fuzz and load balancing.
+- The device whose row lacks the review must converge on the schedule the answering device picked. That schedule is recorded in the newest rating review's revlog `interval`: the answer path writes the card's final `scheduled_days` there, after fuzz and load balancing.
 - Recomputing the interval with `next_interval()` and fuzz is not enough. Since upstream's fuzz-floor fix (#4826), the answer path chains the floors of Hard, Good and Easy (`good >= hard + 1`), so a recomputed single interval can be one day shorter than what the answering device chose.
 - `review_schedule` is `None`, and the local schedule is kept, when there is no rating review, when the newest one left the card in (re)learning (`interval <= 0`), or when a later Manual or Rescheduled entry (set due date, Forget, reschedule on change) owns the schedule.
 - The guards keep (re)learning and suspended cards on their local schedule. No rescheduled revlog entry is written: this is a sync-time repair, not a user action.
@@ -511,49 +528,55 @@ cargo fmt --all
 
 The current sync reconciliation coverage is:
 
-| Test                                                               | What it proves                                                                                                           |
-| ------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------ |
-| `fsrs_stale_card_state_is_reconciled_during_sync`                  | One device reviews, the other recomputes stale FSRS state, and sync converges to merged truth.                           |
-| `fsrs_metadata_conflict_is_reconciled_without_rescheduling`        | FSRS-only metadata conflicts are repaired without changing `due` or `interval`.                                          |
-| `fsrs_itemless_card_state_is_cleared_during_sync`                  | Itemless reconciliation clears stale FSRS fields and refreshes retention/decay metadata.                                 |
-| `fsrs_conflicts_are_reconciled_per_preset`                         | Cards from different presets/configs are reconciled with the correct config grouping.                                    |
-| `fsrs_reconciliation_uses_original_deck_for_filtered_cards`        | Filtered-deck metadata reconciliation resolves through `original_or_current_deck_id()`.                                  |
-| `fsrs_reconciliation_respects_deck_overrides_within_one_preset`    | Two decks sharing one preset still get their own deck-level desired retention override in the same batch.                |
-| `fsrs_mixed_schedule_and_metadata_conflicts_reconcile_selectively` | In one preset batch, one card can be rescheduled while another only gets metadata repair.                                |
-| `fsrs_filtered_card_schedule_conflict_uses_original_deck`          | Filtered-deck schedule reconciliation uses the home deck and updates the home-deck schedule through `original_due`.      |
-| `fsrs_state_is_recomputed_from_reviews_on_both_devices`            | The same card reviewed on both devices before sync is recomputed from the merged review history.                         |
-| `fsrs_reconciles_when_server_copy_is_newer`                        | When the server row wins on mtime, the stale local FSRS edit is still repaired and both devices converge.                |
-| `fsrs_deck_move_is_not_rescheduled`                                | A deck move with no new review gets the new deck's desired retention but keeps its schedule.                             |
-| `fsrs_deck_move_with_new_review_takes_reviewed_schedule`           | A deck move on one device plus a review on the other: the card takes the reviewed schedule.                              |
-| `fsrs_set_due_date_after_arriving_review_keeps_local_schedule`     | A set due date after the arriving review owns the schedule, so the card is not rescheduled.                              |
-| `fsrs_relearning_card_keeps_local_schedule`                        | A card in relearning keeps its local schedule; its memory state follows the merged log.                                  |
-| `fsrs_suspended_card_keeps_local_schedule`                         | A suspended card keeps its local schedule; its memory state follows the merged log.                                      |
-| `sm2_sync_conflict_is_unchanged`                                   | With FSRS off, sync conflicts resolve exactly as before.                                                                 |
-| `fsrs_reconcile_without_load_balancer_converges`                   | Rescheduling converges with the load balancer disabled.                                                                  |
-| `fsrs_forgotten_card_is_not_restored_by_sync`                      | A card forgotten after a remote review stays new and keeps its `last_review_time`.                                       |
-| `fsrs_reconcile_uses_params_changed_on_other_device`               | Reconciliation uses FSRS parameters changed on the other device.                                                         |
-| `fsrs_reconciled_row_reaches_server_when_winning_row_is_not_older` | A reconciled row reaches the server and the other device even when the winning row is not older than the reconcile time. |
+| Test                                                               | What it proves                                                                                                                                                          |
+| ------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `fsrs_stale_card_state_is_reconciled_during_sync`                  | One device reviews, the other recomputes stale FSRS state, and sync converges to merged truth.                                                                          |
+| `fsrs_metadata_conflict_is_reconciled_without_rescheduling`        | FSRS-only metadata conflicts are repaired without changing `due` or `interval`.                                                                                         |
+| `fsrs_itemless_card_state_is_cleared_during_sync`                  | Itemless reconciliation clears stale FSRS fields and refreshes retention/decay metadata.                                                                                |
+| `fsrs_conflicts_are_reconciled_per_preset`                         | Cards from different presets/configs are reconciled with the correct config grouping.                                                                                   |
+| `fsrs_reconciliation_uses_original_deck_for_filtered_cards`        | Filtered-deck metadata reconciliation resolves through `original_or_current_deck_id()`.                                                                                 |
+| `fsrs_reconciliation_respects_deck_overrides_within_one_preset`    | Two decks sharing one preset still get their own deck-level desired retention override in the same batch.                                                               |
+| `fsrs_mixed_schedule_and_metadata_conflicts_reconcile_selectively` | In one preset batch, one card can be rescheduled while another only gets metadata repair.                                                                               |
+| `fsrs_filtered_card_schedule_conflict_uses_original_deck`          | Filtered-deck schedule reconciliation uses the home deck and updates the home-deck schedule through `original_due`.                                                     |
+| `fsrs_state_is_recomputed_from_reviews_on_both_devices`            | The same card reviewed on both devices before sync is recomputed from the merged review history.                                                                        |
+| `fsrs_reconciles_when_server_copy_is_newer`                        | When the server row wins on mtime, the stale local FSRS edit is still repaired and both devices converge.                                                               |
+| `fsrs_deck_move_is_not_rescheduled`                                | A deck move with no new review gets the new deck's desired retention but keeps its schedule.                                                                            |
+| `fsrs_deck_move_with_new_review_takes_reviewed_schedule`           | A deck move on one device plus a review on the other: the card takes the reviewed schedule.                                                                             |
+| `fsrs_set_due_date_after_arriving_review_keeps_local_schedule`     | A set due date after the arriving review owns the schedule, so the card is not rescheduled.                                                                             |
+| `fsrs_relearning_card_keeps_local_schedule`                        | A card in relearning keeps its local schedule; its memory state follows the merged log.                                                                                 |
+| `fsrs_suspended_card_keeps_local_schedule`                         | A suspended card keeps its local schedule; its memory state follows the merged log.                                                                                     |
+| `sm2_sync_conflict_is_unchanged`                                   | With FSRS off, sync conflicts resolve exactly as before.                                                                                                                |
+| `fsrs_reconcile_without_load_balancer_converges`                   | Rescheduling converges with the load balancer disabled.                                                                                                                 |
+| `fsrs_forgotten_card_is_not_restored_by_sync`                      | A card forgotten after a remote review stays new and keeps its `last_review_time`.                                                                                      |
+| `fsrs_reconcile_uses_params_changed_on_other_device`               | Reconciliation uses FSRS parameters changed on the other device.                                                                                                        |
+| `fsrs_reconciled_row_reaches_server_when_winning_row_is_not_older` | A reconciled row reaches the server and the other device even when the winning row is not older than the reconcile time.                                                |
+| `fsrs_stale_winner_without_the_local_review_takes_its_schedule`    | A newer row from a device that had not seen the local review (it only flagged the card) takes the local review's schedule; the flag survives and both devices converge. |
 
-Unit tests for candidate detection (`chunks.rs`) and the merged-log summary (`memory_state.rs`):
+Unit tests for candidate detection (`chunks.rs`), the merged-log summary and the reschedule decision (`memory_state.rs`):
 
-| Test                                                                      | What it proves                                                                                    |
-| ------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------- |
-| `card_not_in_collection_is_not_flagged_for_fsrs_reconcile`                | A card that is new to this collection is not flagged.                                             |
-| `locally_unmodified_card_is_not_flagged_for_fsrs_reconcile`               | A card without pending local changes is not flagged.                                              |
-| `card_without_fsrs_data_on_either_side_is_not_flagged_for_fsrs_reconcile` | Cards with no FSRS data on either side are not flagged.                                           |
-| `identical_incoming_card_is_not_flagged_for_fsrs_reconcile`               | An identical incoming row is not flagged.                                                         |
-| `memory_state_difference_is_flagged_for_fsrs_reconcile`                   | A memory state difference flags the card.                                                         |
-| `last_review_time_difference_is_flagged_for_fsrs_reconcile`               | A `last_review_time` difference flags the card.                                                   |
-| `due_and_interval_difference_is_flagged_for_fsrs_reconcile`               | A schedule difference flags the card.                                                             |
-| `new_rating_review_is_recorded_as_new_review`                             | `merge_revlog` records a newly inserted rating review.                                            |
-| `review_already_present_locally_is_not_recorded_as_new_review`            | An entry that already exists locally is not a new review.                                         |
-| `new_reset_entry_is_not_recorded_as_new_review`                           | A downloaded reset (Manual, ease 0) is not a new review.                                          |
-| `new_cramming_entry_is_not_recorded_as_new_review`                        | A downloaded cramming entry (Filtered, ease 0) is not a new review.                               |
-| `only_flagged_cards_with_new_reviews_are_rescheduled`                     | The reschedule set is the flagged cards that received new reviews.                                |
-| `newest_rating_review_sets_synced_schedule`                               | The newest rating review provides the schedule taken by reconciliation.                           |
-| `learning_answer_leaves_no_synced_schedule`                               | A newest answer that left the card in (re)learning provides no schedule.                          |
-| `set_due_date_after_review_leaves_no_synced_schedule`                     | A later set due date removes the review schedule and is not a reset.                              |
-| `history_ending_in_reset_is_detected`                                     | A history ending in a reset is detected; a later review clears it, a later set due date does not. |
+| Test                                                                      | What it proves                                                                                      |
+| ------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------- |
+| `card_not_in_collection_is_not_flagged_for_fsrs_reconcile`                | A card that is new to this collection is not flagged.                                               |
+| `locally_unmodified_card_is_not_flagged_for_fsrs_reconcile`               | A card without pending local changes is not flagged.                                                |
+| `card_without_fsrs_data_on_either_side_is_not_flagged_for_fsrs_reconcile` | Cards with no FSRS data on either side are not flagged.                                             |
+| `identical_incoming_card_is_not_flagged_for_fsrs_reconcile`               | An identical incoming row is not flagged.                                                           |
+| `memory_state_difference_is_flagged_for_fsrs_reconcile`                   | A memory state difference flags the card.                                                           |
+| `last_review_time_difference_is_flagged_for_fsrs_reconcile`               | A `last_review_time` difference flags the card.                                                     |
+| `due_and_interval_difference_is_flagged_for_fsrs_reconcile`               | A schedule difference flags the card.                                                               |
+| `new_rating_review_is_recorded_as_new_review`                             | `merge_revlog` records a newly inserted rating review.                                              |
+| `review_already_present_locally_is_not_recorded_as_new_review`            | An entry that already exists locally is not a new review.                                           |
+| `new_reset_entry_is_not_recorded_as_new_review`                           | A downloaded reset (Manual, ease 0) is not a new review.                                            |
+| `new_cramming_entry_is_not_recorded_as_new_review`                        | A downloaded cramming entry (Filtered, ease 0) is not a new review.                                 |
+| `only_flagged_cards_with_new_reviews_are_rescheduled`                     | The reschedule set is the flagged cards that received new reviews.                                  |
+| `newest_rating_review_sets_synced_schedule`                               | The newest rating review provides the schedule taken by reconciliation.                             |
+| `learning_answer_leaves_no_synced_schedule`                               | A newest answer that left the card in (re)learning provides no schedule.                            |
+| `set_due_date_after_review_leaves_no_synced_schedule`                     | A later set due date removes the review schedule and is not a reset.                                |
+| `history_ending_in_reset_is_detected`                                     | A history ending in a reset is detected; a later review clears it, a later set due date does not.   |
+| `new_review_reschedules_reconciled_card`                                  | A flagged card with a new review takes the review's schedule.                                       |
+| `winning_row_older_than_newest_review_reschedules_reconciled_card`        | A winning row whose `last_review_time` is older than the newest review takes the review's schedule. |
+| `winning_row_with_newest_review_keeps_schedule`                           | A winning row that already has the newest review keeps its schedule.                                |
+| `winning_row_without_last_review_time_keeps_schedule`                     | A winning row without `last_review_time` keeps its schedule unless a new review arrived.            |
+| `missing_review_schedule_keeps_schedule`                                  | Without a review schedule, no rule reschedules the card.                                            |
 
 Related base FSRS behavior already covered outside sync:
 

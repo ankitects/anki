@@ -263,6 +263,11 @@ impl Collection {
         Ok(())
     }
 
+    /// Recomputes memory state and `last_review_time` of the flagged cards
+    /// from the merged revlog. A review card also takes the schedule of its
+    /// newest rating review when this download brought a new review for it,
+    /// or when the winning row's `last_review_time` is older than that review
+    /// (see [should_reschedule_reconciled_card]).
     pub(crate) fn reconcile_fsrs_state_after_sync(
         &mut self,
         candidates: FsrsReconcileCandidates,
@@ -531,17 +536,19 @@ impl Collection {
 
             for (card_id, memory_state) in to_update.into_iter().zip_eq(memory_states) {
                 let mut card = self.storage.get_card(card_id)?.or_not_found(card_id)?;
+                let merged_last_review_time = card.last_review_time;
                 set_decay_and_desired_retention(&mut card);
                 card.memory_state = Some(memory_state.into());
                 set_reconciled_last_review_time(&mut card, last_revlog_info, synced_revlog_info);
-                if schedule_reconcile_cards.contains(&card_id) {
-                    reschedule_reconciled_card_after_sync(
-                        &mut card,
-                        synced_revlog_info
-                            .get(&card_id)
-                            .and_then(|info| info.review_schedule.as_ref()),
-                        timing,
-                    );
+                let review_schedule = synced_revlog_info
+                    .get(&card_id)
+                    .and_then(|info| info.review_schedule.as_ref());
+                if should_reschedule_reconciled_card(
+                    schedule_reconcile_cards.contains(&card_id),
+                    merged_last_review_time,
+                    review_schedule,
+                ) {
+                    reschedule_reconciled_card_after_sync(&mut card, review_schedule, timing);
                 }
                 self.update_reconciled_card_after_sync(&mut card, usn)?;
             }
@@ -776,8 +783,31 @@ fn set_reconciled_last_review_time(
         .and_then(|info| info.last_reviewed_at);
 }
 
-/// Applies the schedule of the newest rating review to a review card, so the
-/// device that did not answer converges on the answering device's schedule.
+/// Whether a reconciled card takes the schedule of its newest rating review.
+/// Two cases qualify:
+/// - this download brought a new rating review for the card
+///   (`flagged_with_new_review`), so another device answered it;
+/// - the merged (winning) row's `last_review_time` is older than the newest
+///   rating review, so the winning device had not seen that review (e.g. it
+///   flagged or moved the card after this device answered it).
+///
+/// A merged row without `last_review_time` does not qualify on its own: it
+/// does not tell which reviews the winning device had seen.
+fn should_reschedule_reconciled_card(
+    flagged_with_new_review: bool,
+    merged_last_review_time: Option<TimestampSecs>,
+    review_schedule: Option<&ReviewSchedule>,
+) -> bool {
+    let Some(schedule) = review_schedule else {
+        return false;
+    };
+    flagged_with_new_review
+        || merged_last_review_time.is_some_and(|merged| merged < schedule.reviewed_at)
+}
+
+/// Applies the schedule of the newest rating review to a review card, so a
+/// device whose row lacks that review converges on the answering device's
+/// schedule ([should_reschedule_reconciled_card] decides when).
 /// The interval is taken from the revlog rather than recomputed: the answer
 /// path chains the fuzz floors of Hard, Good and Easy, so a recomputed
 /// interval can differ by a day.
@@ -1525,5 +1555,62 @@ mod tests {
         // A review after the reset does.
         let later_review = revlog(RevlogReviewKind::Learning, 1);
         assert!(!synced_info(&[review, reset, later_review]).ends_in_reset);
+    }
+
+    const REVIEWED_AT: TimestampSecs = TimestampSecs(1_000_000);
+    const SCHEDULE: ReviewSchedule = ReviewSchedule {
+        reviewed_at: REVIEWED_AT,
+        interval: 9,
+    };
+
+    #[test]
+    fn new_review_reschedules_reconciled_card() {
+        assert!(should_reschedule_reconciled_card(
+            true,
+            Some(REVIEWED_AT),
+            Some(&SCHEDULE)
+        ));
+        assert!(should_reschedule_reconciled_card(
+            true,
+            None,
+            Some(&SCHEDULE)
+        ));
+    }
+
+    #[test]
+    fn winning_row_older_than_newest_review_reschedules_reconciled_card() {
+        assert!(should_reschedule_reconciled_card(
+            false,
+            Some(TimestampSecs(REVIEWED_AT.0 - 1)),
+            Some(&SCHEDULE)
+        ));
+    }
+
+    #[test]
+    fn winning_row_with_newest_review_keeps_schedule() {
+        assert!(!should_reschedule_reconciled_card(
+            false,
+            Some(REVIEWED_AT),
+            Some(&SCHEDULE)
+        ));
+    }
+
+    #[test]
+    fn winning_row_without_last_review_time_keeps_schedule() {
+        assert!(!should_reschedule_reconciled_card(
+            false,
+            None,
+            Some(&SCHEDULE)
+        ));
+    }
+
+    #[test]
+    fn missing_review_schedule_keeps_schedule() {
+        assert!(!should_reschedule_reconciled_card(true, None, None));
+        assert!(!should_reschedule_reconciled_card(
+            false,
+            Some(TimestampSecs(REVIEWED_AT.0 - 1)),
+            None
+        ));
     }
 }
