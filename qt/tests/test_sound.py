@@ -13,6 +13,7 @@ import aqt
 from anki.sound import SoundOrVideoTag
 from anki.utils import is_lin, is_mac, is_win
 from aqt.sound import MpvManager, _packagedCmd, is_audio_file
+from aqt.taskman import TaskManager
 
 
 def test_is_audio_file_recognizes_common_formats():
@@ -109,25 +110,32 @@ def test_mpv_can_play_generated_wav(generated_wav: Path):
     assert result.returncode == 0, result.stderr.decode()
 
 
+@pytest.fixture
+def taskman() -> TaskManager:
+    mock = MagicMock(spec=TaskManager)
+    mock.run_on_main = lambda cb: cb()
+    return mock
+
+
 @pytest.mark.skipif(is_lin, reason="mpv is not bundled for Linux")
 def test_mpvmanager_can_play_generated_wav(
-    monkeypatch, tmp_path: Path, generated_wav: Path
+    monkeypatch, tmp_path: Path, generated_wav: Path, taskman: TaskManager
 ):
     monkeypatch.setattr(
         MpvManager, "default_argv", MpvManager.default_argv + ["--ao=null", "--vo=null"]
     )
-    manager = MpvManager(tmp_path, tmp_path)
-    manager.play(SoundOrVideoTag(filename=str(generated_wav.name)), lambda _: None)
+    manager = MpvManager(tmp_path, tmp_path, taskman)
+    manager.play(SoundOrVideoTag(filename=str(generated_wav.name)), lambda: None)
 
 
 @pytest.mark.skipif(is_lin, reason="mpv is not bundled for Linux")
 def test_mpvmanager_play_restarts_mpv_when_process_has_died(
-    monkeypatch, tmp_path: Path, generated_wav: Path
+    monkeypatch, tmp_path: Path, generated_wav: Path, taskman: TaskManager
 ):
     monkeypatch.setattr(
         MpvManager, "default_argv", MpvManager.default_argv + ["--ao=null", "--vo=null"]
     )
-    manager = MpvManager(tmp_path, tmp_path)
+    manager = MpvManager(tmp_path, tmp_path, taskman)
     tag = SoundOrVideoTag(filename=str(generated_wav.name))
     try:
         manager.play(tag, lambda: None)

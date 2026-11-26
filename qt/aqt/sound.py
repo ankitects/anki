@@ -447,8 +447,15 @@ class MpvManager(MPV, SoundOrVideoPlayer):
             "--input-media-keys=no",
         ]
 
-    def __init__(self, base_path: str, media_folder: str) -> None:
+    def __init__(
+        self, base_path: str, media_folder: str, taskman: TaskManager | None = None
+    ) -> None:
         self.media_folder = media_folder
+        if taskman is None:
+            from aqt import mw
+
+            taskman = mw.taskman
+        self.taskman = taskman
         mpvPath, self.popenEnv = _packagedCmd(["mpv"])
         self.executable = mpvPath[0]
         self._on_done: OnDoneCallback | None = None
@@ -499,9 +506,7 @@ class MpvManager(MPV, SoundOrVideoPlayer):
 
     def on_property_idle_active(self, value: bool) -> None:
         if value and self._on_done:
-            from aqt import mw
-
-            mw.taskman.run_on_main(self._on_done)
+            self.taskman.run_on_main(self._on_done)
 
     def shutdown(self) -> None:
         self.close()
@@ -942,7 +947,7 @@ def setup_audio(taskman: TaskManager, base_folder: str, media_folder: str) -> No
     global mpvManager
 
     try:
-        mpvManager = MpvManager(base_folder, media_folder)
+        mpvManager = MpvManager(base_folder, media_folder, taskman)
     except FileNotFoundError:
         print("mpv not found, reverting to mplayer")
     except aqt.mpv.MPVProcessError:
