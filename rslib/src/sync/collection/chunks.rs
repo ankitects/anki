@@ -1,7 +1,7 @@
 // Copyright: Anki Software, LLC and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use std::collections::HashMap;
+use std::collections::HashSet;
 
 use itertools::Itertools;
 use serde::Deserialize;
@@ -26,6 +26,29 @@ use crate::sync::collection::start::ServerSyncState;
 use crate::sync::request::IntoSyncRequest;
 use crate::tags::join_tags;
 use crate::tags::split_tags;
+
+/// Cards collected while applying downloaded chunks, for FSRS reconciliation
+/// once the whole download has been merged. Chunks interleave revlog and card
+/// rows, so the reschedule decision must wait until the download is complete.
+#[derive(Debug, Default)]
+pub(crate) struct FsrsReconcileCandidates {
+    /// Locally modified cards whose incoming row differs in FSRS-relevant
+    /// fields.
+    pub(crate) cards: HashSet<CardId>,
+    /// Cards that received at least one new rating review in this download.
+    pub(crate) cards_with_new_reviews: HashSet<CardId>,
+}
+
+impl FsrsReconcileCandidates {
+    /// Flagged cards whose schedule may change: only new reviews move a
+    /// schedule, never deck moves, (un)suspend, flags or remote resets.
+    pub(crate) fn cards_to_reschedule(&self) -> HashSet<CardId> {
+        self.cards
+            .intersection(&self.cards_with_new_reviews)
+            .copied()
+            .collect()
+    }
+}
 
 pub(in crate::sync) struct ChunkableIds {
     revlog: Vec<RevlogId>,
@@ -92,7 +115,7 @@ impl NormalSyncer<'_> {
     pub(in crate::sync) async fn process_chunks_from_server(
         &mut self,
         state: &ClientSyncState,
-        cards_needing_fsrs_reconcile: &mut HashMap<CardId, bool>,
+        fsrs_reconcile_candidates: &mut FsrsReconcileCandidates,
     ) -> Result<()> {
         loop {
             let chunk = self.server.chunk(EmptyInput::request()).await?.json()?;
@@ -111,7 +134,7 @@ impl NormalSyncer<'_> {
 
             let done = chunk.done;
             self.col
-                .apply_chunk(chunk, state.pending_usn, cards_needing_fsrs_reconcile)?;
+                .apply_chunk(chunk, state.pending_usn, fsrs_reconcile_candidates)?;
 
             self.progress.check_cancelled()?;
 
@@ -167,16 +190,25 @@ impl Collection {
         &mut self,
         chunk: Chunk,
         pending_usn: Usn,
-        cards_needing_fsrs_reconcile: &mut HashMap<CardId, bool>,
+        fsrs_reconcile_candidates: &mut FsrsReconcileCandidates,
     ) -> Result<()> {
-        self.merge_revlog(chunk.revlog)?;
-        self.merge_cards(chunk.cards, pending_usn, cards_needing_fsrs_reconcile)?;
+        self.merge_revlog(chunk.revlog, fsrs_reconcile_candidates)?;
+        self.merge_cards(chunk.cards, pending_usn, fsrs_reconcile_candidates)?;
         self.merge_notes(chunk.notes, pending_usn)
     }
 
-    fn merge_revlog(&self, entries: Vec<RevlogEntry>) -> Result<()> {
+    fn merge_revlog(
+        &self,
+        entries: Vec<RevlogEntry>,
+        fsrs_reconcile_candidates: &mut FsrsReconcileCandidates,
+    ) -> Result<()> {
         for entry in entries {
-            self.storage.add_revlog_entry(&entry, false)?;
+            let added = self.storage.add_revlog_entry(&entry, false)?.is_some();
+            if added && entry.has_rating_and_affects_scheduling() {
+                fsrs_reconcile_candidates
+                    .cards_with_new_reviews
+                    .insert(entry.cid);
+            }
         }
         Ok(())
     }
@@ -185,10 +217,10 @@ impl Collection {
         &self,
         entries: Vec<CardEntry>,
         pending_usn: Usn,
-        cards_needing_fsrs_reconcile: &mut HashMap<CardId, bool>,
+        fsrs_reconcile_candidates: &mut FsrsReconcileCandidates,
     ) -> Result<()> {
         for entry in entries {
-            self.add_or_update_card_if_newer(entry, pending_usn, cards_needing_fsrs_reconcile)?;
+            self.add_or_update_card_if_newer(entry, pending_usn, fsrs_reconcile_candidates)?;
         }
         Ok(())
     }
@@ -197,18 +229,13 @@ impl Collection {
         &self,
         entry: CardEntry,
         pending_usn: Usn,
-        cards_needing_fsrs_reconcile: &mut HashMap<CardId, bool>,
+        fsrs_reconcile_candidates: &mut FsrsReconcileCandidates,
     ) -> Result<()> {
         let proceed = if let Some(existing_card) = self.storage.get_card(entry.id)? {
             if existing_card.usn.is_pending_sync(pending_usn)
                 && card_needs_fsrs_reconcile(&existing_card, &entry)
             {
-                cards_needing_fsrs_reconcile
-                    .entry(entry.id)
-                    .and_modify(|should_reschedule| {
-                        *should_reschedule |= card_schedule_differs(&existing_card, &entry)
-                    })
-                    .or_insert_with(|| card_schedule_differs(&existing_card, &entry));
+                fsrs_reconcile_candidates.cards.insert(entry.id);
             }
             !existing_card.usn.is_pending_sync(pending_usn) || existing_card.mtime < entry.mtime
         } else {
@@ -467,7 +494,12 @@ pub fn server_apply_chunk(
     col: &mut Collection,
     state: &mut ServerSyncState,
 ) -> Result<()> {
-    col.apply_chunk(req.chunk, state.client_usn, &mut HashMap::new())
+    // The server never reconciles FSRS state.
+    col.apply_chunk(
+        req.chunk,
+        state.client_usn,
+        &mut FsrsReconcileCandidates::default(),
+    )
 }
 
 impl Usn {
@@ -491,6 +523,8 @@ pub struct ApplyChunkRequest {
 mod test {
     use super::*;
     use crate::card::FsrsMemoryState;
+    use crate::revlog::RevlogId;
+    use crate::revlog::RevlogReviewKind;
     use crate::search::SortMode;
 
     const PENDING: Usn = Usn(-1);
@@ -525,11 +559,39 @@ mod test {
         (col, card)
     }
 
-    fn apply(col: &Collection, entry: CardEntry, pending_usn: Usn) -> HashMap<CardId, bool> {
-        let mut map = HashMap::new();
-        col.add_or_update_card_if_newer(entry, pending_usn, &mut map)
+    /// Applies one incoming card row and returns the cards flagged for FSRS
+    /// reconciliation.
+    fn apply(col: &Collection, entry: CardEntry, pending_usn: Usn) -> HashSet<CardId> {
+        let mut candidates = FsrsReconcileCandidates::default();
+        col.add_or_update_card_if_newer(entry, pending_usn, &mut candidates)
             .unwrap();
-        map
+        candidates.cards
+    }
+
+    fn revlog_entry(
+        review_kind: RevlogReviewKind,
+        button_chosen: u8,
+        ease_factor: u32,
+    ) -> RevlogEntry {
+        RevlogEntry {
+            id: RevlogId(1_000_000_000),
+            cid: CardId(1),
+            usn: Usn(5),
+            button_chosen,
+            interval: 10,
+            last_interval: 5,
+            ease_factor,
+            taken_millis: 1000,
+            review_kind,
+        }
+    }
+
+    /// Merges downloaded revlog entries and returns the cards recorded as
+    /// having received new reviews.
+    fn merge(col: &Collection, entries: Vec<RevlogEntry>) -> HashSet<CardId> {
+        let mut candidates = FsrsReconcileCandidates::default();
+        col.merge_revlog(entries, &mut candidates).unwrap();
+        candidates.cards_with_new_reviews
     }
 
     #[test]
@@ -574,31 +636,31 @@ mod test {
     }
 
     #[test]
-    fn memory_state_difference_is_flagged_without_reschedule() {
+    fn memory_state_difference_is_flagged_for_fsrs_reconcile() {
         let (col, card) = col_with_fsrs_card();
         let mut incoming = card.clone();
         incoming.memory_state = memory_state(card.memory_state.unwrap().stability + 1.0);
 
         assert_eq!(
             apply(&col, incoming.into(), PENDING),
-            HashMap::from([(card.id, false)])
+            HashSet::from([card.id])
         );
     }
 
     #[test]
-    fn last_review_time_difference_is_flagged_without_reschedule() {
+    fn last_review_time_difference_is_flagged_for_fsrs_reconcile() {
         let (col, card) = col_with_fsrs_card();
         let mut incoming = card.clone();
         incoming.last_review_time = Some(TimestampSecs(1_000_100));
 
         assert_eq!(
             apply(&col, incoming.into(), PENDING),
-            HashMap::from([(card.id, false)])
+            HashSet::from([card.id])
         );
     }
 
     #[test]
-    fn due_and_interval_difference_is_flagged_with_reschedule() {
+    fn due_and_interval_difference_is_flagged_for_fsrs_reconcile() {
         let (col, card) = col_with_fsrs_card();
         let mut incoming = card.clone();
         incoming.due += 20;
@@ -606,29 +668,50 @@ mod test {
 
         assert_eq!(
             apply(&col, incoming.into(), PENDING),
-            HashMap::from([(card.id, true)])
+            HashSet::from([card.id])
         );
     }
 
     #[test]
-    fn reschedule_flag_is_kept_across_entries_for_the_same_card() {
-        let (col, card) = col_with_fsrs_card();
-        let mut metadata_only = card.clone();
-        metadata_only.memory_state = memory_state(card.memory_state.unwrap().stability + 1.0);
-        let mut schedule = card.clone();
-        schedule.due += 20;
-        schedule.interval += 20;
+    fn new_rating_review_is_recorded_as_new_review() {
+        let col = Collection::new();
+        let review = revlog_entry(RevlogReviewKind::Review, 3, 2500);
 
-        for (first, second) in [
-            (metadata_only.clone(), schedule.clone()),
-            (schedule, metadata_only),
-        ] {
-            let mut map = HashMap::new();
-            col.add_or_update_card_if_newer(first.into(), PENDING, &mut map)
-                .unwrap();
-            col.add_or_update_card_if_newer(second.into(), PENDING, &mut map)
-                .unwrap();
-            assert_eq!(map, HashMap::from([(card.id, true)]));
-        }
+        assert_eq!(merge(&col, vec![review]), HashSet::from([CardId(1)]));
+    }
+
+    #[test]
+    fn review_already_present_locally_is_not_recorded_as_new_review() {
+        let col = Collection::new();
+        let review = revlog_entry(RevlogReviewKind::Review, 3, 2500);
+        col.storage.add_revlog_entry(&review, false).unwrap();
+
+        assert!(merge(&col, vec![review]).is_empty());
+    }
+
+    #[test]
+    fn new_reset_entry_is_not_recorded_as_new_review() {
+        let col = Collection::new();
+        let reset = revlog_entry(RevlogReviewKind::Manual, 0, 0);
+
+        assert!(merge(&col, vec![reset]).is_empty());
+    }
+
+    #[test]
+    fn new_cramming_entry_is_not_recorded_as_new_review() {
+        let col = Collection::new();
+        let cramming = revlog_entry(RevlogReviewKind::Filtered, 3, 0);
+
+        assert!(merge(&col, vec![cramming]).is_empty());
+    }
+
+    #[test]
+    fn only_flagged_cards_with_new_reviews_are_rescheduled() {
+        let candidates = FsrsReconcileCandidates {
+            cards: HashSet::from([CardId(1), CardId(2)]),
+            cards_with_new_reviews: HashSet::from([CardId(2), CardId(3)]),
+        };
+
+        assert_eq!(candidates.cards_to_reschedule(), HashSet::from([CardId(2)]));
     }
 }

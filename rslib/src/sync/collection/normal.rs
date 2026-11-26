@@ -1,8 +1,6 @@
 // Copyright: Anki Software, LLC and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use std::collections::HashMap;
-
 use reqwest::Client;
 use tracing::debug;
 
@@ -13,6 +11,7 @@ use crate::error::SyncError;
 use crate::error::SyncErrorKind;
 use crate::prelude::Usn;
 use crate::progress::ThrottlingProgressHandler;
+use crate::sync::collection::chunks::FsrsReconcileCandidates;
 use crate::sync::collection::progress::SyncStage;
 use crate::sync::collection::protocol::EmptyInput;
 use crate::sync::collection::protocol::SyncProtocol;
@@ -121,7 +120,7 @@ impl NormalSyncer<'_> {
     /// Sync. Caller must have created a transaction, and should call
     /// abort on failure.
     async fn normal_sync_inner(&mut self, mut state: ClientSyncState) -> error::Result<SyncOutput> {
-        let mut cards_needing_fsrs_reconcile = HashMap::new();
+        let mut fsrs_reconcile_candidates = FsrsReconcileCandidates::default();
 
         self.progress
             .update(false, |p| p.stage = SyncStage::Syncing)?;
@@ -131,18 +130,16 @@ impl NormalSyncer<'_> {
         debug!("unchunked changes");
         self.process_unchunked_changes(&state).await?;
         debug!("begin stream from server");
-        self.process_chunks_from_server(&state, &mut cards_needing_fsrs_reconcile)
+        self.process_chunks_from_server(&state, &mut fsrs_reconcile_candidates)
             .await?;
         debug!(
-            cards = cards_needing_fsrs_reconcile.len(),
-            schedule_cards = cards_needing_fsrs_reconcile
-                .values()
-                .filter(|&&needs_schedule_reconcile| needs_schedule_reconcile)
-                .count(),
+            cards = fsrs_reconcile_candidates.cards.len(),
+            cards_with_new_reviews = fsrs_reconcile_candidates.cards_with_new_reviews.len(),
+            schedule_cards = fsrs_reconcile_candidates.cards_to_reschedule().len(),
             "reconciling fsrs state"
         );
         self.col
-            .reconcile_fsrs_state_after_sync(cards_needing_fsrs_reconcile)?;
+            .reconcile_fsrs_state_after_sync(fsrs_reconcile_candidates)?;
         debug!("begin stream to server");
         self.send_chunks_to_server(&state).await?;
 

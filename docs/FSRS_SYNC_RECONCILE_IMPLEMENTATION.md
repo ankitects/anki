@@ -21,7 +21,7 @@ Code:
 
 ```rust
 async fn normal_sync_inner(&mut self, mut state: ClientSyncState) -> error::Result<SyncOutput> {
-    let mut cards_needing_fsrs_reconcile = HashMap::new();
+    let mut fsrs_reconcile_candidates = FsrsReconcileCandidates::default();
 
     self.progress
         .update(false, |p| p.stage = SyncStage::Syncing)?;
@@ -31,14 +31,16 @@ async fn normal_sync_inner(&mut self, mut state: ClientSyncState) -> error::Resu
     debug!("unchunked changes");
     self.process_unchunked_changes(&state).await?;
     debug!("begin stream from server");
-    self.process_chunks_from_server(&state, &mut cards_needing_fsrs_reconcile)
+    self.process_chunks_from_server(&state, &mut fsrs_reconcile_candidates)
         .await?;
     debug!(
-        cards = cards_needing_fsrs_reconcile.len(),
+        cards = fsrs_reconcile_candidates.cards.len(),
+        cards_with_new_reviews = fsrs_reconcile_candidates.cards_with_new_reviews.len(),
+        schedule_cards = fsrs_reconcile_candidates.cards_to_reschedule().len(),
         "reconciling fsrs state"
     );
     self.col
-        .reconcile_fsrs_state_after_sync(cards_needing_fsrs_reconcile)?;
+        .reconcile_fsrs_state_after_sync(fsrs_reconcile_candidates)?;
     debug!("begin stream to server");
     self.send_chunks_to_server(&state).await?;
 ```
@@ -52,7 +54,7 @@ Why this is necessary:
   - still-pending local history
 - This avoids trusting either stale pre-sync card row as the final truth.
 
-## 2. Detect Candidates During Remote Card Merge
+## 2. Detect Candidates During Remote Merge
 
 File:
 
@@ -61,14 +63,24 @@ File:
 Code:
 
 ```rust
-fn merge_cards(
+#[derive(Debug, Default)]
+pub(crate) struct FsrsReconcileCandidates {
+    pub(crate) cards: HashSet<CardId>,
+    pub(crate) cards_with_new_reviews: HashSet<CardId>,
+}
+
+fn merge_revlog(
     &self,
-    entries: Vec<CardEntry>,
-    pending_usn: Usn,
-    cards_needing_fsrs_reconcile: &mut HashMap<CardId, bool>,
+    entries: Vec<RevlogEntry>,
+    fsrs_reconcile_candidates: &mut FsrsReconcileCandidates,
 ) -> Result<()> {
     for entry in entries {
-        self.add_or_update_card_if_newer(entry, pending_usn, cards_needing_fsrs_reconcile)?;
+        let added = self.storage.add_revlog_entry(&entry, false)?.is_some();
+        if added && entry.has_rating_and_affects_scheduling() {
+            fsrs_reconcile_candidates
+                .cards_with_new_reviews
+                .insert(entry.cid);
+        }
     }
     Ok(())
 }
@@ -77,28 +89,19 @@ fn add_or_update_card_if_newer(
     &self,
     entry: CardEntry,
     pending_usn: Usn,
-    cards_needing_fsrs_reconcile: &mut HashMap<CardId, bool>,
+    fsrs_reconcile_candidates: &mut FsrsReconcileCandidates,
 ) -> Result<()> {
     let proceed = if let Some(existing_card) = self.storage.get_card(entry.id)? {
         if existing_card.usn.is_pending_sync(pending_usn)
             && card_needs_fsrs_reconcile(&existing_card, &entry)
         {
-            cards_needing_fsrs_reconcile
-                .entry(entry.id)
-                .and_modify(|should_reschedule| {
-                    *should_reschedule |= card_schedule_differs(&existing_card, &entry)
-                })
-                .or_insert_with(|| card_schedule_differs(&existing_card, &entry));
+            fsrs_reconcile_candidates.cards.insert(entry.id);
         }
         !existing_card.usn.is_pending_sync(pending_usn) || existing_card.mtime < entry.mtime
     } else {
         true
     };
-    if proceed {
-        let card = entry.into();
-        self.storage.add_or_update_card(&card)?;
-    }
-    Ok(())
+    // ...
 }
 ```
 
@@ -106,8 +109,10 @@ Why this is necessary:
 
 - Detection belongs in the incoming card merge path because that is where both versions are visible at once.
 - The condition is intentionally limited to **locally pending** cards, because that is the case where we know the local side still has unsynced state that can conflict with the incoming remote row.
-- The `bool` in the map is used to remember whether schedule fields also diverged, so later reconciliation knows whether interval/due needs to be recomputed as well.
+- `cards_with_new_reviews` records which cards received a new rating review in this download. `add_revlog_entry` returns `Some` only when the row was inserted, so entries already present locally do not count; resets, manual reschedules and cramming entries do not count either.
+- Chunks interleave revlog and card rows, so whether a card is rescheduled is decided only after the whole download, as `cards ∩ cards_with_new_reviews`.
 - The code still preserves the existing winner rule for the raw row merge. The reconcile pass is a follow-up correction, not a replacement for the current sync protocol.
+- The server applies chunks with a throwaway `FsrsReconcileCandidates` and never reconciles.
 
 ## 3. Define What Counts As An FSRS-Relevant Conflict
 
@@ -141,7 +146,7 @@ Why this is necessary:
 - We do not want to reconcile every overlapping card update.
 - We only care about cards that are already carrying FSRS-derived state or whose FSRS-derived state clearly diverges.
 - `last_review_time` is included because it affects FSRS behavior and can become stale independently of raw memory state values.
-- Schedule differences are included because stale FSRS state is not only about `cards.data`; it can also show up as wrong interval or due values.
+- Schedule differences are included because stale FSRS state is not only about `cards.data`; it can also show up as wrong interval or due values. A schedule difference alone (deck move, suspend, flag) only gets the FSRS metadata reconciled; it never reschedules the card (section 8).
 
 ## 4. Group Reconciliation By Current Deck Config
 
@@ -154,15 +159,16 @@ Code:
 ```rust
 pub(crate) fn reconcile_fsrs_state_after_sync(
     &mut self,
-    cards_needing_fsrs_reconcile: HashMap<CardId, bool>,
+    candidates: FsrsReconcileCandidates,
 ) -> Result<()> {
-    if cards_needing_fsrs_reconcile.is_empty() || !self.get_config_bool(BoolKey::Fsrs) {
+    if candidates.cards.is_empty() || !self.get_config_bool(BoolKey::Fsrs) {
         return Ok(());
     }
+    let cards_to_reschedule = candidates.cards_to_reschedule();
 
     let mut card_ids_by_config: HashMap<DeckConfigId, Vec<CardId>> = HashMap::new();
     let mut deck_desired_retention: HashMap<DeckId, f32> = HashMap::new();
-    for &card_id in cards_needing_fsrs_reconcile.keys() {
+    for &card_id in &candidates.cards {
         let card = self.storage.get_card(card_id)?.or_not_found(card_id)?;
         let deck_id = card.original_or_current_deck_id();
         let deck = self.get_deck(deck_id)?.or_not_found(deck_id)?;
@@ -206,6 +212,7 @@ for (config_id, card_ids) in card_ids_by_config {
         self.revlog_for_srs(SearchNode::CardIds(comma_separated_ids(&card_ids)))?;
     let fsrs = FSRS::new(Some(config.fsrs_params()))?;
     let last_revlog_info = get_last_revlog_info(&revlog);
+    let synced_revlog_info = synced_revlog_info(&revlog);
     let items = fsrs_items_for_memory_states(
         &fsrs,
         revlog,
@@ -219,7 +226,8 @@ Why this is necessary:
 
 - This is the core of the approach: do not trust either old card row, just rebuild from the merged local revlog/config state.
 - The code uses the same FSRS item builder as the existing memory-state update flow. That keeps behavior aligned with the rest of the codebase.
-- `get_last_revlog_info()` is captured once here because later steps need consistent review timing for both `last_review_time` and optional rescheduling.
+- `get_last_revlog_info()` is captured once here because later steps need consistent review timing for `last_review_time`.
+- `synced_revlog_info()` summarizes, per card, the schedule set by the newest rating review (section 8) and whether the history ends in a reset (section 6). It is built before `revlog` is moved into the FSRS item builder. `get_last_revlog_info()` is unchanged for its other callers.
 
 ## 6. Preserve Existing FSRS Semantics For Itemless Cards
 
@@ -241,9 +249,7 @@ fn reconcile_itemless_cards_after_sync(
         let mut card = self.storage.get_card(card_id)?.or_not_found(card_id)?;
         set_decay_and_desired_retention(&mut card);
         card.memory_state = None;
-        card.last_review_time = last_revlog_info
-            .get(&card_id)
-            .and_then(|info| info.last_reviewed_at);
+        set_reconciled_last_review_time(&mut card, last_revlog_info, synced_revlog_info);
         self.update_reconciled_card_after_sync(&mut card, usn)?;
     }
     Ok(())
@@ -255,6 +261,7 @@ Why this is necessary:
 - Cards without a valid FSRS item still need their derived metadata refreshed.
 - In particular, `decay`, `desired_retention`, and `last_review_time` can still be stale even when `memory_state` remains `None`.
 - This mirrors the existing distinction in the FSRS update code between cards that produce an item and cards that do not.
+- `last_review_time` is taken from the merged log, except when the last rating-or-reset entry is a reset (Forget). Forget keeps `last_review_time`, while `get_last_revlog_info()` clears `last_reviewed_at` at a reset, so copying it would undo what Forget left. A set due date (Manual entry with a non-zero ease) is not a reset.
 
 ## 7. Write Back Without Using Undo-Oriented Update Paths
 
@@ -280,7 +287,7 @@ Why this is necessary:
   - mark it with the current sync USN
   - persist it directly
 
-## 8. Only Reschedule When The Conflict Included Schedule Fields
+## 8. Only Reschedule When New Reviews Arrived
 
 File:
 
@@ -292,34 +299,16 @@ Code:
 let schedule_reconcile_cards: HashSet<_> = card_ids
     .iter()
     .copied()
-    .filter(|card_id| {
-        cards_needing_fsrs_reconcile
-            .get(card_id)
-            .copied()
-            .unwrap_or_default()
-    })
+    .filter(|card_id| cards_to_reschedule.contains(card_id))
     .collect();
-```
-
-```rust
-if schedule_reconcile_cards.contains(&card_id) {
-    self.reschedule_reconciled_card_after_sync(
-        &mut card,
-        fsrs,
-        last_revlog_info.get(&card_id),
-        timing,
-        max_interval,
-    )?;
-}
 ```
 
 Why this is necessary:
 
-- Not every FSRS conflict means the card’s due/interval needs to change.
-- Separating “FSRS metadata differs” from “schedule-relevant fields differ” avoids gratuitous interval churn.
-- This keeps the first implementation narrower and reduces the chance of changing scheduling when the only stale fields were in `cards.data`.
+- A flagged card is rescheduled only if this download inserted a new rating review for it. Deck moves, (un)suspend, flags, FSRS-metadata-only differences, and remote resets or manual reschedules never trigger a reschedule.
+- `card_schedule_differs()` still flags a card (section 3), so a deck move gets its desired retention, decay and memory state reconciled, but keeps its schedule.
 
-## 9. Reuse Existing Rescheduling Logic Shape
+## 9. Take The Schedule From The Newest Review
 
 File:
 
@@ -329,42 +318,33 @@ Code:
 
 ```rust
 fn reschedule_reconciled_card_after_sync(
-    &mut self,
     card: &mut Card,
-    fsrs: &FSRS,
-    last_revlog_info: Option<&LastRevlogInfo>,
+    review_schedule: Option<&ReviewSchedule>,
     timing: SchedTimingToday,
-    max_interval: u32,
-) -> Result<()> {
-    let Some(last_info) = last_revlog_info else {
-        return Ok(());
-    };
-    let Some(last_review) = last_info.last_reviewed_at else {
-        return Ok(());
+) {
+    let Some(schedule) = review_schedule else {
+        return;
     };
     if !(card.ctype == CardType::Review && card.queue != CardQueue::Suspended) {
-        return Ok(());
+        return;
+    }
+    let days_since_review = timing.next_day_at.elapsed_days_since(schedule.reviewed_at) as i32;
+    card.interval = schedule.interval;
+    let due = if card.original_due != 0 {
+        &mut card.original_due
+    } else {
+        &mut card.due
     };
-    // ...
-    let interval = fsrs.next_interval(
-        Some(
-            card.memory_state
-                .expect("memory state set before rescheduling")
-                .stability,
-        ),
-        card.desired_retention
-            .expect("desired retention set before rescheduling"),
-        0,
-    );
-    // ...
+    *due = (timing.days_elapsed as i32) - days_since_review + schedule.interval as i32;
 }
 ```
 
 Why this is necessary:
 
-- The reschedule behavior needs to stay aligned with the existing FSRS update path as much as possible.
-- The guard conditions prevent the reconcile pass from inventing schedule changes for cards that should not be rescheduled at all.
-- The logic uses merged review timing and the recomputed memory state, so the resulting interval is based on the final post-sync view rather than either stale pre-sync row.
+- The device that did not answer must converge on the schedule the answering device picked. That schedule is recorded in the newest rating review's revlog `interval`: the answer path writes the card's final `scheduled_days` there, after fuzz and load balancing.
+- Recomputing the interval with `next_interval()` and fuzz is not enough. Since upstream's fuzz-floor fix (#4826), the answer path chains the floors of Hard, Good and Easy (`good >= hard + 1`), so a recomputed single interval can be one day shorter than what the answering device chose.
+- `review_schedule` is `None`, and the local schedule is kept, when there is no rating review, when the newest one left the card in (re)learning (`interval <= 0`), or when a later Manual or Rescheduled entry (set due date, Forget, reschedule on change) owns the schedule.
+- The guards keep (re)learning and suspended cards on their local schedule. No rescheduled revlog entry is written: this is a sync-time repair, not a user action.
 
 ## 10. The Tests Cover The Reconciliation Matrix
 
@@ -485,11 +465,9 @@ Code:
 
 ```rust
 debug!(
-    cards = cards_needing_fsrs_reconcile.len(),
-    schedule_cards = cards_needing_fsrs_reconcile
-        .values()
-        .filter(|&&needs_schedule_reconcile| needs_schedule_reconcile)
-        .count(),
+    cards = fsrs_reconcile_candidates.cards.len(),
+    cards_with_new_reviews = fsrs_reconcile_candidates.cards_with_new_reviews.len(),
+    schedule_cards = fsrs_reconcile_candidates.cards_to_reschedule().len(),
     "reconciling fsrs state"
 );
 ```
@@ -510,7 +488,7 @@ Why this is necessary:
 - The sync path is hard to reason about from user reports alone.
 - These logs give just enough signal to answer:
   - was FSRS reconciliation triggered at all?
-  - how many cards needed full schedule repair?
+  - how many cards received new reviews, and how many of those needed schedule repair?
   - how were the cards split by config and itemless/itemful paths?
 - The logging stays intentionally aggregate-only. It avoids per-card noise and does not add new behavior.
 
@@ -539,6 +517,37 @@ The current sync reconciliation coverage is:
 | `fsrs_mixed_schedule_and_metadata_conflicts_reconcile_selectively` | In one preset batch, one card can be rescheduled while another only gets metadata repair.                           |
 | `fsrs_filtered_card_schedule_conflict_uses_original_deck`          | Filtered-deck schedule reconciliation uses the home deck and updates the home-deck schedule through `original_due`. |
 | `fsrs_state_is_recomputed_from_reviews_on_both_devices`            | The same card reviewed on both devices before sync is recomputed from the merged review history.                    |
+| `fsrs_reconciles_when_server_copy_is_newer`                        | When the server row wins on mtime, the stale local FSRS edit is still repaired and both devices converge.           |
+| `fsrs_deck_move_is_not_rescheduled`                                | A deck move with no new review gets the new deck's desired retention but keeps its schedule.                        |
+| `fsrs_deck_move_with_new_review_takes_reviewed_schedule`           | A deck move on one device plus a review on the other: the card takes the reviewed schedule.                         |
+| `fsrs_set_due_date_after_arriving_review_keeps_local_schedule`     | A set due date after the arriving review owns the schedule, so the card is not rescheduled.                         |
+| `fsrs_relearning_card_keeps_local_schedule`                        | A card in relearning keeps its local schedule; its memory state follows the merged log.                             |
+| `fsrs_suspended_card_keeps_local_schedule`                         | A suspended card keeps its local schedule; its memory state follows the merged log.                                 |
+| `sm2_sync_conflict_is_unchanged`                                   | With FSRS off, sync conflicts resolve exactly as before.                                                            |
+| `fsrs_reconcile_without_load_balancer_converges`                   | Rescheduling converges with the load balancer disabled.                                                             |
+| `fsrs_forgotten_card_is_not_restored_by_sync`                      | A card forgotten after a remote review stays new and keeps its `last_review_time`.                                  |
+| `fsrs_reconcile_uses_params_changed_on_other_device`               | Reconciliation uses FSRS parameters changed on the other device.                                                    |
+
+Unit tests for candidate detection (`chunks.rs`) and the merged-log summary (`memory_state.rs`):
+
+| Test                                                                      | What it proves                                                                                    |
+| ------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------- |
+| `card_not_in_collection_is_not_flagged_for_fsrs_reconcile`                | A card that is new to this collection is not flagged.                                             |
+| `locally_unmodified_card_is_not_flagged_for_fsrs_reconcile`               | A card without pending local changes is not flagged.                                              |
+| `card_without_fsrs_data_on_either_side_is_not_flagged_for_fsrs_reconcile` | Cards with no FSRS data on either side are not flagged.                                           |
+| `identical_incoming_card_is_not_flagged_for_fsrs_reconcile`               | An identical incoming row is not flagged.                                                         |
+| `memory_state_difference_is_flagged_for_fsrs_reconcile`                   | A memory state difference flags the card.                                                         |
+| `last_review_time_difference_is_flagged_for_fsrs_reconcile`               | A `last_review_time` difference flags the card.                                                   |
+| `due_and_interval_difference_is_flagged_for_fsrs_reconcile`               | A schedule difference flags the card.                                                             |
+| `new_rating_review_is_recorded_as_new_review`                             | `merge_revlog` records a newly inserted rating review.                                            |
+| `review_already_present_locally_is_not_recorded_as_new_review`            | An entry that already exists locally is not a new review.                                         |
+| `new_reset_entry_is_not_recorded_as_new_review`                           | A downloaded reset (Manual, ease 0) is not a new review.                                          |
+| `new_cramming_entry_is_not_recorded_as_new_review`                        | A downloaded cramming entry (Filtered, ease 0) is not a new review.                               |
+| `only_flagged_cards_with_new_reviews_are_rescheduled`                     | The reschedule set is the flagged cards that received new reviews.                                |
+| `newest_rating_review_sets_synced_schedule`                               | The newest rating review provides the schedule taken by reconciliation.                           |
+| `learning_answer_leaves_no_synced_schedule`                               | A newest answer that left the card in (re)learning provides no schedule.                          |
+| `set_due_date_after_review_leaves_no_synced_schedule`                     | A later set due date removes the review schedule and is not a reset.                              |
+| `history_ending_in_reset_is_detected`                                     | A history ending in a reset is detected; a later review clears it, a later set due date does not. |
 
 Related base FSRS behavior already covered outside sync:
 

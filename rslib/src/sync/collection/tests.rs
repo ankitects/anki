@@ -48,6 +48,7 @@ use crate::scheduler::fsrs::memory_state::get_decay_from_params;
 use crate::scheduler::fsrs::memory_state::UpdateMemoryStateEntry;
 use crate::scheduler::fsrs::memory_state::UpdateMemoryStateRequest;
 use crate::scheduler::fsrs::params::ignore_revlogs_before_ms_from_config;
+use crate::search::Node;
 use crate::search::SearchNode;
 use crate::search::SortMode;
 use crate::sync::collection::graves::ApplyGravesRequest;
@@ -404,7 +405,7 @@ async fn fsrs_stale_card_state_is_reconciled_during_sync() -> Result<()> {
         col2.transact(Op::UpdateDeckConfig, |col| {
             col.update_memory_state(vec![UpdateMemoryStateEntry {
                 req: Some(request),
-                search: SearchNode::CardIds(card_id.to_string()),
+                search: Node::Search(SearchNode::CardIds(card_id.to_string())),
                 ignore_before,
             }])?;
             Ok(())
@@ -488,7 +489,7 @@ async fn fsrs_metadata_conflict_is_reconciled_without_rescheduling() -> Result<(
         col1.transact(Op::UpdateDeckConfig, |col| {
             col.update_memory_state(vec![UpdateMemoryStateEntry {
                 req: Some(request),
-                search: SearchNode::CardIds(card_id.to_string()),
+                search: Node::Search(SearchNode::CardIds(card_id.to_string())),
                 ignore_before,
             }])?;
             Ok(())
@@ -684,7 +685,7 @@ async fn fsrs_conflicts_are_reconciled_per_preset() -> Result<()> {
                         reschedule: false,
                         deck_desired_retention: HashMap::new(),
                     }),
-                    search: SearchNode::CardIds(card1.to_string()),
+                    search: Node::Search(SearchNode::CardIds(card1.to_string())),
                     ignore_before: ignore_before1,
                 },
                 UpdateMemoryStateEntry {
@@ -696,7 +697,7 @@ async fn fsrs_conflicts_are_reconciled_per_preset() -> Result<()> {
                         reschedule: false,
                         deck_desired_retention: HashMap::new(),
                     }),
-                    search: SearchNode::CardIds(card2.to_string()),
+                    search: Node::Search(SearchNode::CardIds(card2.to_string())),
                     ignore_before: ignore_before2,
                 },
             ])?;
@@ -800,7 +801,7 @@ async fn fsrs_reconciliation_uses_original_deck_for_filtered_cards() -> Result<(
                     reschedule: false,
                     deck_desired_retention: HashMap::from([(home_deck.id, 0.84)]),
                 }),
-                search: SearchNode::CardIds(card_id.to_string()),
+                search: Node::Search(SearchNode::CardIds(card_id.to_string())),
                 ignore_before,
             }])?;
             Ok(())
@@ -902,7 +903,7 @@ async fn fsrs_reconciliation_respects_deck_overrides_within_one_preset() -> Resu
                     reschedule: false,
                     deck_desired_retention: HashMap::from([(deck1.id, 0.82), (deck2.id, 0.95)]),
                 }),
-                search: SearchNode::CardIds(format!("{},{}", card1.0, card2.0)),
+                search: Node::Search(SearchNode::CardIds(format!("{},{}", card1.0, card2.0))),
                 ignore_before,
             }])?;
             Ok(())
@@ -1012,7 +1013,7 @@ async fn fsrs_mixed_schedule_and_metadata_conflicts_reconcile_selectively() -> R
                     reschedule: false,
                     deck_desired_retention: HashMap::from([(metadata_deck.id, 0.83)]),
                 }),
-                search: SearchNode::CardIds(card2.to_string()),
+                search: Node::Search(SearchNode::CardIds(card2.to_string())),
                 ignore_before,
             }])?;
             Ok(())
@@ -1023,8 +1024,10 @@ async fn fsrs_mixed_schedule_and_metadata_conflicts_reconcile_selectively() -> R
                 stability: card.memory_state.unwrap().stability + 1.0,
                 difficulty: card.memory_state.unwrap().difficulty,
             });
-            card.interval += 1;
-            card.due += 1;
+            // Far enough from the answered schedule that fuzz cannot make
+            // them coincide.
+            card.interval += 10;
+            card.due += 10;
             card.desired_retention = Some(0.99);
             card.decay = Some(0.11);
             Ok(())
@@ -1131,8 +1134,10 @@ async fn fsrs_filtered_card_schedule_conflict_uses_original_deck() -> Result<()>
                 stability: card.memory_state.unwrap().stability + 1.5,
                 difficulty: card.memory_state.unwrap().difficulty,
             });
-            card.interval += 1;
-            card.original_due += 1;
+            // Far enough from the answered schedule that fuzz cannot make
+            // them coincide.
+            card.interval += 10;
+            card.original_due += 10;
             card.desired_retention = Some(0.99);
             card.decay = Some(0.12);
             Ok(())
@@ -1349,6 +1354,81 @@ async fn fsrs_deck_move_is_not_rescheduled() -> Result<()> {
 }
 
 #[tokio::test]
+async fn fsrs_deck_move_with_new_review_takes_reviewed_schedule() -> Result<()> {
+    with_active_server(|client| async move {
+        let ctx = SyncTestContext::new(client);
+        let (mut col1, mut col2, card_id) = two_devices_with_easy_card(&ctx, true).await?;
+        let mut deck_b = col2.get_or_create_normal_deck("fsrs review deck b")?;
+        deck_b.normal_mut().unwrap().desired_retention = Some(0.70);
+        col2.add_or_update_deck(&mut deck_b)?;
+
+        make_card_due(&mut col1, card_id)?;
+        col1.answer_good();
+        // The deck move on col2 is newer than the review on col1.
+        std::thread::sleep(std::time::Duration::from_millis(1100));
+        col2.set_deck(&[card_id], deck_b.id)?;
+        let reviewed_card = col1.storage.get_card(card_id)?.unwrap();
+        let moved_card = col2.storage.get_card(card_id)?.unwrap();
+        assert!(moved_card.mtime > reviewed_card.mtime);
+        assert_ne!(moved_card.due, reviewed_card.due);
+
+        let out = ctx.normal_sync(&mut col1).await;
+        assert_eq!(out.required, SyncActionRequired::NoChanges);
+        let out = ctx.normal_sync(&mut col2).await;
+        assert_eq!(out.required, SyncActionRequired::NoChanges);
+
+        let synced_card = col2.storage.get_card(card_id)?.unwrap();
+        assert_eq!(synced_card.deck_id, deck_b.id);
+        assert_eq!(synced_card.desired_retention, Some(0.70));
+        assert_eq!(synced_card.interval, reviewed_card.interval);
+        assert_eq!(synced_card.due, reviewed_card.due);
+        assert_eq!(synced_card.last_review_time, reviewed_card.last_review_time);
+        assert_memory_state_matches_merged_log(&mut col2, card_id)?;
+
+        let out = ctx.normal_sync(&mut col1).await;
+        assert_eq!(out.required, SyncActionRequired::NoChanges);
+        assert_card_rows_converged(&col1.storage.get_card(card_id)?.unwrap(), &synced_card);
+
+        Ok(())
+    })
+    .await
+}
+
+#[tokio::test]
+async fn fsrs_set_due_date_after_arriving_review_keeps_local_schedule() -> Result<()> {
+    with_active_server(|client| async move {
+        let ctx = SyncTestContext::new(client);
+        let (mut col1, mut col2, card_id) = two_devices_with_easy_card(&ctx, true).await?;
+
+        make_card_due(&mut col1, card_id)?;
+        col1.answer_good();
+        // col2 sets the due date after col1's review, so it owns the schedule.
+        std::thread::sleep(std::time::Duration::from_millis(1100));
+        col2.set_due_date(&[card_id], "30!", None)?;
+        let rescheduled_card = col2.storage.get_card(card_id)?.unwrap();
+        assert_eq!(rescheduled_card.interval, 30);
+
+        let out = ctx.normal_sync(&mut col1).await;
+        assert_eq!(out.required, SyncActionRequired::NoChanges);
+        let out = ctx.normal_sync(&mut col2).await;
+        assert_eq!(out.required, SyncActionRequired::NoChanges);
+
+        let synced_card = col2.storage.get_card(card_id)?.unwrap();
+        assert_eq!(col2.storage.get_revlog_entries_for_card(card_id)?.len(), 3);
+        assert_eq!(synced_card.interval, rescheduled_card.interval);
+        assert_eq!(synced_card.due, rescheduled_card.due);
+        assert_memory_state_matches_merged_log(&mut col2, card_id)?;
+
+        let out = ctx.normal_sync(&mut col1).await;
+        assert_eq!(out.required, SyncActionRequired::NoChanges);
+        assert_card_rows_converged(&col1.storage.get_card(card_id)?.unwrap(), &synced_card);
+
+        Ok(())
+    })
+    .await
+}
+
+#[tokio::test]
 async fn fsrs_relearning_card_keeps_local_schedule() -> Result<()> {
     with_active_server(|client| async move {
         let ctx = SyncTestContext::new(client);
@@ -1507,7 +1587,7 @@ async fn fsrs_reconcile_without_load_balancer_converges() -> Result<()> {
         col2.transact(Op::UpdateDeckConfig, |col| {
             col.update_memory_state(vec![UpdateMemoryStateEntry {
                 req: Some(request),
-                search: SearchNode::CardIds(card_id.to_string()),
+                search: Node::Search(SearchNode::CardIds(card_id.to_string())),
                 ignore_before,
             }])?;
             Ok(())
@@ -1642,7 +1722,7 @@ async fn fsrs_reconcile_uses_params_changed_on_other_device() -> Result<()> {
                     reschedule: false,
                     deck_desired_retention: HashMap::new(),
                 }),
-                search: SearchNode::CardIds(format!("{},{}", card_a.0, card_b.0)),
+                search: Node::Search(SearchNode::CardIds(format!("{},{}", card_a.0, card_b.0))),
                 ignore_before,
             }])?;
             Ok(())
