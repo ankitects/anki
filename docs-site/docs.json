@@ -24,15 +24,15 @@
     },
     {
       "source": "/faqs/why-does-ankimobile-cost-more-than-a-typical-mobile-app",
-      "destination": "/faqs/how-can-i-donate"
+      "destination": "/ankimobile/support"
     },
     {
       "source": "/ar/faqs/why-does-ankimobile-cost-more-than-a-typical-mobile-app",
-      "destination": "/ar/faqs/how-can-i-donate"
+      "destination": "/ankimobile/support"
     },
     {
       "source": "/ja/faqs/why-does-ankimobile-cost-more-than-a-typical-mobile-app",
-      "destination": "/ja/faqs/how-can-i-donate"
+      "destination": "/ja/ankimobile/support"
     },
     { "source": "/addons.html", "destination": "/manual/addons" },
     { "source": "/background.html", "destination": "/manual/background" },
