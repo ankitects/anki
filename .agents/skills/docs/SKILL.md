@@ -26,4 +26,8 @@ CI installs `mint` and checks validation and accessibility; see
 `.github/workflows/docs-site.yml`.
 Do not run site-wide formatting or install integrations for a small content fix.
 
+After editing `docs-site/developers/`, run `just fix-fmt` to regenerate the
+`docs/*.md` copies, then `just fmt` to check them. Commit the generated changes
+with their source edits; do not edit the copies by hand.
+
 For build and deployment, see `docs-site/README.md`.
