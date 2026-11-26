@@ -1,6 +1,7 @@
 :root {
   --anki-foreground: hsl(248 8% 20%);
   --anki-subtle: hsl(0 1% 33%);
+  --anki-text: hsl(0 1% 33%);
   --anki-background: hsl(0 0% 100%);
   --anki-primary: hsl(208 65% 55%);
   --anki-primary-darker: hsl(208 65% 52%);
@@ -10,6 +11,7 @@
 .dark {
   --anki-foreground: hsl(0 0% 100%);
   --anki-subtle: hsl(0 0% 85%);
+  --anki-text: hsl(0 0% 85%);
   --anki-background: hsl(0 0% 3%);
   --anki-primary: hsl(205 67% 62%);
   --anki-primary-darker: hsl(205 67% 54%);
@@ -44,9 +46,8 @@ mdx-content h1 {
   color: var(--anki-foreground);
 }
 
-mdx-content p,
-mdx-content li {
-  color: color-mix(in srgb, var(--anki-foreground) 82%, var(--anki-subtle));
+.mdx-content {
+  color: var(--anki-text);
 }
 
 card {
@@ -64,11 +65,17 @@ card:hover {
   border-radius: 6px;
 }
 
-#sidebar-content li[data-active],
+.nav-tabs-item {
+  color: var(--anki-text);
+}
 .nav-tabs-item[data-active] {
   color: var(--anki-primary);
 }
 
+#sidebar-content a:not([aria-current]),
+#sidebar-content button {
+  color: var(--anki-text);
+}
 
 /* Right-to-left language support */
 
