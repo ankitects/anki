@@ -273,7 +273,11 @@ Code:
 
 ```rust
 fn update_reconciled_card_after_sync(&mut self, card: &mut Card, usn: Usn) -> Result<()> {
+    let previous_mtime = card.mtime;
     card.set_modified(usn);
+    if card.mtime <= previous_mtime {
+        card.mtime = TimestampSecs(previous_mtime.0 + 1);
+    }
     self.storage.update_card(card)
 }
 ```
@@ -286,6 +290,7 @@ Why this is necessary:
   - bump card `mtime`
   - mark it with the current sync USN
   - persist it directly
+- The reconciled row must be strictly newer than the merged row, or the server keeps its own stale copy (`existing.mtime < entry.mtime`). mtime has one-second resolution and the winning row may be from the same second or from a device whose clock is ahead, so the mtime is bumped to the previous mtime + 1 second when `now` is not later.
 
 ## 8. Only Reschedule When New Reviews Arrived
 
@@ -506,27 +511,28 @@ cargo fmt --all
 
 The current sync reconciliation coverage is:
 
-| Test                                                               | What it proves                                                                                                      |
-| ------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------- |
-| `fsrs_stale_card_state_is_reconciled_during_sync`                  | One device reviews, the other recomputes stale FSRS state, and sync converges to merged truth.                      |
-| `fsrs_metadata_conflict_is_reconciled_without_rescheduling`        | FSRS-only metadata conflicts are repaired without changing `due` or `interval`.                                     |
-| `fsrs_itemless_card_state_is_cleared_during_sync`                  | Itemless reconciliation clears stale FSRS fields and refreshes retention/decay metadata.                            |
-| `fsrs_conflicts_are_reconciled_per_preset`                         | Cards from different presets/configs are reconciled with the correct config grouping.                               |
-| `fsrs_reconciliation_uses_original_deck_for_filtered_cards`        | Filtered-deck metadata reconciliation resolves through `original_or_current_deck_id()`.                             |
-| `fsrs_reconciliation_respects_deck_overrides_within_one_preset`    | Two decks sharing one preset still get their own deck-level desired retention override in the same batch.           |
-| `fsrs_mixed_schedule_and_metadata_conflicts_reconcile_selectively` | In one preset batch, one card can be rescheduled while another only gets metadata repair.                           |
-| `fsrs_filtered_card_schedule_conflict_uses_original_deck`          | Filtered-deck schedule reconciliation uses the home deck and updates the home-deck schedule through `original_due`. |
-| `fsrs_state_is_recomputed_from_reviews_on_both_devices`            | The same card reviewed on both devices before sync is recomputed from the merged review history.                    |
-| `fsrs_reconciles_when_server_copy_is_newer`                        | When the server row wins on mtime, the stale local FSRS edit is still repaired and both devices converge.           |
-| `fsrs_deck_move_is_not_rescheduled`                                | A deck move with no new review gets the new deck's desired retention but keeps its schedule.                        |
-| `fsrs_deck_move_with_new_review_takes_reviewed_schedule`           | A deck move on one device plus a review on the other: the card takes the reviewed schedule.                         |
-| `fsrs_set_due_date_after_arriving_review_keeps_local_schedule`     | A set due date after the arriving review owns the schedule, so the card is not rescheduled.                         |
-| `fsrs_relearning_card_keeps_local_schedule`                        | A card in relearning keeps its local schedule; its memory state follows the merged log.                             |
-| `fsrs_suspended_card_keeps_local_schedule`                         | A suspended card keeps its local schedule; its memory state follows the merged log.                                 |
-| `sm2_sync_conflict_is_unchanged`                                   | With FSRS off, sync conflicts resolve exactly as before.                                                            |
-| `fsrs_reconcile_without_load_balancer_converges`                   | Rescheduling converges with the load balancer disabled.                                                             |
-| `fsrs_forgotten_card_is_not_restored_by_sync`                      | A card forgotten after a remote review stays new and keeps its `last_review_time`.                                  |
-| `fsrs_reconcile_uses_params_changed_on_other_device`               | Reconciliation uses FSRS parameters changed on the other device.                                                    |
+| Test                                                               | What it proves                                                                                                           |
+| ------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------ |
+| `fsrs_stale_card_state_is_reconciled_during_sync`                  | One device reviews, the other recomputes stale FSRS state, and sync converges to merged truth.                           |
+| `fsrs_metadata_conflict_is_reconciled_without_rescheduling`        | FSRS-only metadata conflicts are repaired without changing `due` or `interval`.                                          |
+| `fsrs_itemless_card_state_is_cleared_during_sync`                  | Itemless reconciliation clears stale FSRS fields and refreshes retention/decay metadata.                                 |
+| `fsrs_conflicts_are_reconciled_per_preset`                         | Cards from different presets/configs are reconciled with the correct config grouping.                                    |
+| `fsrs_reconciliation_uses_original_deck_for_filtered_cards`        | Filtered-deck metadata reconciliation resolves through `original_or_current_deck_id()`.                                  |
+| `fsrs_reconciliation_respects_deck_overrides_within_one_preset`    | Two decks sharing one preset still get their own deck-level desired retention override in the same batch.                |
+| `fsrs_mixed_schedule_and_metadata_conflicts_reconcile_selectively` | In one preset batch, one card can be rescheduled while another only gets metadata repair.                                |
+| `fsrs_filtered_card_schedule_conflict_uses_original_deck`          | Filtered-deck schedule reconciliation uses the home deck and updates the home-deck schedule through `original_due`.      |
+| `fsrs_state_is_recomputed_from_reviews_on_both_devices`            | The same card reviewed on both devices before sync is recomputed from the merged review history.                         |
+| `fsrs_reconciles_when_server_copy_is_newer`                        | When the server row wins on mtime, the stale local FSRS edit is still repaired and both devices converge.                |
+| `fsrs_deck_move_is_not_rescheduled`                                | A deck move with no new review gets the new deck's desired retention but keeps its schedule.                             |
+| `fsrs_deck_move_with_new_review_takes_reviewed_schedule`           | A deck move on one device plus a review on the other: the card takes the reviewed schedule.                              |
+| `fsrs_set_due_date_after_arriving_review_keeps_local_schedule`     | A set due date after the arriving review owns the schedule, so the card is not rescheduled.                              |
+| `fsrs_relearning_card_keeps_local_schedule`                        | A card in relearning keeps its local schedule; its memory state follows the merged log.                                  |
+| `fsrs_suspended_card_keeps_local_schedule`                         | A suspended card keeps its local schedule; its memory state follows the merged log.                                      |
+| `sm2_sync_conflict_is_unchanged`                                   | With FSRS off, sync conflicts resolve exactly as before.                                                                 |
+| `fsrs_reconcile_without_load_balancer_converges`                   | Rescheduling converges with the load balancer disabled.                                                                  |
+| `fsrs_forgotten_card_is_not_restored_by_sync`                      | A card forgotten after a remote review stays new and keeps its `last_review_time`.                                       |
+| `fsrs_reconcile_uses_params_changed_on_other_device`               | Reconciliation uses FSRS parameters changed on the other device.                                                         |
+| `fsrs_reconciled_row_reaches_server_when_winning_row_is_not_older` | A reconciled row reaches the server and the other device even when the winning row is not older than the reconcile time. |
 
 Unit tests for candidate detection (`chunks.rs`) and the merged-log summary (`memory_state.rs`):
 

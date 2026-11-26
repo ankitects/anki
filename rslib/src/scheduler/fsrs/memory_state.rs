@@ -397,7 +397,14 @@ impl Collection {
     }
 
     fn update_reconciled_card_after_sync(&mut self, card: &mut Card, usn: Usn) -> Result<()> {
+        let previous_mtime = card.mtime;
         card.set_modified(usn);
+        // The server keeps its row unless ours is strictly newer. mtime has
+        // one-second resolution, and the merged row may come from this same
+        // second (or from a device whose clock is ahead).
+        if card.mtime <= previous_mtime {
+            card.mtime = TimestampSecs(previous_mtime.0 + 1);
+        }
         self.storage.update_card(card)
     }
 

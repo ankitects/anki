@@ -1429,6 +1429,59 @@ async fn fsrs_set_due_date_after_arriving_review_keeps_local_schedule() -> Resul
 }
 
 #[tokio::test]
+async fn fsrs_reconciled_row_reaches_server_when_winning_row_is_not_older() -> Result<()> {
+    with_active_server(|client| async move {
+        let ctx = SyncTestContext::new(client);
+        let (mut col1, mut col2, card_id) = two_devices_with_easy_card(&ctx, true).await?;
+
+        make_card_due(&mut col2, card_id)?;
+        col2.answer_good();
+        std::thread::sleep(std::time::Duration::from_millis(1100));
+        // col1 has not seen col2's review and makes a stale FSRS-only edit.
+        col1.get_and_update_card(card_id, |card| {
+            card.memory_state = Some(FsrsMemoryState {
+                stability: card.memory_state.unwrap().stability + 1.0,
+                difficulty: card.memory_state.unwrap().difficulty,
+            });
+            Ok(())
+        })?;
+        // Put the winning row's mtime ahead of the clock (e.g. device clock
+        // skew), so reconciling at "now" is never later than it. This makes
+        // the same-second case deterministic.
+        let winning_mtime = TimestampSecs::now().0 + 100;
+        col1.storage.db.execute(
+            "update cards set mod = ? where id = ?",
+            [winning_mtime, card_id.0],
+        )?;
+
+        let out = ctx.normal_sync(&mut col1).await;
+        assert_eq!(out.required, SyncActionRequired::NoChanges);
+        let out = ctx.normal_sync(&mut col2).await;
+        assert_eq!(out.required, SyncActionRequired::NoChanges);
+
+        let reconciled_card = col2.storage.get_card(card_id)?.unwrap();
+        let stale_card = col1.storage.get_card(card_id)?.unwrap();
+        assert_ne!(reconciled_card.memory_state, stale_card.memory_state);
+        assert!(reconciled_card.mtime.0 > winning_mtime);
+
+        let out = ctx.normal_sync(&mut col1).await;
+        assert_eq!(out.required, SyncActionRequired::NoChanges);
+
+        let synced_card = col1.storage.get_card(card_id)?.unwrap();
+        assert_eq!(synced_card.memory_state, reconciled_card.memory_state);
+        assert_eq!(
+            synced_card.last_review_time,
+            reconciled_card.last_review_time
+        );
+        assert_eq!(synced_card.interval, reconciled_card.interval);
+        assert_eq!(synced_card.due, reconciled_card.due);
+
+        Ok(())
+    })
+    .await
+}
+
+#[tokio::test]
 async fn fsrs_relearning_card_keeps_local_schedule() -> Result<()> {
     with_active_server(|client| async move {
         let ctx = SyncTestContext::new(client);
