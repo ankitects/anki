@@ -465,52 +465,55 @@ class MPV(MPVBase):
 
         super().__init__(*args, **kwargs)
         threading.Thread(
-            target=self._register_callbacks, name="mpv-init", daemon=True
+            target=self._initial_register_callbacks, name="mpv-init", daemon=True
         ).start()
+
+    def _initial_register_callbacks(self):
+        try:
+            self._register_callbacks()
+        except BaseException as exc:
+            self._init_future.set_exception(exc)
+            raise
+        else:
+            self._init_future.set_result(None)
 
     def _register_callbacks(self):
         self._callbacks = {}
         self._property_serials = {}
         self._new_serial = iter(range(sys.maxsize))
 
-        try:
-            # Enumerate all methods and auto-register callbacks for
-            # events and property-changes.
-            for method_name, method in inspect.getmembers(self):
-                if not inspect.ismethod(method):
-                    continue
+        # Enumerate all methods and auto-register callbacks for
+        # events and property-changes.
+        for method_name, method in inspect.getmembers(self):
+            if not inspect.ismethod(method):
+                continue
 
-                # Bypass MPVError: no such event 'init'
-                if method_name == "on_init":
-                    continue
+            # Bypass MPVError: no such event 'init'
+            if method_name == "on_init":
+                continue
 
-                if method_name.startswith("on_property_"):
-                    name = method_name[12:]
-                    name = name.replace("_", "-")
-                    self.register_property_callback(name, method)
+            if method_name.startswith("on_property_"):
+                name = method_name[12:]
+                name = name.replace("_", "-")
+                self.register_property_callback(name, method)
 
-                elif method_name.startswith("on_"):
-                    name = method_name[3:]
-                    name = name.replace("_", "-")
-                    self.register_callback(name, method)
+            elif method_name.startswith("on_"):
+                name = method_name[3:]
+                name = name.replace("_", "-")
+                self.register_callback(name, method)
 
-            self._callbacks_initialized = True
-            while True:
-                try:
-                    message = self._callbacks_queue.get_nowait()
-                except Empty:
-                    break
-                self._handle_event(message)
+        self._callbacks_initialized = True
+        while True:
+            try:
+                message = self._callbacks_queue.get_nowait()
+            except Empty:
+                break
+            self._handle_event(message)
 
-            # Simulate an init event when the process and all callbacks have been
-            # completely set up.
-            if hasattr(self, "on_init"):
-                self.on_init()
-        except BaseException as exc:
-            self._init_future.set_exception(exc)
-            raise
-        else:
-            self._init_future.set_result(None)
+        # Simulate an init event when the process and all callbacks have been
+        # completely set up.
+        if hasattr(self, "on_init"):
+            self.on_init()
 
     #
     # Socket communication

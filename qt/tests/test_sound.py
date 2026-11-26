@@ -118,3 +118,24 @@ def test_mpvmanager_can_play_generated_wav(
     )
     manager = MpvManager(tmp_path, tmp_path)
     manager.play(SoundOrVideoTag(filename=str(generated_wav.name)), lambda _: None)
+
+
+@pytest.mark.skipif(is_lin, reason="mpv is not bundled for Linux")
+def test_mpvmanager_play_restarts_mpv_when_process_has_died(
+    monkeypatch, tmp_path: Path, generated_wav: Path
+):
+    monkeypatch.setattr(
+        MpvManager, "default_argv", MpvManager.default_argv + ["--ao=null", "--vo=null"]
+    )
+    manager = MpvManager(tmp_path, tmp_path)
+    tag = SoundOrVideoTag(filename=str(generated_wav.name))
+    try:
+        manager.play(tag, lambda: None)
+        manager._proc.kill()
+        manager._proc.wait()
+
+        manager.play(tag, lambda: None)
+
+        assert manager.is_running()
+    finally:
+        manager.close()
