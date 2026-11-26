@@ -47,7 +47,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { context as editingAreaContext } from "../EditingArea.svelte";
     import { Flag } from "../helpers";
     import { context as noteEditorContext } from "../NoteEditor.svelte";
-    import { untrustedHTML } from "@tslib/trusted-types";
+    import { untrustedNoteHTML } from "@tslib/trusted-types";
     import { storedToUndecorated, undecoratedToStored } from "./transform";
 
     export let hidden = false;
@@ -135,7 +135,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     function onChange({ detail: html }: CustomEvent<string>): void {
-        code.set(untrustedHTML(html).toString());
+        code.set(untrustedNoteHTML(html).toString());
     }
 
     onMount(() => {
@@ -144,7 +144,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
         return singleCallback(
             content.subscribe((html: string): void =>
-                code.set(untrustedHTML(storedToUndecorated(html)).toString()),
+                code.set(untrustedNoteHTML(storedToUndecorated(html)).toString()),
             ),
             code.subscribe((html: string): void =>
                 content.set(undecoratedToStored(html)),

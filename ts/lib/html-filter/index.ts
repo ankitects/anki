@@ -2,7 +2,7 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import { setInnerHTML } from "@tslib/dom";
-import { untrustedHTML } from "@tslib/trusted-types";
+import { untrustedNoteHTML } from "@tslib/trusted-types";
 import { filterElementBasic, filterElementExtended, filterElementInternal } from "./element";
 import { filterNode } from "./node";
 
@@ -36,7 +36,7 @@ const outputHTMLProcessors: Record<FilterMode, (outputHTML: string) => string> =
 
 export function filterHTML(html: string, internal: boolean, extended: boolean): string {
     const template = document.createElement("template");
-    setInnerHTML(template, untrustedHTML(html));
+    setInnerHTML(template, untrustedNoteHTML(html));
 
     const mode = getFilterMode(internal, extended);
     const content = template.content;

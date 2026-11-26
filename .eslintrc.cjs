@@ -65,9 +65,9 @@ module.exports = {
                     innerHTMLRestriction,
                     {
                         selector:
-                            "SvelteMustacheTag[kind=\"raw\"]:not([expression.type=\"CallExpression\"][expression.callee.name=/^(trustedHTML|untrustedHTML)$/])",
+                            "SvelteMustacheTag[kind=\"raw\"]:not([expression.type=\"CallExpression\"][expression.callee.name=/^(trustedHTML|untrustedNoteHTML)$/])",
                         message:
-                            "{@html} is only allowed with a TrustedHTML helper (e.g., trustedHTML, untrustedHTML).",
+                            "{@html} is only allowed with a TrustedHTML helper (e.g., trustedHTML, untrustedNoteHTML).",
                     },
                 ],
                 "svelte/valid-compile": ["error", { "ignoreWarnings": true }],

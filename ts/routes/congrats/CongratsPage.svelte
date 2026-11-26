@@ -13,7 +13,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     import { buildNextLearnMsg } from "./lib";
     import { onMount } from "svelte";
-    import { untrustedHTML, trustedHTML } from "@tslib/trusted-types";
+    import { untrustedNoteHTML, trustedHTML } from "@tslib/trusted-types";
 
     export let info: CongratsInfoResponse;
     export let refreshPeriodically = true;
@@ -75,7 +75,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
             {#if info.deckDescription}
                 <div class="description">
-                    {@html untrustedHTML(info.deckDescription)}
+                    {@html untrustedNoteHTML(info.deckDescription)}
                 </div>
             {/if}
         </div>

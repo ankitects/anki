@@ -83,6 +83,11 @@ const userContentPolicy = trustedTypes!.createPolicy("anki-user-content", {
     },
 });
 
-export function untrustedHTML(html: string) {
+/**
+ * Sanitizes note field contents for saving in the editor.
+ * This is intentionally very conservative and doesn't strip out all potentially dangerous HTML tags to avoid breaking templates.
+ * We rely on Content Security Policy to block script execution.
+ */
+export function untrustedNoteHTML(html: string) {
     return userContentPolicy!.createHTML(html);
 }
