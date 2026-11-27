@@ -479,8 +479,9 @@ class TimeBudgetDialog(QDialog):
         qconnect(enabled.toggled, lambda _checked, row=row: self._update_row(row))
 
     def _update_row(self, index: int) -> None:
-        """Fades a deck that is not enabled, and shows its time as a range
-        when a week of times replaces the single daily one."""
+        """Fades a deck that is not enabled and hides its settings, and
+        shows its time as a range when a week of times replaces the single
+        daily one."""
         row = self.rows[index]
         checked = row.enabled.isChecked()
         opacity = 1.0 if checked else self.DISABLED_OPACITY
@@ -502,6 +503,9 @@ class TimeBudgetDialog(QDialog):
                 if low == high
                 else tr.qt_misc_time_budget_minutes_range(min=str(low), max=str(high))
             )
+        # overrides only apply to a deck with a budget, so the cog goes
+        # with the rest of the row's settings
+        row.cog.setVisible(checked)
         cog_effect = QGraphicsOpacityEffect(row.cog)
         cog_effect.setOpacity(1.0 if overrides.any_set() else self.COG_UNSET_OPACITY)
         row.cog.setGraphicsEffect(cog_effect)
