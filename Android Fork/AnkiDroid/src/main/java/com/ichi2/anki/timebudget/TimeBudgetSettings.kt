@@ -55,7 +55,7 @@ data class TimeBudgetSettings(
     val maxDr: Int = DEFAULT_MAX_DR,
     val order: List<CardGroup> = CardGroup.DEFAULT_ORDER,
     /** Stop new cards at the daily new card limits of the deck and its subdecks. */
-    val limitNewCards: Boolean = false,
+    val limitNewCards: Boolean = true,
 ) {
     /**
      * Writes these settings into [original], so keys this version does not know about (eg.
@@ -102,7 +102,7 @@ data class TimeBudgetSettings(
                 minDr = data.optInt("minDr", DEFAULT_MIN_DR),
                 maxDr = data.optInt("maxDr", DEFAULT_MAX_DR),
                 order = CardGroup.completeOrder(order),
-                limitNewCards = data.optBoolean("limitNewCards", false),
+                limitNewCards = data.optBoolean("limitNewCards", true),
             )
         }
     }

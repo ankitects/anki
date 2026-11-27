@@ -185,7 +185,7 @@ impl Default for DeckTimeBudget {
             min_dr: 60,
             max_dr: 95,
             order: DEFAULT_ORDER.to_vec(),
-            limit_new_cards: false,
+            limit_new_cards: true,
         }
     }
 }
@@ -469,7 +469,12 @@ impl Collection {
         check_done: bool,
     ) -> Result<TimeBudgetStatusResponse> {
         let config = self.time_budget_config();
-        if check_done && config.active_deck_ids().next().is_some() {
+        // Loading or replaying the model here, in the background, keeps the
+        // first card of a session from waiting on it; with RWKV on all
+        // decks there may be no budget deck to warm it up for.
+        if check_done
+            && (config.active_deck_ids().next().is_some() || self.rwkv_options().all_decks)
+        {
             self.rebuild_stale_instant_history()?;
         }
         let mut decks = vec![];
@@ -547,9 +552,14 @@ impl Collection {
         } else {
             (batch.new_count, batch.learning_count, batch.review_count)
         };
-        // a card whose answer was undone is shown again first, as in Anki's
-        // own queues
-        if let Some(undone) = self.time_budget_undone_candidate(study_deck)? {
+        // cards whose answers were undone are shown again first, as in Anki's
+        // own queues. Inserting in reverse keeps the most recently undone
+        // card at the front.
+        for undone in self
+            .time_budget_undone_candidates(study_deck)?
+            .into_iter()
+            .rev()
+        {
             if let Some(index) = usable
                 .iter()
                 .position(|card| card.card_id == undone.card_id)
@@ -631,54 +641,74 @@ impl Collection {
         Ok(())
     }
 
-    /// After an undo: the batch was scored with the undone answer, so it is
-    /// dropped, and the undone card is shown again first.
+    /// After an undo: the undone card is shown again first.
+    ///
+    /// The batch is kept, so going back does not pause the reviewer while
+    /// every card is scored again; the undone answer changes the other
+    /// cards' predictions very little, and the background prefetch replaces
+    /// the batch once the model has been replayed
+    /// ([Collection::prefetch_time_budget_cards]). An undo of anything but
+    /// an answer may have changed the cards themselves, so the batch is
+    /// dropped then (as it already is for the equivalent forward
+    /// operations).
     pub(crate) fn time_budget_after_undo(&mut self, undone_answer: Option<CardId>) {
-        self.state.time_budget_batch = None;
-        self.state.time_budget_undone_card = undone_answer;
+        let Some(card_id) = undone_answer else {
+            self.state.time_budget_batch = None;
+            self.state.time_budget_undone_cards.clear();
+            return;
+        };
+        let undone = &mut self.state.time_budget_undone_cards;
+        undone.retain(|id| *id != card_id);
+        undone.insert(0, card_id);
+        undone.truncate(BATCH_SIZE);
     }
 
-    /// The card whose answer was undone, if it is still in the study deck's
-    /// tree and can be studied.
-    fn time_budget_undone_candidate(&mut self, study_deck: DeckId) -> Result<Option<Candidate>> {
-        let Some(card_id) = self.state.time_budget_undone_card else {
-            return Ok(None);
-        };
-        let Some(card) = self.storage.get_card(card_id)? else {
-            return Ok(None);
-        };
+    /// The cards whose answers were undone, in the order they are shown
+    /// again: only those still in the study deck's tree and able to be
+    /// studied.
+    fn time_budget_undone_candidates(&mut self, study_deck: DeckId) -> Result<Vec<Candidate>> {
+        if self.state.time_budget_undone_cards.is_empty() {
+            return Ok(vec![]);
+        }
         let study_deck = self
             .storage
             .get_deck(study_deck)?
             .or_not_found(study_deck)?;
-        if !self
-            .storage
-            .deck_id_with_children(&study_deck)?
-            .contains(&card.deck_id)
-        {
-            return Ok(None);
-        }
-        let group = match card.queue {
-            CardQueue::New => CardGroup::New,
-            CardQueue::Learn | CardQueue::Review | CardQueue::DayLearn => {
-                if self.answers_today_by_card()?.contains_key(&card_id) {
-                    CardGroup::ReReview
-                } else {
-                    CardGroup::FirstReview
-                }
+        let deck_ids = self.storage.deck_id_with_children(&study_deck)?;
+        let answers_today = self.answers_today_by_card()?;
+        let mut out = vec![];
+        for card_id in self.state.time_budget_undone_cards.clone() {
+            let Some(card) = self.storage.get_card(card_id)? else {
+                continue;
+            };
+            if !deck_ids.contains(&card.deck_id) {
+                continue;
             }
-            _ => return Ok(None),
-        };
-        Ok(Some(Candidate {
-            card_id,
-            retrievability: 0.0,
-            learning: matches!(card.queue, CardQueue::Learn | CardQueue::DayLearn),
-            group,
-        }))
+            let group = match card.queue {
+                CardQueue::New => CardGroup::New,
+                CardQueue::Learn | CardQueue::Review | CardQueue::DayLearn => {
+                    if answers_today.contains_key(&card_id) {
+                        CardGroup::ReReview
+                    } else {
+                        CardGroup::FirstReview
+                    }
+                }
+                _ => continue,
+            };
+            out.push(Candidate {
+                card_id,
+                retrievability: 0.0,
+                learning: matches!(card.queue, CardQueue::Learn | CardQueue::DayLearn),
+                group,
+            });
+        }
+        Ok(out)
     }
 
     pub(crate) fn remove_from_time_budget_batch(&mut self, card_id: CardId) {
-        self.state.time_budget_undone_card = None;
+        self.state
+            .time_budget_undone_cards
+            .retain(|id| *id != card_id);
         if let Some(batch) = self.state.time_budget_batch.as_mut() {
             if let Some(index) = batch.cards.iter().position(|card| card.card_id == card_id) {
                 let card = batch.cards.remove(index);
@@ -781,21 +811,7 @@ impl Collection {
             return Ok(new_cards);
         }
         let cards = self.all_cards_for_ids(&card_ids, false)?;
-        let presets: HashMap<DeckId, i64> = self
-            .storage
-            .get_all_decks()?
-            .into_iter()
-            .filter_map(|deck| deck.config_id().map(|config| (deck.id, config.0)))
-            .collect();
-        let timing = self.timing_today()?;
-        let queries: Vec<_> = cards
-            .iter()
-            .map(|card| QueryCard {
-                card,
-                preset_id: presets.get(&card.original_or_current_deck_id()).copied(),
-            })
-            .collect();
-        let retrievabilities = self.instant_history()?.predict(&queries, &timing)?;
+        let retrievabilities = self.predict_recall(&cards)?;
         Ok(cards
             .iter()
             .zip(retrievabilities)
@@ -811,6 +827,26 @@ impl Collection {
             })
             .chain(new_cards)
             .collect())
+    }
+
+    /// The RWKV-Instant probability of recall of each card if shown now, in
+    /// the order the cards were given in.
+    pub(crate) fn predict_recall(&mut self, cards: &[Card]) -> Result<Vec<f32>> {
+        let presets: HashMap<DeckId, i64> = self
+            .storage
+            .get_all_decks()?
+            .into_iter()
+            .filter_map(|deck| deck.config_id().map(|config| (deck.id, config.0)))
+            .collect();
+        let timing = self.timing_today()?;
+        let queries: Vec<_> = cards
+            .iter()
+            .map(|card| QueryCard {
+                card,
+                preset_id: presets.get(&card.original_or_current_deck_id()).copied(),
+            })
+            .collect();
+        self.instant_history()?.predict(&queries, &timing)
     }
 
     /// New cards of the study deck's tree in due (position) order. With
@@ -1076,7 +1112,7 @@ mod test {
                 min_dr: 60,
                 max_dr: 90,
                 order: DEFAULT_ORDER.to_vec(),
-                limit_new_cards: false,
+                limit_new_cards: true,
             }
         );
         assert_eq!(config.budget_for(DeckId(2)), None);
@@ -1160,6 +1196,7 @@ mod test {
         col.set_current_deck(deck.id)?;
         let mut budget = DeckTimeBudget {
             max_dr: 100,
+            limit_new_cards: false,
             ..Default::default()
         };
         // without the new card limit, every new card while time is left
@@ -1238,7 +1275,11 @@ mod test {
         let shown = queued_ids(&mut col)[0];
         col.answer_good();
         col.prefetch_time_budget_cards()?;
+        let scored = col.state.time_budget_batch.clone().unwrap().cards;
         col.undo()?;
+        // the batch is kept, so going back does not pause while every card
+        // is scored again
+        assert_eq!(col.state.time_budget_batch.as_ref().unwrap().cards, scored);
         // the undone card is shown again, first
         assert_eq!(queued_ids(&mut col)[0], shown);
         col.answer_good();
@@ -1247,6 +1288,48 @@ mod test {
         col.undo()?;
         assert_eq!(queued_ids(&mut col)[0], shown);
         assert!(queued_ids(&mut col).contains(&first) && queued_ids(&mut col).contains(&second));
+        Ok(())
+    }
+
+    #[test]
+    fn going_back_twice_shows_both_cards_without_scoring_again() -> Result<()> {
+        use RevlogReviewKind::*;
+        let mut col = Collection::new();
+        let deck = DeckAdder::new("Budget").add(&mut col);
+        for index in 0..4 {
+            review_card(
+                &mut col,
+                deck.id,
+                &[(30 + index, 3, Learning), (10, 1, Review)],
+            );
+        }
+        col.set_current_deck(deck.id)?;
+        set_budget(
+            &mut col,
+            deck.id,
+            DeckTimeBudget {
+                max_dr: 100,
+                ..Default::default()
+            },
+        );
+        let order = queued_ids(&mut col);
+        assert_eq!(order.len(), 4);
+        col.answer_good();
+        col.answer_good();
+        let scored = col.state.time_budget_batch.clone().unwrap().cards;
+
+        col.undo()?;
+        col.undo()?;
+        assert_eq!(col.state.time_budget_batch.as_ref().unwrap().cards, scored);
+        // both cards are shown again, the one answered first at the front
+        let queue = col.get_queued_cards(100, false)?;
+        let ids: Vec<_> = queue.cards.iter().map(|queued| queued.card.id).collect();
+        assert_eq!(ids[..2], order[..2]);
+        assert_eq!(ids.len(), 4);
+        assert_eq!(queue.review_count, 4);
+        // answering them again picks up where it left off
+        col.answer_good();
+        assert_eq!(queued_ids(&mut col)[0], order[1]);
         Ok(())
     }
 
@@ -1299,6 +1382,7 @@ mod test {
             minutes: 1,
             min_dr: 10,
             max_dr: 20,
+            limit_new_cards: false,
             ..Default::default()
         };
         set_budget(&mut col, deck.id, budget.clone());

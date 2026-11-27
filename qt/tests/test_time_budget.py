@@ -43,10 +43,10 @@ def test_settings_round_trip_with_shared_limits() -> None:
             "minDr": 70,
             "maxDr": 95,
             "order": ["firstReview", "new", "reReview"],
-            "limitNewCards": False,
+            "limitNewCards": True,
         }
-        save_settings(col, TimeBudgetSettings(limit_new_cards=True))
-        assert load_settings(col).limit_new_cards
+        save_settings(col, TimeBudgetSettings(limit_new_cards=False))
+        assert not load_settings(col).limit_new_cards
     finally:
         col.close()
 

@@ -76,7 +76,7 @@ class TimeBudgetSettings:
     max_dr: int = DEFAULT_MAX_DR
     order: list[str] = field(default_factory=lambda: list(DEFAULT_ORDER))
     # stop new cards at the daily new card limits of the deck and subdecks
-    limit_new_cards: bool = False
+    limit_new_cards: bool = True
 
     @classmethod
     def from_json(cls, data: dict[str, Any]) -> TimeBudgetSettings:

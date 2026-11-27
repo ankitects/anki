@@ -25,6 +25,7 @@ from aqt.operations.deck import (
     set_deck_collapsed,
 )
 from aqt.qt import *
+from aqt.rwkv_options import load_options as load_rwkv_options
 from aqt.sound import av_player
 from aqt.time_budget import (
     format_status,
@@ -50,6 +51,8 @@ class RenderData:
     sched_upgrade_required: bool
     # remaining seconds, keyed by decks with an RWKV-Instant time budget
     time_budgets: dict[DeckId, TimeBudgetDeck] = field(default_factory=dict)
+    # every deck is studied with RWKV, not only those with a time budget
+    rwkv_all_decks: bool = False
 
 
 @dataclass
@@ -174,12 +177,13 @@ class DeckBrowser:
                     studied_today=col.studied_today(),
                     sched_upgrade_required=not col.v3_scheduler(),
                     time_budgets=status_by_deck(col.sched.time_budget_status()),
+                    rwkv_all_decks=load_rwkv_options(col).all_decks,
                 )
 
             def success(output: RenderData) -> None:
                 self._render_data = output
                 self.__renderPage(None)
-                if output.time_budgets:
+                if output.time_budgets or output.rwkv_all_decks:
                     self._check_time_budgets_done(output)
 
             QueryOp(
@@ -191,9 +195,10 @@ class DeckBrowser:
             self.web.evalWithCallback("window.pageYOffset", self.__renderPage)
 
     def _check_time_budgets_done(self, data: RenderData) -> None:
-        """Shows 0 min for time-budget decks with nothing left today.
-        This needs the RWKV model, which may first be loaded or rebuilt from
-        the review log, so the deck list is shown before it is known."""
+        """Shows 0 min for time-budget decks with nothing left today, and
+        loads the RWKV model so the first card of a session does not wait on
+        it. The model may first be replayed from the review log, so the deck
+        list is shown before any of this is known."""
 
         def success(budgets: dict[DeckId, TimeBudgetDeck]) -> None:
             if self._render_data is not data:

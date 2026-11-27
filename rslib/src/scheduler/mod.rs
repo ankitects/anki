@@ -14,6 +14,7 @@ pub mod fsrs;
 pub mod new;
 pub(crate) mod queue;
 mod reviews;
+pub(crate) mod rwkv_options;
 mod service;
 pub mod states;
 pub(crate) mod time_budget;

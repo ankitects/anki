@@ -197,6 +197,7 @@ import com.ichi2.anki.study.currentDeckStudyState
 import com.ichi2.anki.sync.MeteredSyncPermission
 import com.ichi2.anki.sync.MeteredSyncPolicy
 import com.ichi2.anki.sync.launchCatchingRequiringOneWaySyncDiscardUndo
+import com.ichi2.anki.timebudget.showRwkvOptionsDialog
 import com.ichi2.anki.timebudget.showTimeBudgetDialog
 import com.ichi2.anki.ui.BottomFadeFrameLayout
 import com.ichi2.anki.ui.ResizablePaneManager
@@ -1572,6 +1573,14 @@ open class DeckPicker :
             R.id.action_time_budgets -> {
                 Timber.i("DeckPicker:: RWKV time budgets selected")
                 showTimeBudgetDialog {
+                    fragment?.refreshInterface()
+                    updateDeckList()
+                }
+                return true
+            }
+            R.id.action_rwkv_options -> {
+                Timber.i("DeckPicker:: RWKV options selected")
+                showRwkvOptionsDialog {
                     fragment?.refreshInterface()
                     updateDeckList()
                 }

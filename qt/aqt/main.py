@@ -1360,6 +1360,11 @@ title="{}" {}>{}</button>""".format(
 
         open_time_budget_dialog(self)
 
+    def on_rwkv_options(self) -> None:
+        from aqt.rwkv_options import open_rwkv_options_dialog
+
+        open_rwkv_options_dialog(self)
+
     def onNoteTypes(self) -> None:
         import aqt.models
 
@@ -1464,6 +1469,9 @@ title="{}" {}>{}</button>""".format(
         time_budgets = QAction(tr.qt_misc_time_budget_menu(), self)
         m.menuTools.insertAction(m.actionNoteTypes, time_budgets)
         qconnect(time_budgets.triggered, self.on_time_budgets)
+        rwkv_options = QAction(tr.qt_misc_rwkv_options_menu(), self)
+        m.menuTools.insertAction(m.actionNoteTypes, rwkv_options)
+        qconnect(rwkv_options.triggered, self.on_rwkv_options)
         qconnect(m.action_check_for_updates.triggered, self.on_check_for_updates)
         qconnect(m.actionPreferences.triggered, self.onPrefs)
 

@@ -7,6 +7,7 @@ mod learning;
 mod main;
 pub(crate) mod undo;
 
+use std::collections::HashMap;
 use std::collections::VecDeque;
 
 use anki_proto::scheduler::SchedulingContext;
@@ -41,6 +42,10 @@ pub(crate) struct CardQueues {
     pub(crate) load_balancer: Option<LoadBalancer>,
     pub(crate) fsrs_enabled: bool,
     pub(crate) fsrs_short_term_with_steps: bool,
+    /// Built with the reviews ordered by predicted recall; see
+    /// [crate::scheduler::rwkv_options]. The queue is rebuilt when the
+    /// setting no longer matches.
+    pub(crate) ordered_by_recall: bool,
 }
 
 #[derive(Debug, Copy, Clone)]
@@ -189,6 +194,47 @@ impl CardQueues {
         }
     }
 
+    /// The main queue's review and interday learning entries, which
+    /// [CardQueues::sort_reorderable_by] may reorder.
+    pub(crate) fn reorderable_ids(&self) -> Vec<CardId> {
+        self.main
+            .iter()
+            .filter(|entry| entry.kind != MainQueueEntryKind::New)
+            .map(|entry| entry.id)
+            .collect()
+    }
+
+    /// Reorders the main queue's review and interday learning entries by
+    /// `scores`, lowest first. Each kind is reordered within the positions
+    /// it already holds, so new cards stay where they are and the deck's
+    /// new/review and interday learning mixes still apply. An entry with no
+    /// score sorts last among its kind.
+    pub(crate) fn sort_reorderable_by(&mut self, scores: &HashMap<CardId, f32>) {
+        for kind in [
+            MainQueueEntryKind::Review,
+            MainQueueEntryKind::InterdayLearning,
+        ] {
+            let positions: Vec<usize> = self
+                .main
+                .iter()
+                .enumerate()
+                .filter(|(_, entry)| entry.kind == kind)
+                .map(|(index, _)| index)
+                .collect();
+            if positions.len() < 2 {
+                continue;
+            }
+            let mut entries: Vec<MainQueueEntry> =
+                positions.iter().map(|index| self.main[*index]).collect();
+            let score =
+                |entry: &MainQueueEntry| scores.get(&entry.id).copied().unwrap_or(f32::INFINITY);
+            entries.sort_by(|a, b| score(a).total_cmp(&score(b)).then(a.id.cmp(&b.id)));
+            for (index, entry) in positions.iter().zip(entries) {
+                self.main[*index] = entry;
+            }
+        }
+    }
+
     fn push_undo_entry(&mut self, entry: QueueEntry) {
         match entry {
             QueueEntry::IntradayLearning(entry) => self.push_intraday_learning(entry),
@@ -219,7 +265,7 @@ impl Collection {
     pub(crate) fn clear_study_queues(&mut self) {
         self.state.card_queues = None;
         self.state.time_budget_batch = None;
-        self.state.time_budget_undone_card = None;
+        self.state.time_budget_undone_cards.clear();
     }
 
     pub(crate) fn maybe_clear_study_queues_after_op(&mut self, op: &OpChanges) {
@@ -262,8 +308,23 @@ impl Collection {
     pub(crate) fn get_queues(&mut self) -> Result<&mut CardQueues> {
         let deck = self.get_current_deck()?;
         self.clear_queues_if_day_changed()?;
+        let by_recall = self.order_queue_by_recall(deck.id)?;
+        if self
+            .state
+            .card_queues
+            .as_ref()
+            .is_some_and(|queues| queues.ordered_by_recall != by_recall)
+        {
+            // the RWKV setting was changed or synced since the queue was built
+            self.clear_study_queues();
+        }
         if self.state.card_queues.is_none() {
-            self.state.card_queues = Some(self.build_queues(deck.id)?);
+            let mut queues = self.build_queues(deck.id)?;
+            if by_recall {
+                self.sort_queue_by_recall(&mut queues)?;
+                queues.ordered_by_recall = true;
+            }
+            self.state.card_queues = Some(queues);
         }
 
         Ok(self.state.card_queues.as_mut().unwrap())

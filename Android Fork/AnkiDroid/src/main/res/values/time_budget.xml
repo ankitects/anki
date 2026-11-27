@@ -4,7 +4,7 @@
 <!-- RWKV-Instant time budgets (anki-time-fork). English only, matching ftl/qt/qt-misc.ftl in the
      desktop fork. -->
 <resources>
-    <string name="time_budget_title">RWKV Time Budgets</string>
+    <string name="time_budget_title">Time Based SRS</string>
     <string name="time_budget_intro">Decks with a time budget are studied with RWKV-Instant. Cards with the lowest predicted recall are shown first, including cards that are not due yet, until the day\'s time is used up. Answers are still scheduled by FSRS.</string>
     <string name="time_budget_enabled">Enabled</string>
     <string name="time_budget_minutes">Minutes per day</string>
@@ -21,7 +21,7 @@
     <string name="time_budget_advanced_intro">These apply to all enabled decks.</string>
     <string name="time_budget_order">Card order</string>
     <string name="time_budget_order_help">Choose which cards are shown first. Reviews are shown lowest predicted recall first; new cards follow the deck\'s order, and are only shown while time is left.</string>
-    <string name="time_budget_limit_new_cards">Select new cards limit</string>
+    <string name="time_budget_limit_new_cards">Respect deck new card limit</string>
     <string name="time_budget_help_limit_new_cards">Stop showing new cards once the daily new card limit of the deck (or a subdeck) is reached. Otherwise new cards are only limited by time.</string>
     <string name="time_budget_move_up">Move up</string>
     <string name="time_budget_move_down">Move down</string>
@@ -32,4 +32,7 @@
     <string name="time_budget_time_left">Time left</string>
     <string name="time_budget_cards_below_target">Cards to study</string>
     <string name="time_budget_no_decks">Add a deck first.</string>
+    <string name="rwkv_options_title">RWKV Options</string>
+    <string name="rwkv_all_decks">Enable RWKV on all decks</string>
+    <string name="rwkv_all_decks_help">Without this, only decks with a time budget are studied with RWKV. With it, every other deck is too: its due cards are shown lowest predicted recall first, within the deck\'s usual daily limits.</string>
 </resources>
