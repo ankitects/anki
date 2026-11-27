@@ -123,6 +123,11 @@ pub(crate) struct DeckBudgetEntry {
     pub enabled: bool,
     /// Desired study time per day.
     pub minutes: u32,
+    /// Settings this deck does not take from the shared ones. Kept in its
+    /// own object, so the per-deck keys of an older format are still
+    /// ignored.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub overrides: Option<DeckOverrides>,
 }
 
 impl Default for DeckBudgetEntry {
@@ -131,31 +136,62 @@ impl Default for DeckBudgetEntry {
         Self {
             enabled: defaults.enabled,
             minutes: defaults.minutes,
+            overrides: None,
         }
     }
 }
 
+/// What one deck uses in place of the shared settings. An unset field
+/// (`None`) uses the shared one.
+#[derive(Serialize, Deserialize, Debug, Clone, Default, PartialEq)]
+#[serde(default, rename_all = "camelCase")]
+pub(crate) struct DeckOverrides {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub max_reviews_per_card: Option<u32>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub min_dr: Option<u32>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub max_dr: Option<u32>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub limit_new_cards: Option<bool>,
+    /// Study time for each day of the week, Monday first, in place of the
+    /// deck's single [DeckBudgetEntry::minutes].
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub weekday_minutes: Option<Vec<u32>>,
+}
+
+impl DeckOverrides {
+    /// The time set aside for `weekday` (0 is Monday), if any.
+    fn minutes_for(&self, weekday: usize) -> Option<u32> {
+        self.weekday_minutes.as_ref()?.get(weekday).copied()
+    }
+}
+
 impl TimeBudgetConfig {
-    /// The active budget of a deck, with the shared limits applied.
-    fn budget_for(&self, deck_id: DeckId) -> Option<DeckTimeBudget> {
+    /// The active budget of a deck on `weekday` (0 is Monday), with the
+    /// shared limits applied where the deck does not override them.
+    fn budget_for(&self, deck_id: DeckId, weekday: usize) -> Option<DeckTimeBudget> {
         let entry = self.decks.get(&deck_id.0.to_string())?;
+        let overrides = entry.overrides.clone().unwrap_or_default();
         Some(DeckTimeBudget {
             enabled: entry.enabled,
-            minutes: entry.minutes,
-            max_reviews_per_card: self.max_reviews_per_card,
-            min_dr: self.min_dr,
-            max_dr: self.max_dr,
+            minutes: overrides.minutes_for(weekday).unwrap_or(entry.minutes),
+            max_reviews_per_card: overrides
+                .max_reviews_per_card
+                .unwrap_or(self.max_reviews_per_card),
+            min_dr: overrides.min_dr.unwrap_or(self.min_dr),
+            max_dr: overrides.max_dr.unwrap_or(self.max_dr),
             order: complete_order(&self.order),
-            limit_new_cards: self.limit_new_cards,
+            limit_new_cards: overrides.limit_new_cards.unwrap_or(self.limit_new_cards),
         })
         .filter(DeckTimeBudget::is_active)
     }
 
-    fn active_deck_ids(&self) -> impl Iterator<Item = DeckId> + '_ {
+    fn active_deck_ids(&self, weekday: usize) -> impl Iterator<Item = DeckId> + '_ {
         self.decks
             .keys()
             .filter_map(|id| id.parse().ok().map(DeckId))
-            .filter(|id| self.budget_for(*id).is_some())
+            .filter(move |id| self.budget_for(*id, weekday).is_some())
     }
 }
 
@@ -185,7 +221,7 @@ impl Default for DeckTimeBudget {
             min_dr: 60,
             max_dr: 95,
             order: DEFAULT_ORDER.to_vec(),
-            limit_new_cards: false,
+            limit_new_cards: true,
         }
     }
 }
@@ -366,7 +402,8 @@ impl Collection {
         deck_id: DeckId,
     ) -> Result<Option<ActiveTimeBudget>> {
         let config = self.time_budget_config();
-        if config.active_deck_ids().next().is_none() {
+        let weekday = self.time_budget_weekday()?;
+        if config.active_deck_ids(weekday).next().is_none() {
             return Ok(None);
         }
         let Some(deck) = self.storage.get_deck(deck_id)? else {
@@ -377,7 +414,7 @@ impl Collection {
         }
         let parents = self.storage.parent_decks(&deck)?;
         for deck in std::iter::once(deck).chain(parents) {
-            if let Some(budget) = config.budget_for(deck.id) {
+            if let Some(budget) = config.budget_for(deck.id, weekday) {
                 return Ok(Some(ActiveTimeBudget { root: deck, budget }));
             }
         }
@@ -386,6 +423,16 @@ impl Collection {
 
     fn day_start_millis(&mut self) -> Result<i64> {
         Ok((self.timing_today()?.next_day_at.0 - 86_400) * 1000)
+    }
+
+    /// The day of the week the current scheduler day falls on, 0 for
+    /// Monday. Taken from the day's start, so a session that runs past
+    /// midnight keeps the weekday it began on, as the rollover hour says.
+    pub(crate) fn time_budget_weekday(&mut self) -> Result<usize> {
+        use chrono::Datelike;
+        let day_start = TimestampSecs(self.timing_today()?.next_day_at.0 - 86_400);
+        let offset = day_start.local_utc_offset()?;
+        Ok(day_start.datetime(offset)?.weekday().num_days_from_monday() as usize)
     }
 
     /// Seconds spent today answering cards whose home deck is in `deck_ids`.
@@ -469,12 +516,18 @@ impl Collection {
         check_done: bool,
     ) -> Result<TimeBudgetStatusResponse> {
         let config = self.time_budget_config();
-        if check_done && config.active_deck_ids().next().is_some() {
+        let weekday = self.time_budget_weekday()?;
+        // Loading or replaying the model here, in the background, keeps the
+        // first card of a session from waiting on it; with RWKV on all
+        // decks there may be no budget deck to warm it up for.
+        if check_done
+            && (config.active_deck_ids(weekday).next().is_some() || self.rwkv_options().all_decks)
+        {
             self.rebuild_stale_instant_history()?;
         }
         let mut decks = vec![];
-        for deck_id in config.active_deck_ids() {
-            let budget = config.budget_for(deck_id).expect("active deck");
+        for deck_id in config.active_deck_ids(weekday).collect::<Vec<_>>() {
+            let budget = config.budget_for(deck_id, weekday).expect("active deck");
             let Some(deck) = self.storage.get_deck(deck_id)? else {
                 continue;
             };
@@ -547,9 +600,14 @@ impl Collection {
         } else {
             (batch.new_count, batch.learning_count, batch.review_count)
         };
-        // a card whose answer was undone is shown again first, as in Anki's
-        // own queues
-        if let Some(undone) = self.time_budget_undone_candidate(study_deck)? {
+        // cards whose answers were undone are shown again first, as in Anki's
+        // own queues. Inserting in reverse keeps the most recently undone
+        // card at the front.
+        for undone in self
+            .time_budget_undone_candidates(study_deck)?
+            .into_iter()
+            .rev()
+        {
             if let Some(index) = usable
                 .iter()
                 .position(|card| card.card_id == undone.card_id)
@@ -631,54 +689,74 @@ impl Collection {
         Ok(())
     }
 
-    /// After an undo: the batch was scored with the undone answer, so it is
-    /// dropped, and the undone card is shown again first.
+    /// After an undo: the undone card is shown again first.
+    ///
+    /// The batch is kept, so going back does not pause the reviewer while
+    /// every card is scored again; the undone answer changes the other
+    /// cards' predictions very little, and the background prefetch replaces
+    /// the batch once the model has been replayed
+    /// ([Collection::prefetch_time_budget_cards]). An undo of anything but
+    /// an answer may have changed the cards themselves, so the batch is
+    /// dropped then (as it already is for the equivalent forward
+    /// operations).
     pub(crate) fn time_budget_after_undo(&mut self, undone_answer: Option<CardId>) {
-        self.state.time_budget_batch = None;
-        self.state.time_budget_undone_card = undone_answer;
+        let Some(card_id) = undone_answer else {
+            self.state.time_budget_batch = None;
+            self.state.time_budget_undone_cards.clear();
+            return;
+        };
+        let undone = &mut self.state.time_budget_undone_cards;
+        undone.retain(|id| *id != card_id);
+        undone.insert(0, card_id);
+        undone.truncate(BATCH_SIZE);
     }
 
-    /// The card whose answer was undone, if it is still in the study deck's
-    /// tree and can be studied.
-    fn time_budget_undone_candidate(&mut self, study_deck: DeckId) -> Result<Option<Candidate>> {
-        let Some(card_id) = self.state.time_budget_undone_card else {
-            return Ok(None);
-        };
-        let Some(card) = self.storage.get_card(card_id)? else {
-            return Ok(None);
-        };
+    /// The cards whose answers were undone, in the order they are shown
+    /// again: only those still in the study deck's tree and able to be
+    /// studied.
+    fn time_budget_undone_candidates(&mut self, study_deck: DeckId) -> Result<Vec<Candidate>> {
+        if self.state.time_budget_undone_cards.is_empty() {
+            return Ok(vec![]);
+        }
         let study_deck = self
             .storage
             .get_deck(study_deck)?
             .or_not_found(study_deck)?;
-        if !self
-            .storage
-            .deck_id_with_children(&study_deck)?
-            .contains(&card.deck_id)
-        {
-            return Ok(None);
-        }
-        let group = match card.queue {
-            CardQueue::New => CardGroup::New,
-            CardQueue::Learn | CardQueue::Review | CardQueue::DayLearn => {
-                if self.answers_today_by_card()?.contains_key(&card_id) {
-                    CardGroup::ReReview
-                } else {
-                    CardGroup::FirstReview
-                }
+        let deck_ids = self.storage.deck_id_with_children(&study_deck)?;
+        let answers_today = self.answers_today_by_card()?;
+        let mut out = vec![];
+        for card_id in self.state.time_budget_undone_cards.clone() {
+            let Some(card) = self.storage.get_card(card_id)? else {
+                continue;
+            };
+            if !deck_ids.contains(&card.deck_id) {
+                continue;
             }
-            _ => return Ok(None),
-        };
-        Ok(Some(Candidate {
-            card_id,
-            retrievability: 0.0,
-            learning: matches!(card.queue, CardQueue::Learn | CardQueue::DayLearn),
-            group,
-        }))
+            let group = match card.queue {
+                CardQueue::New => CardGroup::New,
+                CardQueue::Learn | CardQueue::Review | CardQueue::DayLearn => {
+                    if answers_today.contains_key(&card_id) {
+                        CardGroup::ReReview
+                    } else {
+                        CardGroup::FirstReview
+                    }
+                }
+                _ => continue,
+            };
+            out.push(Candidate {
+                card_id,
+                retrievability: 0.0,
+                learning: matches!(card.queue, CardQueue::Learn | CardQueue::DayLearn),
+                group,
+            });
+        }
+        Ok(out)
     }
 
     pub(crate) fn remove_from_time_budget_batch(&mut self, card_id: CardId) {
-        self.state.time_budget_undone_card = None;
+        self.state
+            .time_budget_undone_cards
+            .retain(|id| *id != card_id);
         if let Some(batch) = self.state.time_budget_batch.as_mut() {
             if let Some(index) = batch.cards.iter().position(|card| card.card_id == card_id) {
                 let card = batch.cards.remove(index);
@@ -781,21 +859,7 @@ impl Collection {
             return Ok(new_cards);
         }
         let cards = self.all_cards_for_ids(&card_ids, false)?;
-        let presets: HashMap<DeckId, i64> = self
-            .storage
-            .get_all_decks()?
-            .into_iter()
-            .filter_map(|deck| deck.config_id().map(|config| (deck.id, config.0)))
-            .collect();
-        let timing = self.timing_today()?;
-        let queries: Vec<_> = cards
-            .iter()
-            .map(|card| QueryCard {
-                card,
-                preset_id: presets.get(&card.original_or_current_deck_id()).copied(),
-            })
-            .collect();
-        let retrievabilities = self.instant_history()?.predict(&queries, &timing)?;
+        let retrievabilities = self.predict_recall(&cards)?;
         Ok(cards
             .iter()
             .zip(retrievabilities)
@@ -811,6 +875,26 @@ impl Collection {
             })
             .chain(new_cards)
             .collect())
+    }
+
+    /// The RWKV-Instant probability of recall of each card if shown now, in
+    /// the order the cards were given in.
+    pub(crate) fn predict_recall(&mut self, cards: &[Card]) -> Result<Vec<f32>> {
+        let presets: HashMap<DeckId, i64> = self
+            .storage
+            .get_all_decks()?
+            .into_iter()
+            .filter_map(|deck| deck.config_id().map(|config| (deck.id, config.0)))
+            .collect();
+        let timing = self.timing_today()?;
+        let queries: Vec<_> = cards
+            .iter()
+            .map(|card| QueryCard {
+                card,
+                preset_id: presets.get(&card.original_or_current_deck_id()).copied(),
+            })
+            .collect();
+        self.instant_history()?.predict(&queries, &timing)
     }
 
     /// New cards of the study deck's tree in due (position) order. With
@@ -965,6 +1049,7 @@ mod test {
                 DeckBudgetEntry {
                     enabled: budget.enabled,
                     minutes: budget.minutes,
+                    overrides: None,
                 },
             )]
             .into(),
@@ -1064,7 +1149,7 @@ mod test {
                 "maxReviewsPerCard": 2, "maxDr": 90}"#,
         )
         .unwrap();
-        let budget = config.budget_for(DeckId(1)).unwrap();
+        let budget = config.budget_for(DeckId(1), 0).unwrap();
         assert_eq!(
             budget,
             DeckTimeBudget {
@@ -1076,14 +1161,93 @@ mod test {
                 min_dr: 60,
                 max_dr: 90,
                 order: DEFAULT_ORDER.to_vec(),
+                limit_new_cards: true,
+            }
+        );
+        assert_eq!(config.budget_for(DeckId(2), 0), None);
+        assert_eq!(
+            config.active_deck_ids(0).collect::<Vec<_>>(),
+            vec![DeckId(1)]
+        );
+    }
+
+    #[test]
+    fn deck_overrides_replace_the_shared_limits() {
+        let config: TimeBudgetConfig = serde_json::from_str(
+            r#"{"decks": {
+                  "1": {"minutes": 30, "overrides": {
+                          "maxReviewsPerCard": 1, "minDr": 50, "limitNewCards": false,
+                          "weekdayMinutes": [13, 20, 20, 20, 20, 30, 30]}},
+                  "2": {"minutes": 30}},
+                "maxReviewsPerCard": 2, "minDr": 60, "maxDr": 90}"#,
+        )
+        .unwrap();
+        // Monday: the deck's own limits, and Monday's time
+        let budget = config.budget_for(DeckId(1), 0).unwrap();
+        assert_eq!(
+            budget,
+            DeckTimeBudget {
+                enabled: true,
+                minutes: 13,
+                max_reviews_per_card: 1,
+                min_dr: 50,
+                // unset: the shared maximum still applies
+                max_dr: 90,
+                order: DEFAULT_ORDER.to_vec(),
                 limit_new_cards: false,
             }
         );
-        assert_eq!(config.budget_for(DeckId(2)), None);
+        // Saturday has its own time
+        assert_eq!(config.budget_for(DeckId(1), 5).unwrap().minutes, 30);
+        // a deck without overrides is unaffected
+        let plain = config.budget_for(DeckId(2), 0).unwrap();
         assert_eq!(
-            config.active_deck_ids().collect::<Vec<_>>(),
-            vec![DeckId(1)]
+            (plain.minutes, plain.max_reviews_per_card, plain.min_dr),
+            (30, 2, 60)
         );
+        // a week with fewer days than expected falls back to the deck's time
+        let short: TimeBudgetConfig = serde_json::from_str(
+            r#"{"decks": {"1": {"minutes": 45, "overrides": {"weekdayMinutes": [10]}}}}"#,
+        )
+        .unwrap();
+        assert_eq!(short.budget_for(DeckId(1), 0).unwrap().minutes, 10);
+        assert_eq!(short.budget_for(DeckId(1), 3).unwrap().minutes, 45);
+    }
+
+    #[test]
+    fn overrides_are_kept_when_the_settings_are_written_back() {
+        let json = r#"{"decks": {"1": {"enabled": true, "minutes": 30,
+                       "overrides": {"minDr": 50, "weekdayMinutes": [13, 30]}}},
+                       "maxReviewsPerCard": 3, "minDr": 60, "maxDr": 95,
+                       "order": ["firstReview", "new", "reReview"],
+                       "limitNewCards": true}"#;
+        let config: TimeBudgetConfig = serde_json::from_str(json).unwrap();
+        let written: TimeBudgetConfig =
+            serde_json::from_str(&serde_json::to_string(&config).unwrap()).unwrap();
+        assert_eq!(written, config);
+        // unset fields are left out rather than written as null
+        let text = serde_json::to_string(&config).unwrap();
+        assert!(text.contains(r#""minDr":50"#) && text.contains(r#""weekdayMinutes":[13,30]"#));
+        assert!(!text.contains("null"));
+        // a deck with no overrides does not grow an empty object
+        let plain: TimeBudgetConfig =
+            serde_json::from_str(r#"{"decks": {"1": {"minutes": 30}}}"#).unwrap();
+        assert!(!serde_json::to_string(&plain).unwrap().contains("overrides"));
+    }
+
+    #[test]
+    fn the_weekday_comes_from_the_start_of_the_scheduler_day() -> Result<()> {
+        use chrono::Datelike;
+        let mut col = Collection::new();
+        let timing = col.timing_today()?;
+        let day_start = TimestampSecs(timing.next_day_at.0 - 86_400);
+        let expected = day_start
+            .datetime(day_start.local_utc_offset()?)?
+            .weekday()
+            .num_days_from_monday() as usize;
+        assert_eq!(col.time_budget_weekday()?, expected);
+        assert!(col.time_budget_weekday()? < 7);
+        Ok(())
     }
 
     #[test]
@@ -1160,6 +1324,7 @@ mod test {
         col.set_current_deck(deck.id)?;
         let mut budget = DeckTimeBudget {
             max_dr: 100,
+            limit_new_cards: false,
             ..Default::default()
         };
         // without the new card limit, every new card while time is left
@@ -1238,7 +1403,11 @@ mod test {
         let shown = queued_ids(&mut col)[0];
         col.answer_good();
         col.prefetch_time_budget_cards()?;
+        let scored = col.state.time_budget_batch.clone().unwrap().cards;
         col.undo()?;
+        // the batch is kept, so going back does not pause while every card
+        // is scored again
+        assert_eq!(col.state.time_budget_batch.as_ref().unwrap().cards, scored);
         // the undone card is shown again, first
         assert_eq!(queued_ids(&mut col)[0], shown);
         col.answer_good();
@@ -1247,6 +1416,48 @@ mod test {
         col.undo()?;
         assert_eq!(queued_ids(&mut col)[0], shown);
         assert!(queued_ids(&mut col).contains(&first) && queued_ids(&mut col).contains(&second));
+        Ok(())
+    }
+
+    #[test]
+    fn going_back_twice_shows_both_cards_without_scoring_again() -> Result<()> {
+        use RevlogReviewKind::*;
+        let mut col = Collection::new();
+        let deck = DeckAdder::new("Budget").add(&mut col);
+        for index in 0..4 {
+            review_card(
+                &mut col,
+                deck.id,
+                &[(30 + index, 3, Learning), (10, 1, Review)],
+            );
+        }
+        col.set_current_deck(deck.id)?;
+        set_budget(
+            &mut col,
+            deck.id,
+            DeckTimeBudget {
+                max_dr: 100,
+                ..Default::default()
+            },
+        );
+        let order = queued_ids(&mut col);
+        assert_eq!(order.len(), 4);
+        col.answer_good();
+        col.answer_good();
+        let scored = col.state.time_budget_batch.clone().unwrap().cards;
+
+        col.undo()?;
+        col.undo()?;
+        assert_eq!(col.state.time_budget_batch.as_ref().unwrap().cards, scored);
+        // both cards are shown again, the one answered first at the front
+        let queue = col.get_queued_cards(100, false)?;
+        let ids: Vec<_> = queue.cards.iter().map(|queued| queued.card.id).collect();
+        assert_eq!(ids[..2], order[..2]);
+        assert_eq!(ids.len(), 4);
+        assert_eq!(queue.review_count, 4);
+        // answering them again picks up where it left off
+        col.answer_good();
+        assert_eq!(queued_ids(&mut col)[0], order[1]);
         Ok(())
     }
 
@@ -1299,6 +1510,7 @@ mod test {
             minutes: 1,
             min_dr: 10,
             max_dr: 20,
+            limit_new_cards: false,
             ..Default::default()
         };
         set_budget(&mut col, deck.id, budget.clone());

@@ -75,8 +75,8 @@ qt-misc-layout-auto-enabled = Responsive layout enabled
 qt-misc-layout-vertical-enabled = Vertical layout enabled
 qt-misc-layout-horizontal-enabled = Horizontal layout enabled
 
-qt-misc-time-budget-title = RWKV Time Budgets
-qt-misc-time-budget-menu = RWKV Time Budgets...
+qt-misc-time-budget-title = Time Based SRS
+qt-misc-time-budget-menu = Time Based SRS...
 qt-misc-time-budget-intro = Decks with a time budget are studied with RWKV-Instant. Cards with the lowest predicted recall are shown first, including cards that are not due yet, until the day's time is used up. Answers are still scheduled by FSRS.
 qt-misc-time-budget-deck = Deck
 qt-misc-time-budget-enabled = Enabled
@@ -94,7 +94,7 @@ qt-misc-time-budget-advanced-intro = These apply to all enabled decks.
 qt-misc-time-budget-order = Card order
 qt-misc-time-budget-order-drag = Drag to reorder.
 qt-misc-time-budget-order-help = Drag to choose which cards are shown first. Reviews are shown lowest predicted recall first; new cards follow the deck's order, and are only shown while time is left.
-qt-misc-time-budget-limit-new-cards = Select new cards limit
+qt-misc-time-budget-limit-new-cards = Respect deck new card limit
 qt-misc-time-budget-help-limit-new-cards = Stop showing new cards once the daily new card limit of the deck (or a subdeck) is reached. Otherwise new cards are only limited by time.
 qt-misc-time-budget-first-review = First daily review
 qt-misc-time-budget-new-cards = New cards
@@ -102,6 +102,19 @@ qt-misc-time-budget-re-review = Re-reviews
 qt-misc-time-budget-minutes-left = { $minutes } min
 qt-misc-time-budget-time-left = Time left
 qt-misc-time-budget-cards-below-target = Cards to study
+qt-misc-time-budget-overrides = Deck overrides
+qt-misc-time-budget-overrides-for = Deck overrides: { $deck }
+qt-misc-time-budget-overrides-intro = Ticked settings replace the shared ones for this deck. The rest follow the shared settings.
+qt-misc-time-budget-overrides-open = Deck overrides for { $deck }
+qt-misc-time-budget-overrides-back = Back
+qt-misc-time-budget-weekday-minutes = Minutes per day per week
+qt-misc-time-budget-help-weekday-minutes = Set the time aside for each day of the week, in place of the deck's single daily time.
+qt-misc-time-budget-minutes-range = { $min }-{ $max }
+
+qt-misc-rwkv-options-title = RWKV Options
+qt-misc-rwkv-options-menu = RWKV Options...
+qt-misc-rwkv-all-decks = Enable RWKV on all decks
+qt-misc-rwkv-all-decks-help = Without this, only decks with a time budget are studied with RWKV. With it, every other deck is too: its due cards are shown lowest predicted recall first, within the deck's usual daily limits.
 
 ## deprecated- these strings will be removed in the future, and do not need
 ## to be translated

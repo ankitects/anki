@@ -225,6 +225,7 @@ impl QueueBuilder {
             current_learning_cutoff: now,
             fsrs_enabled: self.context.fsrs,
             fsrs_short_term_with_steps: self.context.fsrs_short_term_with_steps,
+            ordered_by_recall: false,
         }
     }
 }

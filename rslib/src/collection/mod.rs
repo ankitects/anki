@@ -135,8 +135,9 @@ pub struct CollectionState {
     pub(crate) instant_history: Option<crate::scheduler::time_budget::history::InstantHistory>,
     /// The next cards of a time-budget session, scored together.
     pub(crate) time_budget_batch: Option<crate::scheduler::time_budget::TimeBudgetBatch>,
-    /// A time-budget card whose answer was undone: shown again first.
-    pub(crate) time_budget_undone_card: Option<crate::card::CardId>,
+    /// Time-budget cards whose answers were undone, most recently undone
+    /// first: shown again before the rest of the batch.
+    pub(crate) time_budget_undone_cards: Vec<crate::card::CardId>,
     pub(crate) active_browser_columns: Option<Arc<Vec<browser_table::Column>>>,
     /// True if legacy Python code has executed SQL that has modified the
     /// database, requiring modification time to be bumped.

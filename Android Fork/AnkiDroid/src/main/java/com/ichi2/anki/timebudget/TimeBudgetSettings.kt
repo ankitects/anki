@@ -45,6 +45,12 @@ enum class CardGroup(
 data class DeckBudget(
     val enabled: Boolean = true,
     val minutes: Int = DEFAULT_MINUTES,
+    /**
+     * The settings this deck uses in place of the shared ones, as the raw JSON object the
+     * backend reads (rslib's `DeckOverrides`). This dialog does not edit them yet, so they are
+     * kept verbatim rather than parsed, and saving here never drops what the desktop set.
+     */
+    val overrides: String? = null,
 )
 
 /** The time per deck, and the limits shared by all enabled decks. */
@@ -55,7 +61,7 @@ data class TimeBudgetSettings(
     val maxDr: Int = DEFAULT_MAX_DR,
     val order: List<CardGroup> = CardGroup.DEFAULT_ORDER,
     /** Stop new cards at the daily new card limits of the deck and its subdecks. */
-    val limitNewCards: Boolean = false,
+    val limitNewCards: Boolean = true,
 ) {
     /**
      * Writes these settings into [original], so keys this version does not know about (eg.
@@ -64,10 +70,9 @@ data class TimeBudgetSettings(
     fun toJson(original: JSONObject = JSONObject()): JSONObject {
         val decksJson = JSONObject()
         for ((did, deck) in decks) {
-            decksJson.put(
-                did.toString(),
-                JSONObject().put("enabled", deck.enabled).put("minutes", deck.minutes),
-            )
+            val deckJson = JSONObject().put("enabled", deck.enabled).put("minutes", deck.minutes)
+            deck.overrides?.let { deckJson.put("overrides", JSONObject(it)) }
+            decksJson.put(did.toString(), deckJson)
         }
         return JSONObject(original.toString())
             .put("decks", decksJson)
@@ -89,6 +94,7 @@ data class TimeBudgetSettings(
                         DeckBudget(
                             enabled = deck.optBoolean("enabled", true),
                             minutes = deck.optInt("minutes", DEFAULT_MINUTES),
+                            overrides = deck.optJSONObject("overrides")?.toString(),
                         )
                 }
             }
@@ -102,7 +108,7 @@ data class TimeBudgetSettings(
                 minDr = data.optInt("minDr", DEFAULT_MIN_DR),
                 maxDr = data.optInt("maxDr", DEFAULT_MAX_DR),
                 order = CardGroup.completeOrder(order),
-                limitNewCards = data.optBoolean("limitNewCards", false),
+                limitNewCards = data.optBoolean("limitNewCards", true),
             )
         }
     }

@@ -224,7 +224,8 @@ impl Collection {
     /// The RWKV-Instant model, with every answer in the review log replayed.
     /// The model is restored from disk or replayed in full the first time;
     /// after that, new answers are added. If the review log changed in a way
-    /// that needs a full replay, the current model is returned marked stale:
+    /// that needs a full replay, the current model is returned marked stale,
+    /// and new answers keep being added to it until a replay replaces it:
     /// see [Collection::rebuild_stale_instant_history].
     pub(crate) fn instant_history(&mut self) -> Result<&mut InstantHistory> {
         let timing = self.timing_today()?;
@@ -238,11 +239,17 @@ impl Collection {
             _ => self.build_instant_history(&timing)?,
         };
         let (last_revlog_id, revlog_count) = self.revlog_extent()?;
-        if !history.stale
-            && (history.last_revlog_id != last_revlog_id || history.revlog_count != revlog_count)
+        if (history.last_revlog_id != last_revlog_id || history.revlog_count != revlog_count)
             && !self.append_instant_history(&mut history, &timing, last_revlog_id, revlog_count)?
         {
+            // The log no longer extends what was replayed, so a full replay
+            // is needed to be exact. Until one happens, carry on from the
+            // log as it stands: that keeps the answers given after an undo
+            // in the model, rather than freezing it for the session (a
+            // client with no background prefetch never rebuilds).
             history.stale = true;
+            history.last_revlog_id = last_revlog_id;
+            history.revlog_count = revlog_count;
         }
         Ok(self.state.instant_history.insert(history))
     }
@@ -631,12 +638,27 @@ mod test {
         assert!(!history.stale);
         assert_ne!(history.predict(&query, &timing)?, before);
 
-        // a removed entry (an undo) marks it stale, until a background rebuild
-        col.storage.db.execute(
-            "delete from revlog where id = (select max(id) from revlog)",
-            [],
-        )?;
+        // a removed entry (an undo) marks it stale
+        let remove_last = |col: &mut Collection| -> Result<()> {
+            col.storage.db.execute(
+                "delete from revlog where id = (select max(id) from revlog)",
+                [],
+            )?;
+            Ok(())
+        };
+        remove_last(&mut col)?;
         assert!(col.instant_history()?.stale);
+
+        // answers given while it is stale are still added, so the model does
+        // not stop keeping up until a rebuild replaces it
+        let stale_prediction = col.instant_history()?.predict(&query, &timing)?;
+        add_answer(&mut col, card.id, 0, 500)?;
+        let history = col.instant_history()?;
+        assert!(history.stale);
+        assert_ne!(history.predict(&query, &timing)?, stale_prediction);
+
+        // a background rebuild replays the log and clears the flag
+        remove_last(&mut col)?;
         assert!(col.rebuild_stale_instant_history()?);
         let history = col.instant_history()?;
         assert!(!history.stale && !history.restored);
