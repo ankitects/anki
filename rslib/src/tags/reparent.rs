@@ -53,28 +53,42 @@ impl Collection {
             return Ok(0);
         }
 
-        // remove old prefixes from the tag list
+        let new_name = |cap: &str| {
+            old_to_new_names
+                .get(&UniCase::new(cap.to_string()))
+                .unwrap()
+                .clone()
+        };
+
+        // remove old prefixes from the tag list, noting which tags were expanded
+        let mut expanded_tags = vec![];
         for tag in self
             .storage
             .get_tags_by_predicate(|tag| matcher.is_match(tag))?
         {
+            if tag.expanded {
+                expanded_tags.push(
+                    matcher
+                        .replace_with_fn(&tag.name, new_name)
+                        .trim()
+                        .to_string(),
+                );
+            }
             self.remove_single_tag_undoable(tag)?;
         }
 
         // replace tags
         for mut note in matched_notes {
             let original = note.clone();
-            note.tags = matcher.replace_with_fn(&note.tags, |cap| {
-                old_to_new_names
-                    .get(&UniCase::new(cap.to_string()))
-                    .unwrap()
-                    .clone()
-            });
+            note.tags = matcher.replace_with_fn(&note.tags, new_name);
             note.set_modified(usn);
             self.update_note_tags_undoable(&note, original)?;
         }
 
-        // update tag list
+        // update tag list, carrying over the expanded state of moved tags
+        for tag in expanded_tags {
+            self.register_expanded_tag_string(tag, usn)?;
+        }
         for tag in matcher.into_new_tags() {
             self.register_tag_string(tag, usn)?;
         }
@@ -267,6 +281,24 @@ mod test {
                 "parent2::grandchild1",
             ]
         );
+
+        Ok(())
+    }
+
+    #[test]
+    fn reparent_keeps_expanded_state() -> Result<()> {
+        let mut col = Collection::new();
+        let nt = col.get_notetype_by_name("Basic")?.unwrap();
+        let mut note = nt.new_note();
+        note.tags = vec!["source".into(), "source::child".into(), "target".into()];
+        col.add_note(&mut note, DeckId(1))?;
+        col.set_tag_collapsed("source", false)?;
+
+        col.reparent_tags(&["source".to_string()], Some("target".to_string()))?;
+
+        let moved = col.storage.get_tag("target::source")?.unwrap();
+        assert!(moved.expanded);
+        assert!(!col.storage.get_tag("target")?.unwrap().expanded);
 
         Ok(())
     }
