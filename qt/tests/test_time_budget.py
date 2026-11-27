@@ -8,6 +8,7 @@ from anki.collection import Collection
 from anki.decks import DeckId
 from aqt.time_budget import (
     DeckBudget,
+    DeckOverrides,
     TimeBudgetSettings,
     format_remaining,
     load_settings,
@@ -47,6 +48,46 @@ def test_settings_round_trip_with_shared_limits() -> None:
         }
         save_settings(col, TimeBudgetSettings(limit_new_cards=False))
         assert not load_settings(col).limit_new_cards
+    finally:
+        col.close()
+
+
+def test_deck_overrides_round_trip() -> None:
+    col = _collection()
+    try:
+        parent = DeckId(col.decks.id("Languages"))
+        # a deck that overrides nothing does not grow an overrides key
+        save_settings(col, TimeBudgetSettings(decks={parent: DeckBudget()}))
+        assert "overrides" not in col.get_config("rwkvTimeBudget")["decks"][str(parent)]
+        assert not load_settings(col).decks[parent].overrides.any_set()
+
+        overrides = DeckOverrides(
+            min_dr=50,
+            limit_new_cards=False,
+            weekday_minutes=[13, 20, 20, 20, 20, 30, 30],
+        )
+        save_settings(
+            col, TimeBudgetSettings(decks={parent: DeckBudget(overrides=overrides)})
+        )
+        # only the settings that are set are written
+        assert col.get_config("rwkvTimeBudget")["decks"][str(parent)]["overrides"] == {
+            "minDr": 50,
+            "limitNewCards": False,
+            "weekdayMinutes": [13, 20, 20, 20, 20, 30, 30],
+        }
+        stored = load_settings(col).decks[parent].overrides
+        assert stored == overrides
+        assert stored.any_set()
+        # the main dialog shows the week as the range it covers
+        assert stored.minutes_range() == (13, 30)
+        assert DeckOverrides().minutes_range() is None
+
+        # per-deck keys of the older format are not overrides
+        col.set_config(
+            "rwkvTimeBudget",
+            {"decks": {str(parent): {"enabled": True, "minutes": 30, "minDr": 10}}},
+        )
+        assert not load_settings(col).decks[parent].overrides.any_set()
     finally:
         col.close()
 

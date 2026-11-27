@@ -306,7 +306,13 @@ private class TimeBudgetDialog(
                         ?.coerceIn(1, 24 * 60) ?: settings.decks[did]?.minutes ?: DEFAULT_MINUTES
                 }
             if (enabled || did in updatedDecks) {
-                updatedDecks[did] = DeckBudget(enabled = enabled, minutes = minutes)
+                updatedDecks[did] =
+                    DeckBudget(
+                        enabled = enabled,
+                        minutes = minutes,
+                        // this dialog does not edit the deck's overrides; keep them
+                        overrides = settings.decks[did]?.overrides,
+                    )
             }
         }
 

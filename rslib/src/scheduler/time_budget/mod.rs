@@ -123,6 +123,11 @@ pub(crate) struct DeckBudgetEntry {
     pub enabled: bool,
     /// Desired study time per day.
     pub minutes: u32,
+    /// Settings this deck does not take from the shared ones. Kept in its
+    /// own object, so the per-deck keys of an older format are still
+    /// ignored.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub overrides: Option<DeckOverrides>,
 }
 
 impl Default for DeckBudgetEntry {
@@ -131,31 +136,62 @@ impl Default for DeckBudgetEntry {
         Self {
             enabled: defaults.enabled,
             minutes: defaults.minutes,
+            overrides: None,
         }
     }
 }
 
+/// What one deck uses in place of the shared settings. An unset field
+/// (`None`) uses the shared one.
+#[derive(Serialize, Deserialize, Debug, Clone, Default, PartialEq)]
+#[serde(default, rename_all = "camelCase")]
+pub(crate) struct DeckOverrides {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub max_reviews_per_card: Option<u32>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub min_dr: Option<u32>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub max_dr: Option<u32>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub limit_new_cards: Option<bool>,
+    /// Study time for each day of the week, Monday first, in place of the
+    /// deck's single [DeckBudgetEntry::minutes].
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub weekday_minutes: Option<Vec<u32>>,
+}
+
+impl DeckOverrides {
+    /// The time set aside for `weekday` (0 is Monday), if any.
+    fn minutes_for(&self, weekday: usize) -> Option<u32> {
+        self.weekday_minutes.as_ref()?.get(weekday).copied()
+    }
+}
+
 impl TimeBudgetConfig {
-    /// The active budget of a deck, with the shared limits applied.
-    fn budget_for(&self, deck_id: DeckId) -> Option<DeckTimeBudget> {
+    /// The active budget of a deck on `weekday` (0 is Monday), with the
+    /// shared limits applied where the deck does not override them.
+    fn budget_for(&self, deck_id: DeckId, weekday: usize) -> Option<DeckTimeBudget> {
         let entry = self.decks.get(&deck_id.0.to_string())?;
+        let overrides = entry.overrides.clone().unwrap_or_default();
         Some(DeckTimeBudget {
             enabled: entry.enabled,
-            minutes: entry.minutes,
-            max_reviews_per_card: self.max_reviews_per_card,
-            min_dr: self.min_dr,
-            max_dr: self.max_dr,
+            minutes: overrides.minutes_for(weekday).unwrap_or(entry.minutes),
+            max_reviews_per_card: overrides
+                .max_reviews_per_card
+                .unwrap_or(self.max_reviews_per_card),
+            min_dr: overrides.min_dr.unwrap_or(self.min_dr),
+            max_dr: overrides.max_dr.unwrap_or(self.max_dr),
             order: complete_order(&self.order),
-            limit_new_cards: self.limit_new_cards,
+            limit_new_cards: overrides.limit_new_cards.unwrap_or(self.limit_new_cards),
         })
         .filter(DeckTimeBudget::is_active)
     }
 
-    fn active_deck_ids(&self) -> impl Iterator<Item = DeckId> + '_ {
+    fn active_deck_ids(&self, weekday: usize) -> impl Iterator<Item = DeckId> + '_ {
         self.decks
             .keys()
             .filter_map(|id| id.parse().ok().map(DeckId))
-            .filter(|id| self.budget_for(*id).is_some())
+            .filter(move |id| self.budget_for(*id, weekday).is_some())
     }
 }
 
@@ -366,7 +402,8 @@ impl Collection {
         deck_id: DeckId,
     ) -> Result<Option<ActiveTimeBudget>> {
         let config = self.time_budget_config();
-        if config.active_deck_ids().next().is_none() {
+        let weekday = self.time_budget_weekday()?;
+        if config.active_deck_ids(weekday).next().is_none() {
             return Ok(None);
         }
         let Some(deck) = self.storage.get_deck(deck_id)? else {
@@ -377,7 +414,7 @@ impl Collection {
         }
         let parents = self.storage.parent_decks(&deck)?;
         for deck in std::iter::once(deck).chain(parents) {
-            if let Some(budget) = config.budget_for(deck.id) {
+            if let Some(budget) = config.budget_for(deck.id, weekday) {
                 return Ok(Some(ActiveTimeBudget { root: deck, budget }));
             }
         }
@@ -386,6 +423,16 @@ impl Collection {
 
     fn day_start_millis(&mut self) -> Result<i64> {
         Ok((self.timing_today()?.next_day_at.0 - 86_400) * 1000)
+    }
+
+    /// The day of the week the current scheduler day falls on, 0 for
+    /// Monday. Taken from the day's start, so a session that runs past
+    /// midnight keeps the weekday it began on, as the rollover hour says.
+    pub(crate) fn time_budget_weekday(&mut self) -> Result<usize> {
+        use chrono::Datelike;
+        let day_start = TimestampSecs(self.timing_today()?.next_day_at.0 - 86_400);
+        let offset = day_start.local_utc_offset()?;
+        Ok(day_start.datetime(offset)?.weekday().num_days_from_monday() as usize)
     }
 
     /// Seconds spent today answering cards whose home deck is in `deck_ids`.
@@ -469,17 +516,18 @@ impl Collection {
         check_done: bool,
     ) -> Result<TimeBudgetStatusResponse> {
         let config = self.time_budget_config();
+        let weekday = self.time_budget_weekday()?;
         // Loading or replaying the model here, in the background, keeps the
         // first card of a session from waiting on it; with RWKV on all
         // decks there may be no budget deck to warm it up for.
         if check_done
-            && (config.active_deck_ids().next().is_some() || self.rwkv_options().all_decks)
+            && (config.active_deck_ids(weekday).next().is_some() || self.rwkv_options().all_decks)
         {
             self.rebuild_stale_instant_history()?;
         }
         let mut decks = vec![];
-        for deck_id in config.active_deck_ids() {
-            let budget = config.budget_for(deck_id).expect("active deck");
+        for deck_id in config.active_deck_ids(weekday).collect::<Vec<_>>() {
+            let budget = config.budget_for(deck_id, weekday).expect("active deck");
             let Some(deck) = self.storage.get_deck(deck_id)? else {
                 continue;
             };
@@ -1001,6 +1049,7 @@ mod test {
                 DeckBudgetEntry {
                     enabled: budget.enabled,
                     minutes: budget.minutes,
+                    overrides: None,
                 },
             )]
             .into(),
@@ -1100,7 +1149,7 @@ mod test {
                 "maxReviewsPerCard": 2, "maxDr": 90}"#,
         )
         .unwrap();
-        let budget = config.budget_for(DeckId(1)).unwrap();
+        let budget = config.budget_for(DeckId(1), 0).unwrap();
         assert_eq!(
             budget,
             DeckTimeBudget {
@@ -1115,11 +1164,90 @@ mod test {
                 limit_new_cards: true,
             }
         );
-        assert_eq!(config.budget_for(DeckId(2)), None);
+        assert_eq!(config.budget_for(DeckId(2), 0), None);
         assert_eq!(
-            config.active_deck_ids().collect::<Vec<_>>(),
+            config.active_deck_ids(0).collect::<Vec<_>>(),
             vec![DeckId(1)]
         );
+    }
+
+    #[test]
+    fn deck_overrides_replace_the_shared_limits() {
+        let config: TimeBudgetConfig = serde_json::from_str(
+            r#"{"decks": {
+                  "1": {"minutes": 30, "overrides": {
+                          "maxReviewsPerCard": 1, "minDr": 50, "limitNewCards": false,
+                          "weekdayMinutes": [13, 20, 20, 20, 20, 30, 30]}},
+                  "2": {"minutes": 30}},
+                "maxReviewsPerCard": 2, "minDr": 60, "maxDr": 90}"#,
+        )
+        .unwrap();
+        // Monday: the deck's own limits, and Monday's time
+        let budget = config.budget_for(DeckId(1), 0).unwrap();
+        assert_eq!(
+            budget,
+            DeckTimeBudget {
+                enabled: true,
+                minutes: 13,
+                max_reviews_per_card: 1,
+                min_dr: 50,
+                // unset: the shared maximum still applies
+                max_dr: 90,
+                order: DEFAULT_ORDER.to_vec(),
+                limit_new_cards: false,
+            }
+        );
+        // Saturday has its own time
+        assert_eq!(config.budget_for(DeckId(1), 5).unwrap().minutes, 30);
+        // a deck without overrides is unaffected
+        let plain = config.budget_for(DeckId(2), 0).unwrap();
+        assert_eq!(
+            (plain.minutes, plain.max_reviews_per_card, plain.min_dr),
+            (30, 2, 60)
+        );
+        // a week with fewer days than expected falls back to the deck's time
+        let short: TimeBudgetConfig = serde_json::from_str(
+            r#"{"decks": {"1": {"minutes": 45, "overrides": {"weekdayMinutes": [10]}}}}"#,
+        )
+        .unwrap();
+        assert_eq!(short.budget_for(DeckId(1), 0).unwrap().minutes, 10);
+        assert_eq!(short.budget_for(DeckId(1), 3).unwrap().minutes, 45);
+    }
+
+    #[test]
+    fn overrides_are_kept_when_the_settings_are_written_back() {
+        let json = r#"{"decks": {"1": {"enabled": true, "minutes": 30,
+                       "overrides": {"minDr": 50, "weekdayMinutes": [13, 30]}}},
+                       "maxReviewsPerCard": 3, "minDr": 60, "maxDr": 95,
+                       "order": ["firstReview", "new", "reReview"],
+                       "limitNewCards": true}"#;
+        let config: TimeBudgetConfig = serde_json::from_str(json).unwrap();
+        let written: TimeBudgetConfig =
+            serde_json::from_str(&serde_json::to_string(&config).unwrap()).unwrap();
+        assert_eq!(written, config);
+        // unset fields are left out rather than written as null
+        let text = serde_json::to_string(&config).unwrap();
+        assert!(text.contains(r#""minDr":50"#) && text.contains(r#""weekdayMinutes":[13,30]"#));
+        assert!(!text.contains("null"));
+        // a deck with no overrides does not grow an empty object
+        let plain: TimeBudgetConfig =
+            serde_json::from_str(r#"{"decks": {"1": {"minutes": 30}}}"#).unwrap();
+        assert!(!serde_json::to_string(&plain).unwrap().contains("overrides"));
+    }
+
+    #[test]
+    fn the_weekday_comes_from_the_start_of_the_scheduler_day() -> Result<()> {
+        use chrono::Datelike;
+        let mut col = Collection::new();
+        let timing = col.timing_today()?;
+        let day_start = TimestampSecs(timing.next_day_at.0 - 86_400);
+        let expected = day_start
+            .datetime(day_start.local_utc_offset()?)?
+            .weekday()
+            .num_days_from_monday() as usize;
+        assert_eq!(col.time_budget_weekday()?, expected);
+        assert!(col.time_budget_weekday()? < 7);
+        Ok(())
     }
 
     #[test]

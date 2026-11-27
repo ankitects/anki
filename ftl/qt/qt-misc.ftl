@@ -102,6 +102,14 @@ qt-misc-time-budget-re-review = Re-reviews
 qt-misc-time-budget-minutes-left = { $minutes } min
 qt-misc-time-budget-time-left = Time left
 qt-misc-time-budget-cards-below-target = Cards to study
+qt-misc-time-budget-overrides = Deck overrides
+qt-misc-time-budget-overrides-for = Deck overrides: { $deck }
+qt-misc-time-budget-overrides-intro = Ticked settings replace the shared ones for this deck. The rest follow the shared settings.
+qt-misc-time-budget-overrides-open = Deck overrides for { $deck }
+qt-misc-time-budget-overrides-back = Back
+qt-misc-time-budget-weekday-minutes = Minutes per day per week
+qt-misc-time-budget-help-weekday-minutes = Set the time aside for each day of the week, in place of the deck's single daily time.
+qt-misc-time-budget-minutes-range = { $min }-{ $max }
 
 qt-misc-rwkv-options-title = RWKV Options
 qt-misc-rwkv-options-menu = RWKV Options...
