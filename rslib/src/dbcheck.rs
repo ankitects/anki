@@ -253,13 +253,17 @@ impl Collection {
         for (ntid, group) in &nids_by_notetype.into_iter().chunk_by(|tup| tup.0) {
             debug!("check notetype: {}", ntid);
             let mut group = group.peekable();
-            let mut nt = match self.get_notetype(ntid)? {
-                None => {
+            let mut nt = match self.get_notetype(ntid) {
+                Ok(Some(nt)) => nt,
+                // A notetype whose stored protobuf cannot be decoded is as
+                // unusable as a missing one, and aborting here would leave the
+                // collection unrepairable from inside Anki.
+                Ok(None) | Err(AnkiError::ProtoError { .. }) => {
                     let first_note = self.storage.get_note(group.peek().unwrap().1)?.unwrap();
                     out.notetypes_recovered += 1;
                     self.recover_notetype(stamp_millis, first_note.fields().len(), ntid)?
                 }
-                Some(nt) => nt,
+                Err(err) => return Err(err),
             };
 
             self.add_missing_field_tags(Arc::make_mut(&mut nt))?;
@@ -477,6 +481,8 @@ impl Collection {
 
 #[cfg(test)]
 mod test {
+    use rusqlite::params;
+
     use super::*;
     use crate::decks::DeckId;
     use crate::search::SortMode;
@@ -539,6 +545,67 @@ mod test {
             col.storage.db_scalar::<u32>("select count(*) from cards")?,
             0
         );
+
+        Ok(())
+    }
+
+    /// The reporter of #5759 saw only `Config.a_format: buffer underflow`, with
+    /// nothing to say which of their notetypes to repair.
+    #[test]
+    fn corrupt_template_config_names_the_template() -> Result<()> {
+        let mut col = Collection::new();
+        let nt = col.get_notetype_by_name("Basic")?.unwrap();
+        col.storage.db.execute(
+            "update templates set config = ? where ntid = ? and ord = 0",
+            params![vec![0xffu8; 70], nt.id],
+        )?;
+        col.clear_caches();
+
+        let err = col.get_notetype(nt.id).unwrap_err();
+        let AnkiError::ProtoError { info } = &err else {
+            panic!("expected a proto error, got {err:?}");
+        };
+        assert!(info.contains("template 'Card 1'"), "{info}");
+        assert!(info.contains(&nt.id.to_string()), "{info}");
+
+        Ok(())
+    }
+
+    /// A template whose config blob cannot be decoded used to abort the whole
+    /// check with a bare `Config.a_format: buffer underflow`, leaving no way to
+    /// repair the collection from inside Anki.
+    #[test]
+    fn corrupt_template_config() -> Result<()> {
+        let mut col = Collection::new();
+        let nt = col.get_notetype_by_name("Basic")?.unwrap();
+        let mut note = nt.new_note();
+        note.set_field(0, "front")?;
+        col.add_note(&mut note, DeckId(1))?;
+
+        // 70 bytes of junk, as reported in #5759
+        col.storage.db.execute(
+            "update templates set config = ? where ntid = ?",
+            params![vec![0xffu8; 70], nt.id],
+        )?;
+
+        // the cached copy predates the corruption, as it would after a restart
+        col.clear_caches();
+
+        let out = col.check_database()?;
+        assert_eq!(
+            out,
+            CheckDatabaseOutput {
+                notetypes_recovered: 1,
+                ..Default::default()
+            }
+        );
+        // the note survives, attached to the recovered notetype
+        assert_eq!(
+            col.storage.db_scalar::<u32>("select count(*) from notes")?,
+            1
+        );
+        // and the collection is usable again
+        assert_eq!(col.check_database()?, Default::default());
 
         Ok(())
     }
