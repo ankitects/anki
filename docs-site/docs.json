@@ -375,6 +375,7 @@
             "groups": [
               {
                 "group": "Add-on Development",
+                "boost": 0.7,
                 "pages": [
                   "addons/intro",
                   "addons/support",
@@ -406,6 +407,7 @@
             "groups": [
               {
                 "group": "Core Development",
+                "boost": 0.7,
                 "pages": [
                   "developers/development",
                   "developers/api-python",
@@ -437,6 +439,7 @@
             "groups": [
               {
                 "group": "Translation Guide",
+                "boost": 0.7,
                 "pages": [
                   "translators/intro",
                   {
@@ -460,6 +463,7 @@
             "groups": [
               {
                 "group": "Release Notes",
+                "boost": 0.3,
                 "pages": [
                   "releases/betas/intro",
                   "releases/changes/known-issues",
@@ -1174,6 +1178,7 @@
             "groups": [
               {
                 "group": "アドオン開発",
+                "boost": 0.7,
                 "pages": [
                   "ja/addons/intro",
                   "ja/addons/support",
@@ -1205,6 +1210,7 @@
             "groups": [
               {
                 "group": "Anki 本体の開発",
+                "boost": 0.7,
                 "pages": [
                   "ja/developers/development",
                   "ja/developers/api-python",
@@ -1236,6 +1242,7 @@
             "groups": [
               {
                 "group": "翻訳ガイド",
+                "boost": 0.7,
                 "pages": [
                   "ja/translators/intro",
                   {
@@ -1259,6 +1266,7 @@
             "groups": [
               {
                 "group": "リリースノート",
+                "boost": 0.3,
                 "pages": [
                   "ja/releases/betas/intro"
                 ]
