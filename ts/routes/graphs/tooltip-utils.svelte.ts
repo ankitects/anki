@@ -27,6 +27,7 @@ function getOrCreateTooltip(): TooltipProps {
     tooltip = mount(Tooltip, { target, props });
 
     document.body.appendChild(target);
+    window.addEventListener("resize", hideTooltip);
 
     return props;
 }
