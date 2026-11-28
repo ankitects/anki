@@ -188,8 +188,13 @@ class MacTTSPlayer(TTSProcessPlayer):
         default_wpm = 170
         words_per_min = str(int(default_wpm * tag.speed))
 
+        command = ["say"]
+        if voice.original_name:
+            command.extend(["-v", voice.original_name])
+        command.extend(["-r", words_per_min, "-f", "-"])
+
         self._process = subprocess.Popen(
-            ["say", "-v", voice.original_name, "-r", words_per_min, "-f", "-"],
+            command,
             stdin=subprocess.PIPE,
             stdout=subprocess.DEVNULL,
             stderr=subprocess.DEVNULL,
@@ -209,7 +214,15 @@ class MacTTSPlayer(TTSProcessPlayer):
         for line in cmd.stdout.splitlines():
             voice = self._parse_voice_line(line)
             if voice:
-                voices.append(voice)
+                    voices.append(voice)
+        for lang in {voice.lang for voice in voices}:
+            voices.append(
+                MacVoice(
+                    name="Apple_System_Default",
+                    original_name="",
+                    lang=lang,
+                )
+            )
         return voices
 
     def _parse_voice_line(self, line: str) -> TTSVoice | None:
