@@ -611,6 +611,30 @@
                           "uz/manual/platform/windows/text-size",
                           "uz/manual/platform/windows/permission-problems"
                         ]
+                      },
+                      {
+                        "group": "macOS",
+                        "icon": "apple",
+                        "pages": [
+                          "uz/manual/platform/mac/intro",
+                          "uz/manual/platform/mac/installing",
+                          "uz/manual/platform/mac/display-issues"
+                        ]
+                      },
+                      {
+                        "group": "Linux",
+                        "icon": "linux",
+                        "pages": [
+                          "uz/manual/platform/linux/intro",
+                          "uz/manual/platform/linux/installing",
+                          "uz/manual/platform/linux/missing-libraries",
+                          "uz/manual/platform/linux/display-issues",
+                          "uz/manual/platform/linux/blank-window",
+                          "uz/manual/platform/linux/distro-packages",
+                          "uz/manual/platform/linux/gtk-theme",
+                          "uz/manual/platform/linux/wayland",
+                          "uz/manual/platform/linux/input-methods"
+                        ]
                       }
                     ]
                   }

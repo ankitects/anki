@@ -1,0 +1,24 @@
+---
+title: "Linux'da koʻrinish (ekran) muammolari"
+sidebarTitle: "Koʻrinish (ekran) muammolari"
+description: "Koʻrinish (ekran) muammolari"
+---
+
+Apparat tezlashtirish (hardware acceleration) standart holatda yoqilgan. Ekran
+boʻm-boʻsh chiqsa yoki koʻrinish muammolari boʻlsa, dasturiy tasvirlashni
+(software rendering) yoqib koʻrishingiz mumkin.
+
+### Drayverni sozlamalar oynasidan oʻzgartirish
+
+Anki 23.10 va undan yangi versiyalarda grafik drayverni sozlamalar oynasidan
+oʻzgartirish mumkin: **Tools → Preferences** (Asboblar → Sozlamalar) boʻlimiga
+kirib, ochiladigan roʻyxatdan drayverni tanlang.
+
+### Drayverni terminal orqali oʻzgartirish
+
+```
+echo software > ~/.local/share/Anki2/gldriver6
+```
+
+Standart holatga qaytmoqchi boʻlsangiz, `software` ni `auto` ga almashtiring
+yoki oʻsha faylni oʻchirib tashlang.

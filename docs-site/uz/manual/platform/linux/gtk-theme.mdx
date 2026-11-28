@@ -1,0 +1,15 @@
+---
+title: "Anki Gnome/Linux'da GTK mavzusini (theme) qabul qilmayapti"
+sidebarTitle: "Notoʻgʻri GTK mavzusi"
+description: "Notoʻgʻri GTK mavzusi"
+---
+
+Bu muammoni Anki'ga GTK mavzusi (theme) qaysi ekanini aniq koʻrsatish orqali aylanib oʻtish mumkin. Terminalda quyidagi buyruqlarni bajaring:
+
+```shell
+theme=$(gsettings get org.gnome.desktop.interface gtk-theme)
+echo "gtk-theme-name=$theme" >> ~/.gtkrc-2.0
+echo "export GTK2_RC_FILES=$HOME/.gtkrc-2.0" >> ~/.profile
+```
+
+Keyin tizimdan chiqib (log out), qaytadan kiring, shundan soʻng Anki GTK mavzusini qabul qilishi kerak.

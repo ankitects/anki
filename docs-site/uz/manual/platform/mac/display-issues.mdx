@@ -1,0 +1,42 @@
+---
+title: "macOS'da koʻrinish (ekran) muammolari"
+sidebarTitle: "Koʻrinish (ekran) muammolari"
+description: "Koʻrinish (ekran) muammolari"
+---
+
+## Video drayverni oʻzgartirish
+
+### Drayverni sozlamalar oynasidan oʻzgartirish
+
+Anki 23.10 va undan yangi versiyalarda koʻrinish muammolari yoki ishdan chiqib
+ketishlar (crash) boʻlsa, sozlamalar oynasida video drayverni oʻzgartirib
+koʻrishingiz mumkin: **Anki → Preferences** (Anki → Sozlamalar) boʻlimiga kirib,
+ochiladigan roʻyxatdan drayverni tanlang. Shundan keyin Anki'ni qayta ishga
+tushirish kerak.
+
+### Drayverni Terminal.app orqali oʻzgartirish
+
+Anki'ning eski versiyalarida sozlamalarda bunday imkoniyat yoʻq edi, lekin
+Terminal.app ni ochib, quyidagini qoʻyish (paste) va <kbd>Enter</kbd> tugmasini
+bosish orqali drayverni sozlash mumkin edi:
+
+```
+echo software > ~/Library/Application\ Support/Anki2/gldriver6
+```
+
+Bu buyruq ekranga hech narsa chiqarmaydi. Shundan keyin Anki'ni yana ishga
+tushirishingiz mumkin.
+
+Standart holatga qaytmoqchi boʻlsangiz, `software` ni `auto` ga almashtiring
+yoki oʻsha faylni oʻchirib tashlang.
+
+## eGPU (tashqi video karta)
+
+Mac'da tashqi video karta (eGPU) ishlatayotganda ekran boʻm-boʻsh chiqsa, Anki
+ilovasini <kbd>Ctrl</kbd> tugmasini bosib turgan holda bosing, **Get Info**
+(Maʼlumot olish) ni tanlang va **prefer eGPU** (eGPU'ni afzal koʻrish) opsiyasini
+yoqing.
+
+## Ekran oʻlchamlari (resolution) turlicha monitorlar
+
+[Ushbu forum yozuviga](https://forums.ankiweb.net/t/mac-known-issues-wording-suggestion/7331) qarang.
