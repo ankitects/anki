@@ -23,6 +23,14 @@ function moveCursorInside(selection: Selection, postfix: string): void {
     selection.addRange(range);
 }
 
+function isMathjaxWrapper(front: string): boolean {
+    return front.trimStart().startsWith("<anki-mathjax");
+}
+
+function convertBrToNewline(html: string): string {
+    return html.replace(/<br\s*\/?>/gi, "\n");
+}
+
 export function wrapInternal(
     base: Element,
     front: string,
@@ -45,7 +53,9 @@ export function wrapInternal(
         const new_ = wrappedExceptForWhitespace(span.innerText, front, back);
         document.execCommand("inserttext", false, new_);
     } else {
-        const new_ = wrappedExceptForWhitespace(span.innerHTML, front, back);
+        const html = span.innerHTML;
+        const value = isMathjaxWrapper(front) ? convertBrToNewline(html) : html;
+        const new_ = wrappedExceptForWhitespace(value, front, back);
         document.execCommand("inserthtml", false, new_);
     }
 
