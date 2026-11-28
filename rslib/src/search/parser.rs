@@ -480,21 +480,25 @@ fn parse_resched(s: &str) -> ParseResult<'_, SearchNode> {
 
 /// eg prop:ivl>3, prop:ease!=2.5
 fn parse_prop(prop_clause: &str) -> ParseResult<'_, SearchNode> {
-    let (tail, prop) = alt((
-        tag("ivl"),
-        tag("due"),
-        tag("reps"),
-        tag("lapses"),
-        tag("ease"),
-        tag("pos"),
-        tag("rated"),
-        tag("resched"),
-        tag("s"),
-        tag("d"),
-        tag("r"),
-        recognize(preceded(tag("cdn:"), alphanumeric1)),
-        recognize(preceded(tag("cds:"), alphanumeric1)),
-    ))
+    let (tail, prop) = verify(
+        alt((
+            tag("ivl"),
+            tag("due"),
+            tag("reps"),
+            tag("lapses"),
+            tag("ease"),
+            tag("pos"),
+            tag("rated"),
+            tag("resched"),
+            tag("s"),
+            tag("d"),
+            tag("r"),
+            recognize(preceded(tag("cdn:"), alphanumeric1)),
+            recognize(preceded(tag("cds:"), alphanumeric1)),
+        )),
+        // Do not recognize only the prefix of an unknown property name.
+        |prop: &str| !prop_clause[prop.len()..].starts_with(char::is_alphabetic),
+    )
     .parse(prop_clause)
     .map_err(|_: nom::Err<ParseError>| {
         parse_failure(
@@ -1359,6 +1363,30 @@ mod test {
             },
         );
 
+        for clause in [
+            "abc",
+            "rabc",
+            "duefoo=1",
+            "ratedfoo>1",
+            "reschedfoo=1",
+            "ivlfoo<3",
+            "sfoo=1",
+            "dfoo=1",
+        ] {
+            assert_err_kind(
+                &format!("prop:{clause}"),
+                InvalidPropProperty {
+                    provided: clause.into(),
+                },
+            );
+        }
+
+        assert_err_kind(
+            "prop:r",
+            InvalidPropOperator {
+                provided: "r".into(),
+            },
+        );
         assert_err_kind(
             "prop:lapses",
             InvalidPropOperator {
