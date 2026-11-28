@@ -45,6 +45,7 @@ pub fn run_build(args: BuildArgs) {
 
     maybe_update_env_file(build_root);
     maybe_update_buildhash(build_root);
+    maybe_update_buildtime(build_root);
 
     // Ensure build file is up to date
     let build_file = build_root.join("build.ninja");
@@ -168,6 +169,12 @@ fn maybe_update_buildhash(build_root: &Utf8Path) {
     if (env::var("RELEASE").is_ok() && env::var("OFFLINE_BUILD").is_err()) || !path.exists() {
         write_if_changed(&path, &get_buildhash())
     }
+}
+
+fn maybe_update_buildtime(build_root: &Utf8Path) {
+    let path = build_root.join("buildtime");
+    let timestamp = chrono::Local::now().format("%Y-%m-%d %H:%M:%S").to_string();
+    write_if_changed(&path, &timestamp)
 }
 
 fn get_buildhash() -> String {
