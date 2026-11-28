@@ -28,6 +28,7 @@ use crate::sync::media::sanity::MediaSanityCheckResponse;
 use crate::sync::media::sanity::SanityCheckRequest;
 use crate::sync::media::syncer::MediaSyncer;
 use crate::sync::media::zip::zip_files_for_upload;
+use crate::sync::media::MAX_MEDIA_FILES_IN_ZIP;
 use crate::sync::request::IntoSyncRequest;
 use crate::sync::request::SyncRequest;
 use crate::sync::version::SyncVersion;
@@ -288,6 +289,48 @@ async fn parallel_requests() -> Result<()> {
             fs::read_to_string(media2.media_folder.join("diff")).unwrap(),
             "1"
         );
+        Ok(())
+    })
+    .await
+}
+
+#[tokio::test]
+async fn large_media_batch_roundtrip() -> Result<()> {
+    with_active_server(|client| async move {
+        let ctx = SyncTestContext::new(client.clone());
+        let media2 = ctx.media2();
+        ctx.sync_media1().await?;
+
+        let file_count = 30;
+        assert!(file_count <= MAX_MEDIA_FILES_IN_ZIP);
+        let entries: Vec<_> = (0..file_count)
+            .map(|idx| {
+                (
+                    format!("file-{idx}.txt"),
+                    Some(format!("data-{idx}").into_bytes()),
+                )
+            })
+            .collect();
+        let zip_data = zip_files_for_upload(entries.clone())?;
+        client
+            .upload_changes(SyncRequest::from_data(
+                zip_data,
+                ctx.client.sync_key.clone(),
+                String::new(),
+                IpAddr::from([0, 0, 0, 0]),
+                SyncVersion::latest(),
+            ))
+            .await?;
+
+        ctx.sync_media2().await?;
+
+        for (filename, data) in entries {
+            assert_eq!(
+                fs::read(media2.media_folder.join(filename)).unwrap(),
+                data.unwrap()
+            );
+        }
+
         Ok(())
     })
     .await

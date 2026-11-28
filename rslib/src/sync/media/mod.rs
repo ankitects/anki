@@ -26,7 +26,7 @@ pub const MAX_MEDIA_FILENAME_LENGTH_SERVER: usize = 255;
 /// Media syncing does not support files over 100MiB.
 pub static MAX_INDIVIDUAL_MEDIA_FILE_SIZE: usize = 100 * 1024 * 1024;
 
-pub static MAX_MEDIA_FILES_IN_ZIP: usize = 25;
+pub static MAX_MEDIA_FILES_IN_ZIP: usize = 100;
 
 /// If reached, no further files are placed into the zip.
-pub static MEDIA_SYNC_TARGET_ZIP_BYTES: usize = (2.5 * 1024.0 * 1024.0) as usize;
+pub static MEDIA_SYNC_TARGET_ZIP_BYTES: usize = 10 * 1024 * 1024;
