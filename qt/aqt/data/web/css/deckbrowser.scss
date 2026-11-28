@@ -46,6 +46,27 @@ tr.deck td {
     }
 }
 
+// Keep the count columns the same width as the headers,
+// and center them so both the headers and values stay aligned.
+// This also prevents longer translations from changing the column widths.
+tr.deck td:nth-child(2),
+tr.deck td:nth-child(3),
+tr.deck td:nth-child(4) {
+    min-width: 5em;
+    width: 5em;
+    box-sizing: border-box;
+    text-align: center;
+}
+
+// Keep the options column left-aligned so it stays like the original layout.
+th.optscol,
+tr.deck td:nth-child(5) {
+    width: 1em;
+    min-width: 1em;
+    padding-inline: 0 12px;
+    text-align: start;
+}
+
 tr.top-level-drag-row td {
     border-bottom: 1px solid transparent;
 }
@@ -108,8 +129,10 @@ tr:hover:not(.top-level-drag-row) {
 }
 
 .count {
-    min-width: 4em;
-    text-align: right;
+    min-width: 5em;
+    box-sizing: border-box;
+    text-align: center;
+    padding-inline: 12px;
 }
 
 .optscol {
