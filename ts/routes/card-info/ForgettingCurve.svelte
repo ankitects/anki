@@ -22,6 +22,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let revlog: RevlogEntry[];
     export let desiredRetention: number;
     export let decay: number;
+    export let fsrsParams: number[] = [];
     let svg: HTMLElement | SVGElement | null = null;
     const bounds = defaultGraphBounds();
     const title = tr.cardStatsFsrsForgettingCurveTitle();
@@ -49,6 +50,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         bounds,
         desiredRetention,
         decay,
+        fsrsParams,
     );
 </script>
 

@@ -3,7 +3,6 @@
 
 use std::sync::Arc;
 
-use fsrs::FSRS5_DEFAULT_DECAY;
 use itertools::Itertools;
 use strum::Display;
 use strum::EnumIter;
@@ -16,6 +15,7 @@ use crate::card_rendering::prettify_av_tags;
 use crate::notetype::CardTemplate;
 use crate::notetype::NotetypeKind;
 use crate::prelude::*;
+use crate::scheduler::fsrs::memory_state::fsrs_current_retrievability_for_state;
 use crate::scheduler::timespan::time_span;
 use crate::scheduler::timing::SchedTimingToday;
 use crate::template::RenderedNode;
@@ -69,6 +69,7 @@ struct RowContext {
     tr: I18n,
     timing: SchedTimingToday,
     render_context: RenderContext,
+    fsrs_retrievability: Option<f32>,
 }
 
 enum RenderContext {
@@ -125,21 +126,13 @@ impl Card {
         }
     }
 
-    /// If last_review_date isn't stored in the card, this uses card.due and
-    /// card.ivl to infer the elapsed time, which won't be accurate if
-    /// 'set due date' or an add-on has changed the due date.
-    pub(crate) fn seconds_since_last_review(&self, timing: &SchedTimingToday) -> Option<u32> {
-        if let Some(last_review_time) = self.last_review_time {
-            Some(timing.now.elapsed_secs_since(last_review_time) as u32)
-        } else if self.is_due_in_days() {
-            self.due_time(timing).map(|due| {
-                (due.adding_secs(-86_400 * self.interval as i64)
-                    .elapsed_secs()) as u32
-            })
-        } else {
-            let last_review_time = TimestampSecs(self.original_or_current_due() as i64);
-            Some(timing.now.elapsed_secs_since(last_review_time) as u32)
-        }
+    pub(crate) fn days_since_last_review(&self, timing: &SchedTimingToday) -> f32 {
+        timing.fsrs_elapsed_seconds(
+            self.last_review_time,
+            self.original_or_current_due(),
+            self.interval,
+        ) as f32
+            / 86_400.0
     }
 }
 
@@ -281,7 +274,14 @@ impl Collection {
                 .as_ref()
                 .or_invalid("Active browser columns not set.")?,
         );
-        RowContext::new(self, id, notes_mode, card_render_required(&columns))?.browser_row(&columns)
+        RowContext::new(
+            self,
+            id,
+            notes_mode,
+            card_render_required(&columns),
+            columns.contains(&Column::Retrievability),
+        )?
+        .browser_row(&columns)
     }
 
     fn get_note_maybe_with_fields(&self, id: NoteId, _with_fields: bool) -> Result<Note> {
@@ -349,6 +349,7 @@ impl RowContext {
         id: i64,
         notes_mode: bool,
         with_card_render: bool,
+        with_retrievability: bool,
     ) -> Result<Self> {
         let cards;
         let note;
@@ -390,6 +391,22 @@ impl RowContext {
         } else {
             RenderContext::Unset
         };
+        // Only when the column is shown. An error leaves the cell empty
+        // instead of failing the whole row.
+        let fsrs_retrievability = cards[0]
+            .memory_state
+            .filter(|_| with_retrievability)
+            .and_then(|state| {
+                let home_deck = original_deck.as_deref().unwrap_or(&deck);
+                let config_id = home_deck.config_id().unwrap_or(DeckConfigId(1));
+                let config = col.get_deck_config(config_id, true).ok()??;
+                fsrs_current_retrievability_for_state(
+                    config.fsrs_params(),
+                    state,
+                    cards[0].days_since_last_review(&timing),
+                )
+                .ok()
+            });
 
         Ok(RowContext {
             notes_mode,
@@ -401,6 +418,7 @@ impl RowContext {
             tr: col.tr.clone(),
             timing,
             render_context,
+            fsrs_retrievability,
         })
     }
 
@@ -538,16 +556,8 @@ impl RowContext {
     }
 
     fn fsrs_retrievability_str(&self) -> String {
-        self.cards[0]
-            .memory_state
-            .as_ref()
-            .zip(self.cards[0].seconds_since_last_review(&self.timing))
-            .zip(Some(self.cards[0].decay.unwrap_or(FSRS5_DEFAULT_DECAY)))
-            .map(|((state, seconds), decay)| {
-                let r =
-                    fsrs::current_retrievability((*state).into(), seconds as f32 / 86_400.0, decay);
-                format!("{:.0}%", r * 100.)
-            })
+        self.fsrs_retrievability
+            .map(|r| format!("{:.0}%", r * 100.))
             .unwrap_or_default()
     }
 
@@ -681,5 +691,44 @@ impl RowContext {
                 }
             }
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::card::FsrsMemoryState;
+    use crate::tests::NoteAdder;
+
+    #[test]
+    fn a_retrievability_error_leaves_only_its_cell_empty() -> Result<()> {
+        let mut col = Collection::new();
+        let note = NoteAdder::basic(&mut col).add(&mut col);
+        let cid = col.storage.card_ids_of_notes(&[note.id])?[0];
+        let mut card = col.storage.get_card(cid)?.unwrap();
+        card.ctype = CardType::Review;
+        card.queue = CardQueue::Review;
+        card.memory_state = Some(FsrsMemoryState {
+            stability: 10.0,
+            stability_internal: 10.0,
+            stability_fast: Some(5.0),
+            difficulty: 5.0,
+        });
+        card.last_review_time = Some(TimestampSecs::now().adding_secs(-86_400));
+        col.storage.update_card(&card)?;
+        // Parameters that the model rejects.
+        let mut config = col.get_deck_config(DeckConfigId(1), false)?.unwrap();
+        config.inner.fsrs_params_7 = vec![f32::NAN; 34];
+        col.storage
+            .add_or_update_deck_config_with_existing_id(&config)?;
+
+        col.state.active_browser_columns =
+            Some(Arc::new(vec![Column::SortField, Column::Retrievability]));
+        let row = col.browser_row_for_id(cid.0)?;
+        assert_eq!(row.cells[1].text, "");
+
+        col.state.active_browser_columns = Some(Arc::new(vec![Column::SortField]));
+        assert_eq!(col.browser_row_for_id(cid.0)?.cells.len(), 1);
+        Ok(())
     }
 }

@@ -8,14 +8,15 @@ use fsrs::FSRSItem;
 use fsrs::MemoryState;
 use fsrs::FSRS;
 use fsrs::FSRS5_DEFAULT_DECAY;
-use fsrs::FSRS6_DEFAULT_DECAY;
 use itertools::Either;
 use itertools::Itertools;
 
+use super::metrics::checked_current_retrievability;
 use super::params::ignore_revlogs_before_ms_from_config;
 use super::rescheduler::Rescheduler;
 use crate::card::CardQueue;
 use crate::card::CardType;
+use crate::card::FsrsMemoryState;
 use crate::prelude::*;
 use crate::revlog::RevlogEntry;
 use crate::scheduler::answering::get_fuzz_seed;
@@ -38,12 +39,36 @@ pub struct ComputeMemoryProgress {
 /// parameters
 pub(crate) fn get_decay_from_params(params: &[f32]) -> f32 {
     if params.is_empty() {
-        FSRS6_DEFAULT_DECAY // default decay for FSRS-6
+        fsrs::DEFAULT_PARAMETERS[23]
     } else if params.len() < 21 {
         FSRS5_DEFAULT_DECAY // default decay for FSRS-4.5 and FSRS-5
+    } else if params.len() >= fsrs::DEFAULT_PARAMETERS.len() {
+        // FSRS-7 uses a mixture curve. This value is retained only for old
+        // compatibility consumers; built-in metrics use the complete state.
+        params[23]
     } else {
         params[20]
     }
+}
+
+pub(crate) fn fsrs_memory_state_for_fsrs(
+    fsrs: &FSRS,
+    memory_state: MemoryState,
+) -> FsrsMemoryState {
+    FsrsMemoryState {
+        stability: fsrs.s90(memory_state),
+        stability_internal: memory_state.stability,
+        stability_fast: Some(memory_state.stability_fast),
+        difficulty: memory_state.difficulty,
+    }
+}
+
+pub(crate) fn fsrs_current_retrievability_for_state(
+    params: &[f32],
+    state: FsrsMemoryState,
+    elapsed_days: f32,
+) -> Result<f32> {
+    checked_current_retrievability(&FSRS::new(params)?, state, elapsed_days)
 }
 
 #[derive(Debug, Clone)]
@@ -60,18 +85,6 @@ pub(crate) struct UpdateMemoryStateEntry {
     pub req: Option<UpdateMemoryStateRequest>,
     pub search: Node,
     pub ignore_before: TimestampMillis,
-}
-
-trait ChunkIntoVecs<T> {
-    fn chunk_into_vecs(&mut self, chunk_size: usize) -> impl Iterator<Item = Vec<T>>;
-}
-
-impl<T> ChunkIntoVecs<T> for Vec<T> {
-    fn chunk_into_vecs(&mut self, chunk_size: usize) -> impl Iterator<Item = Vec<T>> {
-        std::iter::from_fn(move || {
-            (!self.is_empty()).then(|| self.drain(..chunk_size.min(self.len())).collect())
-        })
-    }
 }
 
 impl Collection {
@@ -139,9 +152,9 @@ impl Collection {
 
             let decay = get_decay_from_params(&req.params);
 
-            // Store decay and desired retention in the card so that add-ons, card info,
-            // stats and browser search/sorts don't need to access the deck config.
-            // Unlike memory states, scheduler doesn't use decay and dr stored in the card.
+            // Retain decay and desired retention for legacy consumers. Exact FSRS7
+            // metrics need the preset parameters and complete memory state, not
+            // these scalar fields. Scheduling also uses the current deck config.
             let set_decay_and_desired_retention = move |card: &mut Card| {
                 let deck_id = card.original_or_current_deck_id();
 
@@ -195,15 +208,12 @@ impl Collection {
                     let days_elapsed = timing.next_day_at.elapsed_days_since(*last_review) as i32;
                     let original_interval = card.interval;
                     let previous_interval = last_info.previous_interval.unwrap_or(0);
-                    let interval = fsrs.next_interval(
-                        Some(
-                            card.memory_state
-                                .expect("We set it before this function is called")
-                                .stability,
-                        ),
+                    let interval = fsrs.next_interval_for_state(
+                        card.memory_state
+                            .expect("We set it before this function is called")
+                            .into(),
                         card.desired_retention
                             .expect("We set it before this function is called"),
-                        0,
                     );
                     let min_interval =
                         minimum_review_fuzz_interval(interval, previous_interval, req.max_interval)
@@ -310,44 +320,15 @@ impl Collection {
         usn: Usn,
         mut on_updated_card: impl FnMut() -> Result<()>,
     ) -> Result<()> {
-        const FSRS_BATCH_SIZE: usize = 1000;
-
-        let mut to_update = Vec::new();
-        let mut fsrs_items = Vec::new();
-        let mut starting_states = Vec::new();
-
-        for (card_id, item) in items.into_iter() {
-            to_update.push(card_id);
-            fsrs_items.push(item.item);
-            starting_states.push(item.starting_state);
-        }
-
-        // fsrs.memory_state_batch is O(nm) where n is the number of cards and m is the
-        // max review count between all items. Therefore we want to pass batches
-        // to fsrs.memory_state_batch where the review count is relatively even.
-        let mut p = permutation::sort_unstable_by_key(&fsrs_items, |item| item.reviews.len());
-        p.apply_slice_in_place(&mut to_update);
-        p.apply_slice_in_place(&mut fsrs_items);
-        p.apply_slice_in_place(&mut starting_states);
-
-        for ((to_update, fsrs_items), starting_states) in to_update
-            .chunk_into_vecs(FSRS_BATCH_SIZE)
-            .zip_eq(fsrs_items.chunk_into_vecs(FSRS_BATCH_SIZE))
-            .zip_eq(starting_states.chunk_into_vecs(FSRS_BATCH_SIZE))
-        {
-            let memory_states = fsrs.memory_state_batch(fsrs_items, starting_states)?;
-
-            for (card_id, memory_state) in to_update.into_iter().zip_eq(memory_states) {
-                let mut card = self.storage.get_card(card_id)?.or_not_found(card_id)?;
-                let original = card.clone();
-                set_decay_and_desired_retention(&mut card);
-                card.memory_state = Some(memory_state.into());
-                maybe_reschedule_card(&mut card, self, fsrs)?;
-                self.update_card_inner(&mut card, original, usn)?;
-                on_updated_card()?;
-            }
-        }
-        Ok(())
+        for_each_replayed_state(fsrs, items, |card_id, state| {
+            let mut card = self.storage.get_card(card_id)?.or_not_found(card_id)?;
+            let original = card.clone();
+            set_decay_and_desired_retention(&mut card);
+            card.memory_state = Some(state);
+            maybe_reschedule_card(&mut card, self, fsrs)?;
+            self.update_card_inner(&mut card, original, usn)?;
+            on_updated_card()
+        })
     }
 
     pub fn compute_memory_state(&mut self, card_id: CardId) -> Result<ComputeMemoryStateResponse> {
@@ -424,7 +405,7 @@ impl Card {
                 historical_retention,
             )?)
         };
-        self.memory_state = memory_state.map(Into::into);
+        self.memory_state = memory_state.map(|state| fsrs_memory_state_for_fsrs(fsrs, state));
         Ok(())
     }
 }
@@ -436,6 +417,31 @@ pub(crate) struct FsrsItemForMemoryState {
     /// review
     pub starting_state: Option<MemoryState>,
     pub filtered_revlogs: Vec<RevlogEntry>,
+}
+
+pub(super) fn for_each_replayed_state(
+    fsrs: &FSRS,
+    mut items: Vec<(CardId, FsrsItemForMemoryState)>,
+    mut visit: impl FnMut(CardId, FsrsMemoryState) -> Result<()>,
+) -> Result<()> {
+    const FSRS_BATCH_SIZE: usize = 1000;
+
+    // Preserve processing order for rescheduling, where each card can change
+    // the load-balancing counts used by the next one.
+    permutation::sort_unstable_by_key(&items, |(_, item)| item.item.reviews.len())
+        .apply_slice_in_place(&mut items);
+    for batch in &items.into_iter().chunks(FSRS_BATCH_SIZE) {
+        let (ids, (histories, starts)): (Vec<_>, (Vec<_>, Vec<_>)) = batch
+            .map(|(id, item)| (id, (item.item, item.starting_state)))
+            .unzip();
+        for (id, state) in ids
+            .into_iter()
+            .zip_eq(fsrs.memory_state_batch(histories, starts)?)
+        {
+            visit(id, fsrs_memory_state_for_fsrs(fsrs, state))?;
+        }
+    }
+    Ok(())
 }
 
 /// Like [fsrs_item_for_memory_state], but for updating multiple cards at once.
@@ -525,7 +531,13 @@ pub(crate) fn fsrs_item_for_memory_state(
         interval: f32,
         ease_factor: f32,
     }
-    if let Some(mut output) = reviews_for_fsrs(entries, next_day_at, false, ignore_revlogs_before) {
+    if let Some(mut output) = reviews_for_fsrs(
+        entries,
+        next_day_at,
+        false,
+        ignore_revlogs_before,
+        fsrs.version() == fsrs::ModelVersion::Fsrs7,
+    ) {
         let mut item = output.fsrs_items.pop().unwrap().1;
         if output.revlogs_complete {
             Ok(Some(FsrsItemForMemoryState {
@@ -552,6 +564,16 @@ pub(crate) fn fsrs_item_for_memory_state(
             // if the ease factor is less than 1.1, the revlog entry is generated by FSRS
             if first_review.ease_factor <= 1.1 {
                 starting_state.difficulty = (first_review.ease_factor - 0.1) * 9.0 + 1.0;
+                if fsrs.version() == fsrs::ModelVersion::Fsrs7 {
+                    // Keep the bridge state if the historical retention was zero.
+                    starting_state = fsrs
+                        .scale_memory_state_to_interval(
+                            starting_state,
+                            first_review.interval,
+                            historical_retention,
+                        )
+                        .unwrap_or(starting_state);
+                }
             }
             // remove the first review because it has been converted to the starting state
             item.reviews.remove(0);
@@ -580,6 +602,31 @@ mod tests {
     use crate::scheduler::fsrs::params::tests::convert;
     use crate::scheduler::fsrs::params::tests::revlog;
 
+    #[test]
+    fn truncated_fsrs7_history_preserves_interval_after_restoring_difficulty() -> Result<()> {
+        let fsrs = FSRS::new(&fsrs::DEFAULT_PARAMETERS)?;
+        let entry = RevlogEntry {
+            id: TimestampMillis(1_700_000_000_000).into(),
+            button_chosen: 3,
+            review_kind: RevlogReviewKind::Review,
+            interval: 30,
+            ease_factor: 1050,
+            ..Default::default()
+        };
+        let item = fsrs_item_for_memory_state(
+            &fsrs,
+            vec![entry],
+            TimestampSecs(1_700_100_000),
+            0.85,
+            0.into(),
+        )?
+        .unwrap();
+        let state = item.starting_state.unwrap();
+        assert!((state.difficulty - 9.55).abs() < 0.001);
+        assert!((fsrs.interval_at_retrievability(state, 0.85) - 30.0).abs() < 0.01);
+        Ok(())
+    }
+
     /// Floating point precision can vary between platforms, and each FSRS
     /// update tends to result in small changes to these numbers, so we
     /// round them.
@@ -594,7 +641,7 @@ mod tests {
     fn bypassed_learning_is_handled() -> Result<()> {
         // cards without any learning steps due to truncated history still have memory
         // state calculated
-        let fsrs = FSRS::new(&[]).unwrap();
+        let fsrs = FSRS::new(&fsrs::FSRS6_DEFAULT_PARAMETERS).unwrap();
         let item = fsrs_item_for_memory_state(
             &fsrs,
             vec![
@@ -614,6 +661,8 @@ mod tests {
             item.starting_state.map(Into::into),
             Some(FsrsMemoryState {
                 stability: 100.0,
+                stability_internal: 100.0,
+                stability_fast: None,
                 difficulty: 5.003576,
             }),
         );
@@ -626,6 +675,8 @@ mod tests {
             card.memory_state,
             Some(FsrsMemoryState {
                 stability: 248.9251,
+                stability_internal: 248.9251,
+                stability_fast: None,
                 difficulty: 4.9938006,
             }),
         );
@@ -649,6 +700,8 @@ mod tests {
             card.memory_state,
             Some(FsrsMemoryState {
                 stability: 100.0,
+                stability_internal: 100.0,
+                stability_fast: None,
                 difficulty: 5.003576,
             }),
         );
@@ -667,12 +720,17 @@ mod tests {
             reps: 1,
             ..Default::default()
         };
-        card.set_memory_state(&FSRS::new(&[]).unwrap(), None, 0.9)?;
+        card.set_memory_state(
+            &FSRS::new(&fsrs::FSRS6_DEFAULT_PARAMETERS).unwrap(),
+            None,
+            0.9,
+        )?;
         assert_int_eq(
             card.memory_state,
             Some(
                 MemoryState {
                     stability: 99.999954,
+                    stability_fast: 99.999954,
                     difficulty: 9.979899,
                 }
                 .into(),
@@ -779,6 +837,8 @@ mod tests {
 
             card.memory_state = Some(FsrsMemoryState {
                 stability: 1.0,
+                stability_internal: 1.0,
+                stability_fast: None,
                 difficulty: 1.0,
             });
             card.desired_retention = Some(0.123);

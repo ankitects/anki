@@ -14,6 +14,8 @@ use anki_proto::deck_config::UpdateDeckConfigsMode;
 use anki_proto::decks::deck::normal::DayLimit;
 use fsrs::DEFAULT_PARAMETERS;
 use fsrs::FSRS;
+use tracing::debug;
+use tracing::warn;
 
 use crate::config::I32ConfigKey;
 use crate::config::StringKey;
@@ -53,7 +55,7 @@ impl Collection {
         deck: DeckId,
     ) -> Result<anki_proto::deck_config::DeckConfigsForUpdate> {
         let mut defaults = DeckConfig::default();
-        defaults.inner.fsrs_params_6 = DEFAULT_PARAMETERS.into();
+        defaults.inner.fsrs_params_7 = DEFAULT_PARAMETERS.into();
         let last_optimize = self.get_config_i32(I32ConfigKey::LastFsrsOptimize) as u32;
         let days_since_last_fsrs_optimize = if last_optimize > 0 {
             self.timing_today()?
@@ -93,14 +95,11 @@ impl Collection {
         // grab the config and sort it
         let mut config = self.storage.all_deck_config()?;
         config.sort_unstable_by(|a, b| a.name.cmp(&b.name));
-        // pre-fill empty fsrs params with older params
+        // The UI exposes a single parameter input. Populate the newest slot from an
+        // older collection without changing which model the parameter length selects.
         config.iter_mut().for_each(|c| {
-            if c.inner.fsrs_params_6.is_empty() {
-                c.inner.fsrs_params_6 = if c.inner.fsrs_params_5.is_empty() {
-                    c.inner.fsrs_params_4.clone()
-                } else {
-                    c.inner.fsrs_params_5.clone()
-                };
+            if c.inner.fsrs_params_7.is_empty() {
+                c.inner.fsrs_params_7 = c.fsrs_params().to_vec();
             }
         });
 
@@ -183,12 +182,24 @@ impl Collection {
                 today.clone_into(&mut conf.inner.ignore_revlogs_before_date);
             }
 
-            // If the user has provided empty FSRS6 params, zero out any
+            // If the user has provided empty current params, zero out any
             // old params as well, so we don't fall back on them, which would
-            // be surprising as they're not shown in the GUI.
-            if conf.inner.fsrs_params_6.is_empty() {
+            // be surprising as they're not shown in the GUI. Persist the
+            // current defaults explicitly, matching the automatic upgrade of
+            // empty presets when opening a collection.
+            if conf.inner.fsrs_params_7.is_empty() {
+                conf.inner.fsrs_params_6.clear();
                 conf.inner.fsrs_params_5.clear();
                 conf.inner.fsrs_params_4.clear();
+                conf.inner.fsrs_params_7 = DEFAULT_PARAMETERS.to_vec();
+            }
+            // The options screen shows one parameter box, which is pre-filled
+            // from an older slot. Store an older model's parameters in the
+            // FSRS-6 slot, as before, not as a copy in the FSRS-7 slot: such a
+            // copy would hide a later optimize or reset from a client that
+            // writes the FSRS-6 slot. The same parameters stay selected.
+            if conf.inner.fsrs_params_7.len() != DEFAULT_PARAMETERS.len() {
+                conf.inner.fsrs_params_6 = std::mem::take(&mut conf.inner.fsrs_params_7);
             }
             // check the provided parameters are valid before we save them
             FSRS::new(conf.fsrs_params())?;
@@ -291,7 +302,7 @@ impl Collection {
                     let params = config.and_then(|c| {
                         if req.fsrs {
                             Some(UpdateMemoryStateRequest {
-                                params: c.fsrs_params().clone(),
+                                params: c.fsrs_params().to_vec(),
                                 preset_desired_retention: c.inner.desired_retention,
                                 max_interval: c.inner.maximum_review_interval,
                                 reschedule: req.fsrs_reschedule,
@@ -365,7 +376,7 @@ impl Collection {
 
         // frontend didn't include any unmodified deck configs, so we need to fill them
         // in
-        let changed_configs: HashSet<_> = req.configs.iter().map(|c| c.id).collect();
+        let mut changed_configs: HashSet<_> = req.configs.iter().map(|c| c.id).collect();
         let previous_last = req.configs.pop().or_invalid("no configs provided")?;
         for config in self.storage.all_deck_config()? {
             if !changed_configs.contains(&config.id) {
@@ -397,18 +408,23 @@ impl Collection {
                 num_of_relearning_steps,
                 health_check: false,
             }) {
+                Ok(params) if params.fsrs_items == 0 => continue,
                 Ok(params) => {
-                    println!("{}: {:?}", config.name, params.params);
-                    config.inner.fsrs_params_6 = params.params;
+                    debug!(preset = config.name, params = ?params.params, "optimized FSRS preset");
+                    changed_configs.insert(config.id);
+                    config.inner.fsrs_params_7 = params.params;
                 }
                 Err(AnkiError::Interrupted) => return Err(AnkiError::Interrupted),
                 Err(err) => {
-                    println!("{}: {}", config.name, err)
+                    warn!(preset = config.name, error = %err, "failed to optimize FSRS preset");
                 }
             }
-            let today = self.timing_today()?.days_elapsed as i32;
-            self.set_config_i32_inner(I32ConfigKey::LastFsrsOptimize, today)?;
         }
+        let today = self.timing_today()?.days_elapsed as i32;
+        // Only frontend edits and successful optimizations belong in the save list.
+        req.configs
+            .retain(|config| changed_configs.contains(&config.id));
+        self.set_config_i32_inner(I32ConfigKey::LastFsrsOptimize, today)?;
         Ok(())
     }
 }
@@ -462,6 +478,86 @@ mod test {
     use crate::tests::open_test_collection_with_learning_card;
     use crate::tests::open_test_collection_with_relearning_card;
     use crate::timestamp::TimestampSecs;
+
+    #[test]
+    fn optimize_all_preserves_an_unedited_legacy_preset_when_its_search_fails() -> Result<()> {
+        let mut col = Collection::new();
+        let deck = crate::tests::DeckAdder::new("Legacy")
+            .with_config(|config| {
+                config.clear_fsrs_params();
+                config.inner.fsrs_params_6 = fsrs::FSRS6_DEFAULT_PARAMETERS.to_vec();
+                config.inner.param_search = "prop:ivl=oops".into();
+            })
+            .add(&mut col);
+        let id = deck.config_id().unwrap();
+        let before = col.get_deck_config(id, false)?.unwrap();
+        let default = col.get_deck_config(DeckConfigId(1), false)?.unwrap();
+        col.update_deck_configs(UpdateDeckConfigsRequest {
+            target_deck_id: DeckId(1),
+            configs: vec![default],
+            removed_config_ids: vec![],
+            mode: UpdateDeckConfigsMode::ComputeAllParams,
+            card_state_customizer: String::new(),
+            limits: Limits::default(),
+            new_cards_ignore_review_limit: false,
+            apply_all_parent_limits: false,
+            fsrs: true,
+            fsrs_reschedule: false,
+            fsrs_health_check: true,
+        })?;
+        assert_eq!(col.get_deck_config(id, false)?.unwrap(), before);
+        Ok(())
+    }
+
+    #[test]
+    fn saving_legacy_params_keeps_them_in_the_fsrs6_slot() -> Result<()> {
+        let mut col = Collection::new();
+        let mut config = col.get_deck_config(DeckConfigId(1), false)?.unwrap();
+        config.inner.fsrs_params_7.clear();
+        config.inner.fsrs_params_6 = fsrs::FSRS6_DEFAULT_PARAMETERS.to_vec();
+        col.add_or_update_deck_config(&mut config)?;
+
+        // The options screen pre-fills the FSRS-7 slot, and saves it back.
+        let output = col.get_deck_configs_for_update(DeckId(1))?;
+        let configs: Vec<DeckConfig> = output
+            .all_config
+            .into_iter()
+            .map(|c| c.config.unwrap().into())
+            .collect();
+        assert_eq!(
+            configs[0].inner.fsrs_params_7,
+            fsrs::FSRS6_DEFAULT_PARAMETERS
+        );
+        col.update_deck_configs(UpdateDeckConfigsRequest {
+            target_deck_id: DeckId(1),
+            configs,
+            removed_config_ids: vec![],
+            mode: UpdateDeckConfigsMode::Normal,
+            card_state_customizer: "".to_string(),
+            limits: Limits::default(),
+            new_cards_ignore_review_limit: false,
+            apply_all_parent_limits: false,
+            fsrs: true,
+            fsrs_reschedule: false,
+            fsrs_health_check: true,
+        })?;
+
+        let saved = col.get_deck_config(DeckConfigId(1), false)?.unwrap();
+        assert!(saved.inner.fsrs_params_7.is_empty());
+        assert_eq!(saved.inner.fsrs_params_6, fsrs::FSRS6_DEFAULT_PARAMETERS);
+        // A later write of the FSRS-6 slot, as from an older client, takes
+        // effect.
+        let mut other = saved.clone();
+        other.inner.fsrs_params_6[0] += 0.1;
+        col.add_or_update_deck_config(&mut other)?;
+        assert_eq!(
+            col.get_deck_config(DeckConfigId(1), false)?
+                .unwrap()
+                .fsrs_params(),
+            &other.inner.fsrs_params_6
+        );
+        Ok(())
+    }
 
     #[test]
     fn updating() -> Result<()> {

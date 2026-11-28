@@ -20,6 +20,7 @@ use anki_proto::scheduler::SimulateFsrsWorkloadResponse;
 use fsrs::ComputeParametersInput;
 use fsrs::FSRSItem;
 use fsrs::FSRSReview;
+use fsrs::FSRS;
 
 use crate::backend::Backend;
 use crate::prelude::*;
@@ -394,9 +395,12 @@ impl crate::services::BackendSchedulerService for Backend {
             card_ids: None,
             progress: None,
             enable_short_term: true,
+            enable_sched_penalties: true,
+            model_version: fsrs::ComputeParametersVersion::Fsrs7,
             num_relearning_steps: None,
             training_config: None,
         })?;
+        FSRS::new(&params)?;
         Ok(ComputeFsrsParamsResponse {
             params,
             fsrs_items,
@@ -418,9 +422,12 @@ impl crate::services::BackendSchedulerService for Backend {
             card_ids: None,
             progress: None,
             enable_short_term: true,
+            enable_sched_penalties: true,
+            model_version: fsrs::ComputeParametersVersion::Fsrs7,
             num_relearning_steps: None,
             training_config: None,
         });
+        FSRS::new(&params)?;
         Ok(FsrsBenchmarkResponse { params })
     }
 
@@ -446,7 +453,7 @@ fn fsrs_item_proto_to_fsrs(item: anki_proto::scheduler::FsrsItem) -> FSRSItem {
 
 fn fsrs_review_proto_to_fsrs(review: anki_proto::scheduler::FsrsReview) -> FSRSReview {
     FSRSReview {
-        delta_t: review.delta_t,
+        delta_t: review.delta_t as f32,
         rating: review.rating,
     }
 }

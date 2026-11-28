@@ -37,6 +37,7 @@ use crate::scheduler::fsrs::memory_state::get_last_revlog_info;
 use crate::scheduler::queue::BuryMode;
 use crate::scheduler::queue::DueCard;
 use crate::scheduler::queue::DueCardKind;
+use crate::scheduler::queue::DueCardWithState;
 use crate::scheduler::queue::NewCard;
 use crate::scheduler::timing::SchedTimingToday;
 use crate::timestamp::TimestampMillis;
@@ -121,7 +122,68 @@ fn row_to_new_card(row: &Row) -> result::Result<NewCard, rusqlite::Error> {
     })
 }
 
+fn row_to_due_card(row: &Row, kind: DueCardKind) -> rusqlite::Result<DueCard> {
+    Ok(DueCard {
+        id: row.get(0)?,
+        note_id: row.get(1)?,
+        due: row.get(2).ok().unwrap_or_default(),
+        mtime: row.get(4)?,
+        current_deck_id: row.get(5)?,
+        original_deck_id: row.get(6)?,
+        reps: row.get(7)?,
+        kind,
+    })
+}
+
 impl super::SqliteStorage {
+    /// Batch-read due reviews for exact retrievability scoring before limits.
+    pub(crate) fn due_reviews_with_state_in_active_decks(
+        &self,
+        day: u32,
+    ) -> Result<Vec<DueCardWithState>> {
+        self.db
+            .prepare_cached(include_str!("get_due_card_state.sql"))?
+            .query_and_then(params![CardQueue::Review as i8, day], |row| {
+                let data: CardData = row.get(9)?;
+                Ok(DueCardWithState {
+                    card: row_to_due_card(row, DueCardKind::Review)?,
+                    interval: row.get(3)?,
+                    original_due: row.get(8).ok().unwrap_or_default(),
+                    memory_state: data.memory_state(),
+                    last_review_time: data.last_review_time,
+                })
+            })?
+            .collect()
+    }
+
+    /// Detect incomplete states before deserialization fills the old scalar
+    /// compatibility defaults. Repair supplies the eligible home decks; an
+    /// export needs incomplete states from every preset.
+    pub(crate) fn cards_with_incomplete_fsrs_state(
+        &self,
+        home_decks: Option<&[DeckId]>,
+    ) -> Result<Vec<CardId>> {
+        let mut sql = String::from("select id, data from cards where ");
+        if let Some(decks) = home_decks {
+            sql.push_str("(case when odid = 0 then did else odid end) in ");
+            ids_to_string(&mut sql, decks);
+            sql.push_str(" and ");
+        }
+        sql.push_str("data like '%\"s\"%'");
+        self.db
+            .prepare(&sql)?
+            .query_and_then([], |row| -> Result<Option<CardId>> {
+                let data: CardData = row.get(1)?;
+                let incomplete = data.fsrs_stability.is_some()
+                    && data.fsrs_difficulty.is_some()
+                    && (data.fsrs_stability_internal.is_none()
+                        || data.fsrs_stability_fast.is_none());
+                Ok(incomplete.then(|| row.get(0)).transpose()?)
+            })?
+            .filter_map(Result::transpose)
+            .collect()
+    }
+
     pub fn get_card(&self, cid: CardId) -> Result<Option<Card>> {
         self.db
             .prepare_cached(concat!(include_str!("get_card.sql"), " where id = ?"))?
@@ -159,6 +221,17 @@ impl super::SqliteStorage {
             CardData::from_card(card).convert_to_json()?,
             card.id,
         ])?;
+        Ok(())
+    }
+
+    /// Retain unrelated (including unrecognized) card data during repair.
+    pub(crate) fn clear_invalid_fsrs_state(&self, cid: CardId, usn: Usn) -> Result<()> {
+        self.db
+            .prepare_cached(
+                "update cards set data = json_remove(data, '$.s', '$.s_int', '$.s_fast', '$.d'),
+             usn = ? where id = ?",
+            )?
+            .execute((usn, cid))?;
         Ok(())
     }
 
@@ -302,16 +375,7 @@ impl super::SqliteStorage {
         };
         let mut rows = stmt.query(params![queue as i8, timing.days_elapsed])?;
         while let Some(row) = rows.next()? {
-            if !func(DueCard {
-                id: row.get(0)?,
-                note_id: row.get(1)?,
-                due: row.get(2).ok().unwrap_or_default(),
-                mtime: row.get(4)?,
-                current_deck_id: row.get(5)?,
-                original_deck_id: row.get(6)?,
-                reps: row.get(7)?,
-                kind,
-            })? {
+            if !func(row_to_due_card(row, kind)?)? {
                 break;
             }
         }
@@ -776,6 +840,21 @@ impl super::SqliteStorage {
             .unwrap()
             .unwrap()
             .get(0)?)
+    }
+
+    /// Cards with a memory state among the ids that `card_ids_sql` selects.
+    pub(crate) fn cards_with_memory_state_in(
+        &self,
+        card_ids_sql: &str,
+        args: &[String],
+    ) -> Result<Vec<Card>> {
+        Ok(self
+            .db
+            .prepare(&format!(
+                "select * from cards where data like '%\"s\"%' and id in ({card_ids_sql})"
+            ))?
+            .query_and_then(rusqlite::params_from_iter(args), row_to_card)?
+            .collect::<rusqlite::Result<_>>()?)
     }
 
     #[cfg(test)]

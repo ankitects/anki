@@ -7,6 +7,7 @@
 
 import { protoBase64 } from "@bufbuild/protobuf";
 import {
+    DeckConfig_Config,
     DeckConfig_Config_LeechAction,
     DeckConfigsForUpdate,
     UpdateDeckConfigsMode,
@@ -14,7 +15,7 @@ import {
 import { get } from "svelte/store";
 import { expect, test } from "vitest";
 
-import { DeckOptionsState } from "./lib";
+import { DeckOptionsState, fsrsParams } from "./lib";
 
 const exampleData = {
     allConfig: [
@@ -308,4 +309,15 @@ test("aux data", () => {
             },
         },
     ]);
+});
+
+test("fsrs params skip empty lists", () => {
+    expect(fsrsParams(new DeckConfig_Config({ fsrsParams4: [0.5] }))).toStrictEqual([0.5]);
+    const fsrs5 = [0.4, 0.6, 2.4, 5.8];
+    expect(fsrsParams(new DeckConfig_Config({ fsrsParams5: fsrs5 }))).toStrictEqual(fsrs5);
+    const fsrs6 = [1, 2, 3];
+    expect(
+        fsrsParams(new DeckConfig_Config({ fsrsParams6: fsrs6, fsrsParams5: fsrs5 })),
+    ).toStrictEqual(fsrs6);
+    expect(fsrsParams(new DeckConfig_Config({}))).toStrictEqual([]);
 });

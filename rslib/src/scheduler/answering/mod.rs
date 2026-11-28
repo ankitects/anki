@@ -27,12 +27,14 @@ use super::timespan::answer_button_time_collapsible;
 use super::timing::SchedTimingToday;
 use crate::card::CardQueue;
 use crate::card::CardType;
+use crate::card::FsrsMemoryState;
 use crate::config::BoolKey;
 use crate::deckconfig::DeckConfig;
 use crate::deckconfig::LeechAction;
 use crate::decks::Deck;
 use crate::prelude::*;
 use crate::scheduler::fsrs::memory_state::fsrs_item_for_memory_state;
+use crate::scheduler::fsrs::memory_state::fsrs_memory_state_for_fsrs;
 use crate::scheduler::fsrs::memory_state::get_decay_from_params;
 use crate::scheduler::states::PreviewState;
 use crate::search::SearchNode;
@@ -117,6 +119,7 @@ impl CardStateUpdater {
             fsrs_next_states: self.fsrs_next_states.clone(),
             fsrs_short_term_with_steps_enabled: self.fsrs_short_term_with_steps,
             fsrs_allow_short_term: self.fsrs_allow_short_term,
+            fsrs7: self.config.uses_fsrs7(),
         }
     }
 
@@ -134,6 +137,18 @@ impl CardStateUpdater {
 
     fn into_card(self) -> Card {
         self.card
+    }
+
+    fn memory_state_for_storage(
+        &self,
+        state: Option<FsrsMemoryState>,
+    ) -> Result<Option<FsrsMemoryState>> {
+        state
+            .map(|state| {
+                let fsrs = FSRS::new(self.config.fsrs_params())?;
+                Ok(fsrs_memory_state_for_fsrs(&fsrs, state.into()))
+            })
+            .transpose()
     }
 
     fn apply_study_state(
@@ -157,14 +172,14 @@ impl CardStateUpdater {
                     }
                 }
                 // apply normal scheduling
-                self.apply_normal_study_state(current, normal)
+                self.apply_normal_study_state(current, normal)?
             }
             CardState::Filtered(filtered) => {
                 self.ensure_filtered()?;
                 match filtered {
                     FilteredState::Preview(next) => self.apply_preview_state(current, next),
                     FilteredState::Rescheduling(next) => {
-                        let revlog = self.apply_normal_study_state(current, next.original_state);
+                        let revlog = self.apply_normal_study_state(current, next.original_state)?;
                         self.card.original_due = self.card.due;
 
                         revlog
@@ -180,22 +195,22 @@ impl CardStateUpdater {
         &mut self,
         current: CardState,
         next: NormalState,
-    ) -> RevlogEntryPartial {
+    ) -> Result<RevlogEntryPartial> {
         self.card.reps += 1;
         self.card.desired_retention = self.desired_retention;
 
         let revlog = match next {
-            NormalState::New(next) => self.apply_new_state(current, next),
+            NormalState::New(next) => Ok(self.apply_new_state(current, next)),
             NormalState::Learning(next) => self.apply_learning_state(current, next),
             NormalState::Review(next) => self.apply_review_state(current, next),
             NormalState::Relearning(next) => self.apply_relearning_state(current, next),
-        };
+        }?;
 
         if next.leeched() && self.config.inner.leech_action() == LeechAction::Suspend {
             self.card.queue = CardQueue::Suspended;
         }
 
-        revlog
+        Ok(revlog)
     }
 
     fn ensure_filtered(&self) -> Result<()> {
@@ -262,7 +277,12 @@ impl Collection {
         };
 
         let state_ctx = ctx.state_context(load_balancer_ctx);
-        Ok((current.next_states(&state_ctx), ctx.into_card()))
+        let mut states = current.next_states(&state_ctx);
+        if state_ctx.fsrs7 && state_ctx.fsrs_next_states.is_some() {
+            let model = FSRS::new(ctx.config.fsrs_params())?;
+            states.update_next_memory_states(|state| state.stability = model.s90((*state).into()));
+        }
+        Ok((states, ctx.into_card()))
     }
 
     /// Describe the next intervals, to display on the answer buttons.
@@ -464,6 +484,7 @@ impl Collection {
 
     fn card_state_updater(&mut self, mut card: Card) -> Result<CardStateUpdater> {
         let timing = self.timing_today()?;
+        let now = TimestampSecs::now();
         let deck = self
             .storage
             .get_deck(card.deck_id)?
@@ -501,19 +522,27 @@ impl Collection {
                 )?;
                 card.set_memory_state(&fsrs, item, config.inner.historical_retention)?;
             }
-            let days_elapsed = if let Some(last_review_time) = card.last_review_time {
-                timing.next_day_at.elapsed_days_since(last_review_time) as u32
+            let last_review_time = if card.last_review_time.is_some() {
+                card.last_review_time
             } else {
-                self.storage
-                    .time_of_last_review(card.id)?
-                    .map(|ts| timing.next_day_at.elapsed_days_since(ts))
-                    .unwrap_or_default() as u32
+                self.storage.time_of_last_review(card.id)?
             };
-            Some(fsrs.next_states(
-                card.memory_state.map(Into::into),
-                desired_retention,
-                days_elapsed,
-            )?)
+            let current_memory_state = card.memory_state.map(Into::into);
+            if fsrs.version() == fsrs::ModelVersion::Fsrs7 {
+                let elapsed_days = last_review_time
+                    .map(|last_review_time| fsrs_elapsed_days(last_review_time, now))
+                    .unwrap_or_default();
+                Some(fsrs.next_states_with_elapsed_days(
+                    current_memory_state,
+                    desired_retention,
+                    elapsed_days,
+                )?)
+            } else {
+                let elapsed_days = last_review_time
+                    .map(|ts| timing.next_day_at.elapsed_days_since(ts))
+                    .unwrap_or_default() as u32;
+                Some(fsrs.next_states(current_memory_state, desired_retention, elapsed_days)?)
+            }
         } else {
             None
         };
@@ -543,7 +572,7 @@ impl Collection {
             original_deck,
             config,
             timing,
-            now: TimestampSecs::now(),
+            now,
             fsrs_next_states,
             desired_retention,
             fsrs_short_term_with_steps,
@@ -608,6 +637,10 @@ impl Collection {
             }
         }
     }
+}
+
+pub(crate) fn fsrs_elapsed_days(last_review_time: TimestampSecs, now: TimestampSecs) -> f32 {
+    now.elapsed_secs_since(last_review_time).max(0) as f32 / 86_400.0
 }
 
 #[cfg(test)]
@@ -702,6 +735,40 @@ pub(crate) mod test {
     use crate::card::CardType;
     use crate::deckconfig::ReviewMix;
     use crate::search::SortMode;
+
+    #[test]
+    fn fsrs7_elapsed_time_is_fractional_across_day_boundaries() {
+        let last = TimestampSecs(1_700_000_000);
+        assert_eq!(
+            fsrs_elapsed_days(last, TimestampSecs(last.0 + 129_600)),
+            1.5
+        );
+        assert_eq!(
+            fsrs_elapsed_days(last, TimestampSecs(last.0 + 21_600)),
+            0.25
+        );
+        assert_eq!(fsrs_elapsed_days(last, TimestampSecs(last.0 - 1)), 0.0);
+    }
+
+    #[test]
+    fn fsrs7_next_states_carry_the_s90_as_stability() -> Result<()> {
+        let mut col = Collection::new();
+        col.set_config_bool(BoolKey::Fsrs, true, false)?;
+        let note = crate::tests::NoteAdder::basic(&mut col).add(&mut col);
+        let cid = col.storage.card_ids_of_notes(&[note.id])?[0];
+        let fsrs = FSRS::new(&fsrs::DEFAULT_PARAMETERS)?;
+        let states = col.get_scheduling_states(cid)?;
+        let CardState::Normal(NormalState::Learning(good)) = states.good else {
+            panic!("a new card stays in learning on Good: {:?}", states.good);
+        };
+        let state = good.memory_state.unwrap();
+        assert_ne!(state.stability, state.stability_internal);
+        assert_eq!(
+            state.stability,
+            fsrs.interval_at_retrievability(state.into(), 0.9)
+        );
+        Ok(())
+    }
 
     fn current_state(col: &mut Collection, card_id: CardId) -> CardState {
         col.get_scheduling_states(card_id).unwrap().current

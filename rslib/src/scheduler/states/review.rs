@@ -64,13 +64,29 @@ impl ReviewState {
     pub(crate) fn next_states(self, ctx: &StateContext) -> SchedulingStates {
         let (hard_interval, good_interval, easy_interval) = self.passing_review_intervals(ctx);
 
-        SchedulingStates {
+        let mut next = SchedulingStates {
             current: self.into(),
             again: self.answer_again(ctx),
             hard: self.answer_hard(hard_interval, ctx).into(),
             good: self.answer_good(good_interval, ctx).into(),
             easy: self.answer_easy(easy_interval, ctx).into(),
-        }
+        };
+        super::button_intervals::apply_model_intervals(
+            &mut next,
+            ctx,
+            ctx.relearn_steps,
+            None,
+            Some(self.scheduled_days),
+            |interval, answer, _, remaining| {
+                let review = match answer {
+                    CardState::Normal(super::NormalState::Review(review)) => review,
+                    CardState::Normal(super::NormalState::Relearning(relearn)) => relearn.review,
+                    _ => unreachable!("review answers stay in review or relearning"),
+                };
+                interval.reviewing(review, remaining)
+            },
+        );
+        next
     }
 
     pub(crate) fn failing_review_interval(

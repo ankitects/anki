@@ -12,6 +12,7 @@ use std::collections::VecDeque;
 use anki_proto::scheduler::SchedulingContext;
 pub(crate) use builder::DueCard;
 pub(crate) use builder::DueCardKind;
+pub(crate) use builder::DueCardWithState;
 pub(crate) use builder::NewCard;
 pub(crate) use entry::QueueEntry;
 pub(crate) use entry::QueueEntryKind;

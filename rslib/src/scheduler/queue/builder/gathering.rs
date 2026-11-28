@@ -7,6 +7,9 @@ use super::QueueBuilder;
 use crate::deckconfig::NewCardGatherPriority;
 use crate::decks::limits::LimitKind;
 use crate::prelude::*;
+use crate::scheduler::fsrs::metrics::ExactFsrsOrder;
+use crate::scheduler::fsrs::metrics::ExactOrderKey;
+use crate::scheduler::fsrs::metrics::FsrsMetricContext;
 use crate::scheduler::queue::DueCardKind;
 use crate::storage::card::NewCardSorting;
 
@@ -17,6 +20,45 @@ impl QueueBuilder {
         self.gather_due_cards(col, DueCardKind::Review)?;
         self.gather_new_cards(col)?;
 
+        Ok(())
+    }
+
+    fn gather_reviews_in_exact_order(
+        &mut self,
+        col: &Collection,
+        order: ExactFsrsOrder,
+    ) -> Result<()> {
+        let timing = self.context.timing;
+        let reviews = col
+            .storage
+            .due_reviews_with_state_in_active_decks(timing.days_elapsed)?;
+        let mut metrics = FsrsMetricContext::new(&self.context.deck_map, &self.context.config_map);
+        let mut with_keys = Vec::with_capacity(reviews.len());
+
+        for review in reviews {
+            let card = review.card;
+            let due = review.original_or_current_due();
+            let memory = review.memory_state.map(|state| {
+                let elapsed =
+                    timing.fsrs_elapsed_seconds(review.last_review_time, due, review.interval);
+                (state, elapsed as f32 / 86_400.0)
+            });
+            let key = metrics.exact_order_key(
+                order,
+                card.original_deck_id.or(card.current_deck_id),
+                memory,
+                due,
+                review.interval,
+                timing,
+            )?;
+            with_keys.push((card, ExactOrderKey::new(key, card.id, card.mtime)));
+        }
+        with_keys.sort_unstable_by(|(_, a), (_, b)| order.compare(a, b));
+        for (card, _) in with_keys {
+            if !self.gather_due_card(card)? {
+                break;
+            }
+        }
         Ok(())
     }
 
@@ -36,28 +78,31 @@ impl QueueBuilder {
         if self.limits.root_limit_reached(LimitKind::Review) {
             return Ok(());
         }
-        col.storage.for_each_due_card_in_active_decks(
-            self.context.timing,
-            self.context.sort_options.review_order,
-            kind,
-            self.context.fsrs,
-            |card| {
-                if self.limits.root_limit_reached(LimitKind::Review) {
-                    return Ok(false);
-                }
-                if !self
-                    .limits
-                    .limit_reached(card.current_deck_id, LimitKind::Review)?
-                    && self.add_due_card(card)
-                {
-                    self.limits.decrement_deck_and_parent_limits(
-                        card.current_deck_id,
-                        LimitKind::Review,
-                    )?;
-                }
-                Ok(true)
-            },
-        )
+        match (kind, self.context.exact_fsrs_order()) {
+            (DueCardKind::Review, Some(order)) => self.gather_reviews_in_exact_order(col, order),
+            _ => col.storage.for_each_due_card_in_active_decks(
+                self.context.timing,
+                self.context.sort_options.review_order,
+                kind,
+                self.context.fsrs,
+                |card| self.gather_due_card(card),
+            ),
+        }
+    }
+
+    fn gather_due_card(&mut self, card: DueCard) -> Result<bool> {
+        if self.limits.root_limit_reached(LimitKind::Review) {
+            return Ok(false);
+        }
+        if !self
+            .limits
+            .limit_reached(card.current_deck_id, LimitKind::Review)?
+            && self.add_due_card(card)
+        {
+            self.limits
+                .decrement_deck_and_parent_limits(card.current_deck_id, LimitKind::Review)?;
+        }
+        Ok(true)
     }
 
     fn gather_new_cards(&mut self, col: &mut Collection) -> Result<()> {
@@ -141,16 +186,15 @@ impl QueueBuilder {
                 DueCardKind::Learning => mode.bury_interday_learning,
             })
             .unwrap_or_default();
-        if bury_this_card {
-            false
-        } else {
-            match card.kind {
-                DueCardKind::Review => self.review.push(card),
-                DueCardKind::Learning => self.day_learning.push(card),
-            }
 
-            true
+        if bury_this_card {
+            return false;
         }
+        match card.kind {
+            DueCardKind::Review => self.review.push(card),
+            DueCardKind::Learning => self.day_learning.push(card),
+        }
+        true
     }
 
     // True if limit should be decremented.

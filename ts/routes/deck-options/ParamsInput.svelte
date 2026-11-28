@@ -42,7 +42,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         return params.map((v) => v.toFixed(4)).join(", ");
     }
 
-    const validParamCounts = [0, 17, 19, 21];
+    const validParamCounts = [0, 17, 19, 21, 34];
 
     function update(e: Event): void {
         const input = e.target as HTMLTextAreaElement;

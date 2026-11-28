@@ -41,6 +41,7 @@ impl Collection {
         // check file ok
         let col = CollectionBuilder::new(temp_file.path())
             .set_check_integrity(true)
+            .set_skip_fsrs_defaults_upgrade()
             .build()?;
         col.storage.db.execute_batch("update col set ls=mod")?;
         col.close(None)?;

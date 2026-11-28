@@ -25,13 +25,30 @@ impl RelearnState {
     }
 
     pub(crate) fn next_states(self, ctx: &StateContext) -> SchedulingStates {
-        SchedulingStates {
+        let mut next = SchedulingStates {
             current: self.into(),
             again: self.answer_again(ctx),
             hard: self.answer_hard(ctx),
             good: self.answer_good(ctx),
             easy: self.answer_easy(ctx).into(),
-        }
+        };
+        super::button_intervals::apply_model_intervals(
+            &mut next,
+            ctx,
+            ctx.relearn_steps,
+            Some(self.learning.remaining_steps),
+            None,
+            |interval, _, memory, remaining| {
+                interval.reviewing(
+                    ReviewState {
+                        memory_state: Some(memory),
+                        ..self.review
+                    },
+                    remaining,
+                )
+            },
+        );
+        next
     }
 
     fn answer_again(self, ctx: &StateContext) -> CardState {
@@ -222,6 +239,7 @@ mod tests {
     fn fsrs_states(again: f32, hard: f32, good: f32, easy: f32) -> FsrsNextStates {
         let mem = MemoryState {
             stability: 4.0,
+            stability_fast: 4.0,
             difficulty: 5.0,
         };
         FsrsNextStates {

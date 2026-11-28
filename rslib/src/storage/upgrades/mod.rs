@@ -114,6 +114,7 @@ mod test {
             ..Default::default()
         };
         deck_config.inner.learn_steps = vec![2.0, 20.0];
+        deck_config.inner.fsrs_params_6 = fsrs::FSRS6_DEFAULT_PARAMETERS.to_vec();
         col.add_or_update_deck_config(&mut deck_config)?;
         let original_deck_config = col
             .storage

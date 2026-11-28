@@ -108,8 +108,12 @@ pub struct Card {
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct FsrsMemoryState {
-    /// The expected memory stability, in days.
+    /// The interval where retrievability reaches 90%, in days.
     pub stability: f32,
+    /// The model's internal slow stability trace, in days.
+    pub stability_internal: f32,
+    /// FSRS-7's fast stability trace, in days. Missing on older card data.
+    pub stability_fast: Option<f32>,
     /// A number in the range 1.0-10.0. Use difficulty() for a normalized
     /// number.
     pub difficulty: f32,
@@ -404,7 +408,7 @@ impl Collection {
 
                 col.update_memory_state(vec![UpdateMemoryStateEntry {
                     req: Some(UpdateMemoryStateRequest {
-                        params: config.fsrs_params().clone(),
+                        params: config.fsrs_params().to_vec(),
                         preset_desired_retention: config.inner.desired_retention,
                         historical_retention: config.inner.historical_retention,
                         max_interval: config.inner.maximum_review_interval,
@@ -445,15 +449,12 @@ impl Collection {
     }
 
     /// Get deck config for the given card. If missing, return default values.
-    #[allow(dead_code)]
     pub(crate) fn deck_config_for_card(&mut self, card: &Card) -> Result<DeckConfig> {
-        if let Some(deck) = self.get_deck(card.original_or_current_deck_id())? {
-            if let Some(conf_id) = deck.config_id() {
-                return Ok(self.get_deck_config(conf_id, true)?.unwrap());
-            }
-        }
-
-        Ok(DeckConfig::default())
+        let id = self
+            .get_deck(card.original_or_current_deck_id())?
+            .and_then(|deck| deck.config_id())
+            .unwrap_or(DeckConfigId(1));
+        self.get_deck_config(id, true)?.or_not_found(id)
     }
 
     /// Adjust the remaining steps of the card according to the steps change.
@@ -521,8 +522,9 @@ impl<'a> RemainingStepsAdjuster<'a> {
 impl From<FsrsMemoryState> for MemoryState {
     fn from(value: FsrsMemoryState) -> Self {
         MemoryState {
-            stability: value.stability,
+            stability: value.stability_internal,
             difficulty: value.difficulty,
+            stability_fast: value.stability_fast.unwrap_or(value.stability_internal),
         }
     }
 }
@@ -531,6 +533,8 @@ impl From<MemoryState> for FsrsMemoryState {
     fn from(value: MemoryState) -> Self {
         FsrsMemoryState {
             stability: value.stability,
+            stability_internal: value.stability,
+            stability_fast: Some(value.stability_fast),
             difficulty: value.difficulty,
         }
     }
