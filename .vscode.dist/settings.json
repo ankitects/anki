@@ -6,6 +6,15 @@
         },
         "editor.defaultFormatter": "charliermarsh.ruff"
     },
+    "[proto]": {
+        "editor.defaultFormatter": "drblury.protobuf-vsc"
+    },
+    // Install Buf on PATH before opening VS Code to enable formatting and linting.
+    "protobuf.includes": ["${workspaceFolder}/proto"],
+    "protobuf.formatter.preset": "buf",
+    "protobuf.formatOnSave": true,
+    "protobuf.externalLinter.enabled": true,
+    "protobuf.externalLinter.linter": "buf",
     "files.watcherExclude": {
         "**/.git/objects/**": true,
         "**/.git/subtree-cache/**": true,
