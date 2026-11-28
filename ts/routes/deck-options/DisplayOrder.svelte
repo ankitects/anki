@@ -37,6 +37,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     const currentDeck = "\n\n" + tr.deckConfigDisplayOrderWillUseCurrentDeck();
 
+    $: reviewOrders = reviewOrderChoices($fsrs);
+    // reset to default order if the current one isn't offered
+    // (e.g. retrievability orders are only offered with FSRS)
+    $: if (!reviewOrders.some((c) => c.value === $config.reviewOrder)) {
+        $config.reviewOrder = defaults.reviewOrder;
+    }
+
     let disabledNewSortOrders: number[] = [];
     $: {
         switch ($config.newCardGatherPriority) {
@@ -193,7 +200,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             <EnumSelectorRow
                 bind:value={$config.reviewOrder}
                 defaultValue={defaults.reviewOrder}
-                choices={reviewOrderChoices($fsrs)}
+                choices={reviewOrders}
             >
                 <SettingTitle
                     on:click={() =>
