@@ -146,9 +146,32 @@ declare global {
     }
 }
 
-// Fix inverted Ctrl+right/left handling in RTL fields
-export function fixRTLKeyboardNav(editable: HTMLElement): void {
+export function fixKeyboardNav(editable: HTMLElement): void {
     editable.addEventListener("keydown", (evt: KeyboardEvent) => {
+        if (
+            !evt.ctrlKey
+            && !evt.metaKey
+            && !evt.altKey
+        ) {
+            if (evt.code === "ArrowDown") {
+                getSelection(editable)!.modify(
+                    evt.shiftKey ? "extend" : "move",
+                    "forward",
+                    "line",
+                );
+                evt.preventDefault();
+                return;
+            } else if (evt.code === "ArrowUp") {
+                getSelection(editable)!.modify(
+                    evt.shiftKey ? "extend" : "move",
+                    "backward",
+                    "line",
+                );
+                evt.preventDefault();
+                return;
+            }
+        }
+
         if (window.getComputedStyle(editable).direction === "rtl") {
             const selection = getSelection(editable)!;
             let granularity = "character";
