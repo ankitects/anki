@@ -338,13 +338,38 @@ async function processText(data: DataTransfer, extended: Promise<boolean>): Prom
     return processed.join("");
 }
 
+/**
+ * Whether the data holds an image. This must stay synchronous: the caller still needs
+ * the data afterwards, and it can be cleared once the event handler has yielded.
+ */
+function hasImageData(data: DataTransfer): boolean {
+    const files = [...(data.files ?? [])];
+    return QIMAGE_FORMATS.some((type) => data.getData(type) || files.some((file) => file.type === type));
+}
+
+/**
+ * Whether the HTML is a single image with a relative src and nothing else. Some apps
+ * (such as Discord) copy an image along with HTML like <img src="image.png">. The path
+ * means nothing outside that app, and would point to any media file with the same name.
+ */
+function isRelativeImageOnly(html: string): boolean {
+    const template = document.createElement("template");
+    template.innerHTML = html;
+    const images = template.content.querySelectorAll("img");
+    if (images.length !== 1 || template.content.textContent?.trim()) {
+        return false;
+    }
+    const src = images[0].getAttribute("src");
+    return !!src && !/^([a-z][a-z0-9+.-]*:|\/\/)/i.test(src);
+}
+
 async function processDataTransferEvent(
     event: ClipboardEvent | DragEvent,
     extended: Promise<boolean>,
 ): Promise<{ html: string | null; internal: boolean }> {
     const data = event instanceof ClipboardEvent ? event.clipboardData! : event.dataTransfer!;
     const html = getHtml(data);
-    if (html) {
+    if (html && !(isRelativeImageOnly(html) && hasImageData(data))) {
         return { html, internal: false };
     }
     const urls = await getUrls(data);
