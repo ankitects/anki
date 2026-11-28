@@ -1,0 +1,44 @@
+---
+title: "アドオンの共有"
+---
+
+## AnkiWeb で共有する
+
+アドオンを ZIP にまとめ、ファイル名の末尾を `.ankiaddon` にすると、配布用にパッケージ化できます。
+
+ZIP ファイルに最上位のフォルダーを含めないでください。たとえば、次のようなモジュールがある場合:
+
+```text
+    addons21/myaddon/__init__.py
+    addons21/myaddon/my.data
+```
+
+ZIP ファイルの内容は次のようになります。
+
+```text
+    __init__.py
+    my.data
+```
+
+次のようにフォルダー名も含めると、AnkiWeb は ZIP ファイルを受け付けません。
+
+```text
+    myaddon/__init__.py
+    myaddon/my.data
+```
+
+Unix 系のマシンでは、次のコマンドで正しい形式のファイルを作成できます。
+
+```text
+    $ cd myaddon && zip -r ../myaddon.ankiaddon *
+```
+
+アドオンを実行すると、Python は `pycache` フォルダーを自動作成します。AnkiWeb は `pycache` フォルダーを含む ZIP ファイルを受け付けないため、ZIP ファイルを作成する前に削除してください。
+
+`.ankiaddon` ファイルを作成したら、[https://ankiweb.net/shared/addons](https://ankiweb.net/shared/addons) の「Upload」ボタンからほかのユーザーと共有できます。
+
+AnkiWeb からダウンロードしたアドオンに、有効な `manifest.json` が含まれていて、`name` が空でない場合、Anki はその名前を使います。それ以外の場合は、AnkiWeb 上のアドオンのタイトルから名前を作成します。
+
+## AnkiWeb 以外で共有する
+
+`.ankiaddon` ファイルを AnkiWeb 以外で配布する場合、アドオンフォルダーに `manifest.json` を含める必要があります。このファイルには少なくとも2つのキーが必要です。`package` はアドオンの保存先フォルダー名、`name` はユーザーに表示する名前を指定します。任意で、アドオンと競合するほかのパッケージの一覧を指定する `conflicts` キーと、アドオンの更新日時を指定する `mod` キーも含められます。

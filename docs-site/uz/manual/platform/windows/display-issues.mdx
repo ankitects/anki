@@ -1,0 +1,50 @@
+---
+title: "Windows'da koʻrinish (ekran) muammolari"
+sidebarTitle: "Koʻrinish (ekran) muammolari"
+description: "Koʻrinish (ekran) muammolari"
+---
+
+Windows'da tasvir ekranda uch xil usulda chiqarilishi mumkin. Standart usul —
+_software_ (dasturiy). U sekinroq, lekin eng koʻp qurilmada ishlaydi. Tezroq
+ishlaydigan yana ikki variant bor: _OpenGL_ va _ANGLE_. Ular tezroq, lekin
+ishlamasligi yoki koʻrinish muammolariga (masalan, menyu paneli yoʻqolishi,
+oynalarning boʻm-boʻsh chiqishi va hokazo) sabab boʻlishi mumkin. Qaysi biri
+yaxshi ishlashi kompyuteringizga bogʻliq.
+
+## Drayverni sozlamalar oynasidan oʻzgartirish
+
+Anki 23.10 va undan yangi versiyalarda grafik drayverni sozlamalar oynasidan
+oʻzgartirish mumkin: **Tools → Preferences** (Asboblar → Sozlamalar) boʻlimiga
+kirib, ochiladigan roʻyxatdan drayverni tanlang.
+
+## Drayverni buyruq qatoridan oʻzgartirish
+
+Koʻrinish muammolariga duch kelsangiz, cmd orqali software rejimiga oʻtib
+koʻrishingiz mumkin:
+
+```bat
+echo software > %APPDATA%\Anki2\gldriver6
+```
+
+Yoki buni PowerShell orqali ham qilishingiz mumkin:
+
+```powershell
+echo software > $env:APPDATA\Anki2\gldriver6
+```
+
+Bu buyruq ekranga hech narsa chiqarmaydi. Shundan keyin Anki'ni yana ishga
+tushirishingiz mumkin.
+
+Standart holatga qaytish uchun `software` ni `auto` ga almashtiring yoki oʻsha
+faylni oʻchirib tashlang.
+
+## Toʻliq ekran rejimi
+
+Anki 2.1.50 va undan yangi versiyalarda toʻliq ekran rejimi bor, lekin turli
+muammolar tufayli `OpenGL` ishlatilganda u oʻchirib qoʻyilishi kerak boʻlgan.
+Yuqorida tasvirlanganidek software rendering (dasturiy tasvirlash) ni yoqsangiz,
+toʻliq ekran imkoniyatidan foydalanish mumkin boʻladi, lekin tasvirlash tezligi
+pasayishi mumkinligini unutmang.
+
+Anki 23.10 va undan yangi versiyalarda toʻliq ekran rejimi standart Direct3D
+drayveri bilan qoʻllab-quvvatlanadi.

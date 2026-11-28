@@ -5,8 +5,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="ts">
     import type { CardStatsResponse } from "@generated/anki/stats_pb";
 
-    import Container from "$lib/components/Container.svelte";
-    import Row from "$lib/components/Row.svelte";
+    import Container from "#lib/components/Container.svelte";
+    import Row from "#lib/components/Row.svelte";
 
     import CardInfoPlaceholder from "./CardInfoPlaceholder.svelte";
     import CardStats from "./CardStats.svelte";

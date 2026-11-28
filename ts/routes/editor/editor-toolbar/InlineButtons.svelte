@@ -4,7 +4,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 
 <script context="module" lang="ts">
-    import type { DefaultSlotInterface } from "$lib/sveltelib/dynamic-slotting";
+    import type { DefaultSlotInterface } from "#lib/sveltelib/dynamic-slotting.js";
 
     export interface InlineButtonsAPI extends DefaultSlotInterface {
         setColorButtons: (colors: [string, string]) => void;
@@ -12,9 +12,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <script lang="ts">
-    import ButtonGroup from "$lib/components/ButtonGroup.svelte";
-    import DynamicallySlottable from "$lib/components/DynamicallySlottable.svelte";
-    import Item from "$lib/components/Item.svelte";
+    import ButtonGroup from "#lib/components/ButtonGroup.svelte";
+    import DynamicallySlottable from "#lib/components/DynamicallySlottable.svelte";
+    import Item from "#lib/components/Item.svelte";
 
     import BoldButton from "./BoldButton.svelte";
     import HighlightColorButton from "./HighlightColorButton.svelte";

@@ -14,15 +14,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type { ActionReturn } from "svelte/action";
     import { writable } from "svelte/store";
 
-    import isClosingClick from "$lib/sveltelib/closing-click";
-    import isClosingKeyup from "$lib/sveltelib/closing-keyup";
-    import type { EventPredicateResult } from "$lib/sveltelib/event-predicate";
-    import { documentClick, documentKeyup } from "$lib/sveltelib/event-store";
-    import type { PositioningCallback } from "$lib/sveltelib/position/auto-update";
-    import autoUpdate from "$lib/sveltelib/position/auto-update";
-    import type { PositionAlgorithm } from "$lib/sveltelib/position/position-algorithm";
-    import positionOverlay from "$lib/sveltelib/position/position-overlay";
-    import subscribeToUpdates from "$lib/sveltelib/subscribe-updates";
+    import isClosingClick from "#lib/sveltelib/closing-click.js";
+    import isClosingKeyup from "#lib/sveltelib/closing-keyup.js";
+    import type { EventPredicateResult } from "#lib/sveltelib/event-predicate.js";
+    import { documentClick, documentKeyup } from "#lib/sveltelib/event-store.js";
+    import type { PositioningCallback } from "#lib/sveltelib/position/auto-update.js";
+    import autoUpdate from "#lib/sveltelib/position/auto-update.js";
+    import type { PositionAlgorithm } from "#lib/sveltelib/position/position-algorithm.js";
+    import positionOverlay from "#lib/sveltelib/position/position-overlay.js";
+    import subscribeToUpdates from "#lib/sveltelib/subscribe-updates.js";
 
     import { overlayKey } from "./context-keys";
 

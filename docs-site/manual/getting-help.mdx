@@ -4,10 +4,8 @@ title: "Getting help"
 
 ## Asking good questions
 
-With the exception of AnkiMobile, Anki and its support are provided free of
-charge, by people who generously volunteer their time. Please bear this in mind
-when posting - if you are rude and demanding, or have made no effort to solve
-the problem on your own, people are less likely to want to help you.
+Support is provided by the Anki team and community volunteers. Please be
+respectful when asking for help.
 
 Start by trying to resolve the issue on your own:
 

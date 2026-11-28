@@ -8,10 +8,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { onEnterOrSpace } from "@tslib/keys";
     import { onMount } from "svelte";
 
-    import Badge from "$lib/components/Badge.svelte";
-    import Icon from "$lib/components/Icon.svelte";
-    import { stickyIconHollow } from "$lib/components/icons";
-    import { stickyIconSolid } from "$lib/components/icons";
+    import Badge from "#lib/components/Badge.svelte";
+    import Icon from "#lib/components/Icon.svelte";
+    import { stickyIconHollow } from "#lib/components/icons.js";
+    import { stickyIconSolid } from "#lib/components/icons.js";
 
     import { context as editorFieldContext } from "./EditorField.svelte";
     import type { Note } from "@generated/anki/notes_pb";

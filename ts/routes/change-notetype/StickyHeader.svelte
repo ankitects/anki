@@ -5,9 +5,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="ts">
     import * as tr from "@generated/ftl";
 
-    import Col from "$lib/components/Col.svelte";
-    import Container from "$lib/components/Container.svelte";
-    import Row from "$lib/components/Row.svelte";
+    import Col from "#lib/components/Col.svelte";
+    import Container from "#lib/components/Container.svelte";
+    import Row from "#lib/components/Row.svelte";
 
     import Alert from "./Alert.svelte";
     import type { ChangeNotetypeState } from "./lib";

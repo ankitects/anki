@@ -5,7 +5,7 @@ on:
   push:
     branches: [main]
   pull_request:
-    branches: [main]
+    branches: [main, mintlify-docs]
     paths:
       - ".github/workflows/docs-site.yml"
       - "docs-site/**"
@@ -29,18 +29,18 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 #v7.1.0
         with:
-          node-version: "22.15.0"
+          node-version: "22.20.0"
 
       - name: Install Mintlify CLI
-        run: npm install -g mintlify
+        run: npm install -g mint
 
       - name: Test docs generation
         run: uv run python -m pytest tools/tests/test_mintlify_hooks.py
 
       - name: Validate Mintlify docs
-        run: mintlify validate
+        run: mint validate
         working-directory: docs-site
 
       - name: Check for accessibility issues
-        run: mintlify a11y --skip-contrast
+        run: mint a11y --skip-contrast
         working-directory: docs-site

@@ -20,6 +20,11 @@ CSP, it is the control and must run. The same page loaded top-level with the
 untrusted SvelteKit CSP checks that inline handlers are blocked. Under the
 editor CSPs a form must also fail to submit; without a CSP the submission is
 the control.
+
+The host also inserts a <base> that points at a remote origin, the way field
+content could, and then makes a relative fetch. Under the editor CSPs the fetch
+must stay on the local server; without a CSP it reaches the remote server and
+is the control.
 """
 
 from __future__ import annotations
@@ -95,6 +100,10 @@ class SmokeState:
     remote_style_requested: bool = False
     # a form in the host page was submitted
     form_probe_hit: bool = False
+    # a relative fetch made after inserting a remote <base> landed here (local)
+    # or on the remote server
+    base_probe_local: bool = False
+    base_probe_remote: bool = False
     done: bool = False
     lock: threading.Lock = field(default_factory=threading.Lock)
 
@@ -140,6 +149,13 @@ class SmokeState:
         with self.lock:
             self.form_probe_hit = True
 
+    def record_base_probe(self, remote: bool) -> None:
+        with self.lock:
+            if remote:
+                self.base_probe_remote = True
+            else:
+                self.base_probe_local = True
+
     def snapshot(self) -> "SmokeSnapshot":
         with self.lock:
             return SmokeSnapshot(
@@ -153,6 +169,8 @@ class SmokeState:
                 remote_frame_requested=self.remote_frame_requested,
                 remote_style_requested=self.remote_style_requested,
                 form_probe_hit=self.form_probe_hit,
+                base_probe_local=self.base_probe_local,
+                base_probe_remote=self.base_probe_remote,
                 done=self.done,
             )
 
@@ -169,6 +187,8 @@ class SmokeSnapshot:
     remote_frame_requested: bool
     remote_style_requested: bool
     form_probe_hit: bool
+    base_probe_local: bool
+    base_probe_remote: bool
     done: bool
 
     def latest_done(self) -> dict[str, Any]:
@@ -338,6 +358,9 @@ try {
         elif parsed.path == "/__form-probe":
             self.server.state.record_form_probe()
             self._send_bytes(b"", "text/plain")
+        elif parsed.path == "/__base-probe":
+            self.server.state.record_base_probe(remote=False)
+            self._send_bytes(b"", "text/plain")
         elif parsed.path == f"/{TRUSTED_PAGE}/note":
             # served like a trusted internal route
             self.server.state.record_io_request(TRUSTED_PAGE)
@@ -473,16 +496,29 @@ form.target = 'form-target';
 document.body.appendChild(form);
 form.submit();
 
+function probeBase() {{
+    // Inserted the way field content lands in the page. While the <base> is in
+    // the document, a relative URL resolves against the remote origin unless
+    // base-uri blocks the element. Removed again before the report below, as
+    // that report is itself a relative fetch.
+    const field = document.createElement('div');
+    field.innerHTML = `<base href="http://127.0.0.1:${{remotePort}}/">`;
+    document.body.appendChild(field);
+    const probe = fetch('/__base-probe').catch(() => {{}});
+    field.remove();
+    return probe;
+}}
+
 setTimeout(() => {{
     const img = document.getElementById('benign-svg-img');
     const sameOrigin = !!document.getElementById('styled-svg-object').contentDocument;
-    record({{
+    probeBase().then(() => record({{
         type: 'done',
         results,
         imgComplete: img.complete,
         imgNaturalWidth: img.naturalWidth,
         sameOrigin,
-    }});
+    }}));
 }}, 3000);
 """
         self._send_bytes(js.encode(), "application/javascript")
@@ -576,6 +612,12 @@ class RemoteRequestHandler(BaseHTTPRequestHandler):
             self.send_header("Content-Length", str(len(body)))
             self.end_headers()
             self.wfile.write(body)
+        elif urlparse(self.path).path == "/__base-probe":
+            self.server.state.record_base_probe(remote=True)
+            self.send_response(HTTPStatus.OK)
+            self.send_header("Content-Type", "text/plain")
+            self.send_header("Content-Length", "0")
+            self.end_headers()
         else:
             self.send_error(HTTPStatus.NOT_FOUND)
 
@@ -695,6 +737,17 @@ def _check_host(snapshot: SmokeSnapshot, editor_csp: bool) -> list[str]:
         errors.append("editor CSP let a form submit (form-action)")
     if not editor_csp and not snapshot.form_probe_hit:
         errors.append("control: form submission was not observed without a CSP")
+
+    if editor_csp:
+        if snapshot.base_probe_remote:
+            errors.append(
+                "editor CSP let a <base> redirect a relative fetch to a remote"
+                " origin (base-uri)"
+            )
+        if not snapshot.base_probe_local:
+            errors.append("relative fetch did not reach the local server")
+    elif not snapshot.base_probe_remote:
+        errors.append("control: <base> did not redirect a relative fetch without a CSP")
 
     io_script_docs = set(snapshot.io_script_hits)
     if IO_CONTROL not in snapshot.io_requests:
