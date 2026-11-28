@@ -7,6 +7,7 @@ import itertools
 import time
 from collections.abc import Iterable, Sequence
 from concurrent.futures import Future
+from functools import partial
 from typing import TypeVar
 
 import aqt
@@ -204,8 +205,11 @@ class MediaChecker:
                 col.media.trash_files(chunk)
                 remaining -= len(chunk)
                 if time.time() - last_progress >= 0.1:
+                    # run_on_main() defers the closure, so the counts have to be
+                    # captured now rather than read when it eventually runs.
                     self.mw.taskman.run_on_main(
-                        lambda: self.mw.progress.update(
+                        partial(
+                            self.mw.progress.update,
                             label=tr.media_check_files_remaining(count=remaining),
                             value=total - remaining,
                             max=total,
