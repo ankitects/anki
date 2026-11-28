@@ -49,6 +49,12 @@ pub(crate) struct CardGenContext<N: Deref<Target = Notetype>> {
     /// The last deck that was added to with this note type
     pub last_deck: Option<DeckId>,
     cards: Vec<SingleCardGenContext>,
+    /// Special fields that count as nonempty for every note: those the
+    /// notetype has no field of the same name for, except FrontSide and Tags.
+    nonempty_special_fields: Vec<&'static str>,
+    /// Whether Tags counts as nonempty when the note has tags (the notetype
+    /// has no field of that name).
+    tags_is_special: bool,
 }
 
 // store for data that needs to be looked up multiple times
@@ -68,11 +74,21 @@ impl<N: Deref<Target = Notetype>> CardGenContext<N> {
                 target_deck_id: tmpl.target_deck_id(),
             })
             .collect();
+        let note_field_names: HashSet<_> =
+            nt.fields.iter().map(|field| field.name.as_str()).collect();
+        let nonempty_special_fields = SPECIAL_FIELDS
+            .iter()
+            .copied()
+            .filter(|f| !note_field_names.contains(f) && *f != "FrontSide" && *f != "Tags")
+            .collect();
+        let tags_is_special = !note_field_names.contains("Tags");
         CardGenContext {
             usn,
             last_deck,
             notetype: nt,
             cards,
+            nonempty_special_fields,
+            tags_is_special,
         }
     }
 
@@ -123,19 +139,9 @@ impl<N: Deref<Target = Notetype>> CardGenContext<N> {
         extracted: &ExtractedCardInfo,
     ) -> Vec<CardToGenerate> {
         let mut nonempty_fields = note.nonempty_fields(&self.notetype.fields);
-        let note_field_names: HashSet<_> = self
-            .notetype
-            .fields
-            .iter()
-            .map(|field| field.name.as_str())
-            .collect();
-        for special_field in SPECIAL_FIELDS.iter().copied() {
-            if !note_field_names.contains(special_field)
-                && special_field != "FrontSide"
-                && (special_field != "Tags" || !note.tags.is_empty())
-            {
-                nonempty_fields.insert(special_field);
-            }
+        nonempty_fields.extend(self.nonempty_special_fields.iter().copied());
+        if self.tags_is_special && !note.tags.is_empty() {
+            nonempty_fields.insert("Tags");
         }
 
         self.cards
@@ -246,7 +252,18 @@ impl Collection {
         note: &Note,
     ) -> Result<()> {
         let existing = self.storage.existing_cards_for_note(note.id)?;
-        self.generate_cards_for_note(ctx, note, &existing, ctx.last_deck, &mut Default::default())?;
+        self.generate_cards_for_existing_note_with_cards(ctx, note, &existing)
+    }
+
+    /// [Self::generate_cards_for_existing_note], with the note's current
+    /// cards (in card id order) already read by the caller.
+    pub(crate) fn generate_cards_for_existing_note_with_cards(
+        &mut self,
+        ctx: &CardGenContext<impl Deref<Target = Notetype>>,
+        note: &Note,
+        existing: &[AlreadyGeneratedCardInfo],
+    ) -> Result<()> {
+        self.generate_cards_for_note(ctx, note, existing, ctx.last_deck, &mut Default::default())?;
         Ok(())
     }
 
@@ -510,6 +527,23 @@ mod test {
         assert!(context.new_cards_required(&note, &[], false).is_empty());
 
         note.set_field(1, "Custom deck").unwrap();
+        assert_eq!(context.new_cards_required(&note, &[], false).len(), 1);
+    }
+
+    /// A note field named Tags takes precedence over the note's tags.
+    #[test]
+    fn new_cards_required_normal_tags_field_collision() {
+        let mut col = CollectionBuilder::default().build().unwrap();
+        let arc_note_type = col.get_notetype_by_name("Basic").unwrap().unwrap();
+        let mut note_type = (*arc_note_type).clone();
+        note_type.fields[1].name = "Tags".to_string();
+        note_type.templates[0].config.q_format = "{{#Tags}}{{Front}}{{/Tags}}".to_string();
+        let mut note = note_type.new_note();
+        note.set_field(0, "Hello").unwrap();
+        note.tags.push("tag".into());
+        let context = CardGenContext::new(&note_type, None, Usn(-1));
+        assert!(context.new_cards_required(&note, &[], false).is_empty());
+        note.set_field(1, "field text").unwrap();
         assert_eq!(context.new_cards_required(&note, &[], false).len(), 1);
     }
 

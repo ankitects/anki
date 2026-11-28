@@ -4,6 +4,8 @@
 use std::collections::HashSet;
 use std::fmt::Write;
 
+use itertools::Itertools;
+
 use super::cardgen::group_generated_cards_by_note;
 use super::CardGenContext;
 use super::Notetype;
@@ -14,6 +16,9 @@ use crate::collection::Collection;
 use crate::error::Result;
 use crate::notes::NoteId;
 use crate::text::strip_html;
+
+/// How many notes the Empty Cards scan reads per query.
+const EMPTY_CARDS_NOTE_BATCH: usize = 1000;
 
 pub struct EmptyCardsForNote {
     pub nid: NoteId,
@@ -30,27 +35,32 @@ impl Collection {
         let by_note = group_generated_cards_by_note(existing_cards);
         let mut out = Vec::with_capacity(by_note.len());
 
-        for (nid, existing) in by_note {
-            let note = self.storage.get_note(nid)?.unwrap();
-            let cards = ctx.new_cards_required(&note, &[], false);
-            let nonempty_ords: HashSet<_> = cards.into_iter().map(|c| c.ord).collect();
-            let current_count = existing.len();
-            let empty: Vec<_> = existing
-                .into_iter()
-                .filter_map(|e| {
-                    if !nonempty_ords.contains(&e.ord) {
-                        Some((e.ord, e.id))
-                    } else {
-                        None
-                    }
-                })
-                .collect();
-            if !empty.is_empty() {
-                out.push(EmptyCardsForNote {
-                    nid,
-                    empty,
-                    current_count,
-                })
+        for batch in &by_note.into_iter().chunks(EMPTY_CARDS_NOTE_BATCH) {
+            let batch: Vec<_> = batch.collect();
+            let nids: Vec<_> = batch.iter().map(|(nid, _)| *nid).collect();
+            let notes = self.storage.get_notes_by_id(&nids)?;
+            for (nid, existing) in batch {
+                let note = notes.get(&nid).unwrap();
+                let cards = ctx.new_cards_required(note, &[], false);
+                let nonempty_ords: HashSet<_> = cards.into_iter().map(|c| c.ord).collect();
+                let current_count = existing.len();
+                let empty: Vec<_> = existing
+                    .into_iter()
+                    .filter_map(|e| {
+                        if !nonempty_ords.contains(&e.ord) {
+                            Some((e.ord, e.id))
+                        } else {
+                            None
+                        }
+                    })
+                    .collect();
+                if !empty.is_empty() {
+                    out.push(EmptyCardsForNote {
+                        nid,
+                        empty,
+                        current_count,
+                    })
+                }
             }
         }
 
@@ -162,6 +172,50 @@ mod tests {
                 current_count: 1,
             }],
         )]
+    }
+
+    /// Over more notes than one read holds, every note's empty cards are
+    /// found, per notetype in note order, with the note's card count.
+    #[test]
+    fn empty_cards_over_many_notes() -> Result<()> {
+        let mut col = CollectionBuilder::default().build()?;
+        let nt = col
+            .get_notetype_by_name("Basic (optional reversed card)")?
+            .unwrap();
+        let mut expected = vec![];
+        for i in 0..2503 {
+            let mut note = nt.new_note();
+            note.set_field(0, format!("front {i}"))?;
+            note.set_field(1, format!("back {i}"))?;
+            note.set_field(2, "y")?;
+            col.add_note(&mut note, DeckId(1))?;
+            let cards = col.storage.existing_cards_for_note(note.id)?;
+            assert_eq!(cards.len(), 2);
+            // empty the fields behind the card generation's back
+            let front = if i % 7 == 0 { "" } else { "f" };
+            let reverse = if i % 4 == 0 { "" } else { "y" };
+            col.storage.db.execute(
+                "update notes set flds = ? where id = ?",
+                (format!("{front}\x1fb\x1f{reverse}"), note.id),
+            )?;
+            let empty: Vec<(u32, CardId)> = cards
+                .iter()
+                .filter(|c| (c.ord == 0 && front.is_empty()) || (c.ord == 1 && reverse.is_empty()))
+                .map(|c| (c.ord, c.id))
+                .collect();
+            if !empty.is_empty() {
+                expected.push((note.id, empty, 2));
+            }
+        }
+        let found: Vec<_> = col
+            .empty_cards()?
+            .into_iter()
+            .filter(|(ntid, _)| *ntid == nt.id)
+            .flat_map(|(_, notes)| notes)
+            .map(|n| (n.nid, n.empty, n.current_count))
+            .collect();
+        assert_eq!(found, expected);
+        Ok(())
     }
 
     /// HTML/JS injected into note type or template names must not appear in the
