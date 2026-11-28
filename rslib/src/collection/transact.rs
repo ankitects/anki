@@ -5,7 +5,12 @@ use crate::ops::StateChanges;
 use crate::prelude::*;
 
 impl Collection {
-    fn transact_inner<F, R>(&mut self, op: Option<Op>, func: F) -> Result<OpOutput<R>>
+    fn transact_inner<F, R>(
+        &mut self,
+        op: Option<Op>,
+        preserve_redo: bool,
+        func: F,
+    ) -> Result<OpOutput<R>>
     where
         F: FnOnce(&mut Collection) -> Result<R>,
     {
@@ -14,7 +19,7 @@ impl Collection {
         let autocommit = self.storage.db.is_autocommit();
 
         self.storage.begin_rust_trx()?;
-        self.begin_undoable_operation(op);
+        self.begin_undoable_operation(op, preserve_redo);
 
         func(self)
             .and_then(|output| {
@@ -60,7 +65,17 @@ impl Collection {
     where
         F: FnOnce(&mut Collection) -> Result<R>,
     {
-        self.transact_inner(Some(op), func)
+        self.transact_inner(Some(op), false, func)
+    }
+
+    /// Record state changes without creating an undo entry or clearing pending
+    /// redo. Only use for changes that do not affect replay of past
+    /// operations.
+    pub(crate) fn transact_preserving_redo<F, R>(&mut self, func: F) -> Result<OpOutput<R>>
+    where
+        F: FnOnce(&mut Collection) -> Result<R>,
+    {
+        self.transact_inner(Some(Op::SkipUndo), true, func)
     }
 
     /// Execute the provided closure in a transaction, rolling back if
@@ -69,6 +84,6 @@ impl Collection {
     where
         F: FnOnce(&mut Collection) -> Result<R>,
     {
-        self.transact_inner(None, func).map(|out| out.output)
+        self.transact_inner(None, false, func).map(|out| out.output)
     }
 }
