@@ -43,9 +43,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         <div class="note-container">
             <div
                 id="{field.id}--div"
-                bind:innerHTML={field.divValue}
                 class="text-editor"
-                on:input={() => {
+                on:input={(e) => {
+                    field.divValue = e.currentTarget.innerHTML;
                     field.textareaValue = field.divValue;
                 }}
                 contenteditable

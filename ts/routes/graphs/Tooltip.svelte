@@ -3,6 +3,7 @@ Copyright: Anki Software, LLC and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
+    import { trustedHTML } from "@tslib/trusted-types";
     import { tick } from "svelte";
 
     export let html = "";
@@ -38,7 +39,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     class="tooltip"
     style="left: {adjustedX}px; top: {adjustedY}px; opacity: {show ? 1 : 0}"
 >
-    {@html html}
+    {@html trustedHTML(html)}
 </div>
 
 <style lang="scss">

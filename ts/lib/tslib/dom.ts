@@ -144,3 +144,14 @@ const isListItem = (element: Element): element is HTMLLIElement =>
     window.getComputedStyle(element).display === "list-item";
 
 export const getListItem = getAnchorParent(isListItem);
+
+export function setInnerHTML(el: Element | ShadowRoot, html: TrustedHTML): void {
+    // lib.dom doesn't accept TrustedHTML here yet
+    // eslint-disable-next-line no-restricted-syntax
+    el.innerHTML = html as unknown as string;
+}
+
+export function setOuterHTML(el: HTMLElement, html: TrustedHTML): void {
+    // eslint-disable-next-line no-restricted-syntax
+    el.outerHTML = html as unknown as string;
+}

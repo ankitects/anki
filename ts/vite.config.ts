@@ -50,13 +50,19 @@ const viteConfig = defineViteConfig({
             },
             csp: { mode: "hash", directives: { "script-src": ["self"] } },
         }),
-        svg({ svgoOptions: { plugins: [{ name: "cleanupIds", params: { remove: false } }] } }),
+        svg({
+            svgoOptions: { plugins: [{ name: "cleanupIds", params: { remove: false } }] },
+            // The default component uses {@html "<path …/>"} with a plain string,
+            // which our default Trusted Types policy warns about.
+            preCompileHook: (_raw, { attributes, content }) =>
+                `<script>import { trustedHTML } from "@tslib/trusted-types";</script>`
+                + `<svg ${attributes ?? ""} {...$$props}>{@html trustedHTML(${JSON.stringify(content ?? "")})}</svg>`,
+        }),
     ],
     cacheDir: "../node_modules/.vite",
     build: {
         reportCompressedSize: false,
-        // defaults use chrome87, but we need 77 for qt 5.14
-        target: ["es2020", "edge88", "firefox78", "chrome77", "safari14"],
+        target: ["es2020", "edge88", "firefox78", "chrome83", "safari14"],
     },
     server: {
         host: "127.0.0.1",

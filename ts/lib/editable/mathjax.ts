@@ -5,9 +5,18 @@
 @typescript-eslint/no-explicit-any: "off",
  */
 
-import "mathjax/es5/tex-svg-full";
+import "./mathjax-config";
+import "mathjax/es5/startup";
+import "mathjax/es5/core";
+import "mathjax/es5/input/tex-full";
+import "mathjax/es5/output/svg";
 
 import mathIcon from "@mdi/svg/svg/math-integral-box.svg?src";
+import { trustedHTML } from "@tslib/trusted-types";
+
+// The individual es5 components don't register themselves with the loader
+// (the combined builds like tex-svg-full do), so mark them as loaded.
+globalThis.MathJax.loader.preLoad("core", "input/tex-full", "output/svg");
 
 const parser = new DOMParser();
 
@@ -24,7 +33,7 @@ function getStyle(css: string): HTMLStyleElement {
 }
 
 function getEmptyIcon(style: HTMLStyleElement): [string, string] {
-    const icon = parser.parseFromString(mathIcon, "image/svg+xml");
+    const icon = parser.parseFromString(trustedHTML(mathIcon) as unknown as string, "image/svg+xml");
     const svg = icon.children[0];
     svg.insertBefore(style, svg.children[0]);
 

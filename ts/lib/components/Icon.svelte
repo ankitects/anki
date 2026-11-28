@@ -3,6 +3,7 @@ Copyright: Anki Software, LLC and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
+    import { trustedHTML } from "@tslib/trusted-types";
     import type { IconData } from "./types";
 
     export let icon: IconData;
@@ -17,5 +18,5 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 {#if component}
     <svelte:component this={component} />
 {:else}
-    {@html icon.url}
+    {@html trustedHTML(icon.url)}
 {/if}

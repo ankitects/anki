@@ -10,6 +10,7 @@
     import type { HelpItem } from "./types";
     import { mdiEarth } from "./icons";
     import Icon from "./Icon.svelte";
+    import { trustedHTML } from "@tslib/trusted-types";
 
     export let item: HelpItem;
 </script>
@@ -17,9 +18,9 @@
 <Row>
     <h2>
         {#if item.url}
-            {@html item.title}
+            {@html trustedHTML(item.title)}
         {:else}
-            {@html item.title}
+            {@html trustedHTML(item.title)}
         {/if}
     </h2>
     {#if item.help}
@@ -28,24 +29,28 @@
                 <Icon icon={mdiEarth} />
             </div>
         {/if}
-        {@html renderMarkdown(item.help)}
+        {@html trustedHTML(renderMarkdown(item.help))}
     {:else}
-        {@html renderMarkdown(
-            tr.helpNoExplanation({
-                link: "[GitHub](https://github.com/ankitects/anki)",
-            }),
+        {@html trustedHTML(
+            renderMarkdown(
+                tr.helpNoExplanation({
+                    link: "[GitHub](https://github.com/ankitects/anki)",
+                }),
+            ),
         )}
     {/if}
 </Row>
 {#if item.url}
     <hr />
     <div class="chapter-redirect">
-        {@html renderMarkdown(
-            tr.helpForMoreInfo({
-                link: `<a href="${item.url}" title="${tr.helpOpenManualChapter({
-                    name: item.title,
-                })}">${item.title}</a>`,
-            }),
+        {@html trustedHTML(
+            renderMarkdown(
+                tr.helpForMoreInfo({
+                    link: `<a href="${item.url}" title="${tr.helpOpenManualChapter({
+                        name: item.title,
+                    })}">${item.title}</a>`,
+                }),
+            ),
         )}
     </div>
 {/if}

@@ -17,6 +17,7 @@ from aqt import mediasrv
 from aqt.mediasrv import (
     TRUSTED_PAGE_CSP,
     UNTRUSTED_MEDIA_CSP,
+    WEB_PAGE_CSP,
     BundledFileRequest,
     LegacyPage,
     LocalFileRequest,
@@ -331,6 +332,16 @@ class TestTrustedPageCSP:
         assert _get_csp(resp) == TRUSTED_PAGE_CSP
         assert b"content-security-policy" not in resp.get_data()
 
+    def test_trusted_sveltekit_page_uses_trusted_types(self, monkeypatch) -> None:
+        request = BundledFileRequest(
+            "sveltekit/index.html", sveltekit_route="deck-options"
+        )
+        resp = self._serve_builtin(monkeypatch, request, self.SVELTEKIT_INDEX)
+        csp = _get_csp(resp)
+        assert "require-trusted-types-for" in csp
+        assert "trusted-types default" in csp
+        assert b"content-security-policy" not in resp.get_data()
+
     @pytest.mark.parametrize("route", ["editor", "image-occlusion"])
     def test_untrusted_sveltekit_page_refuses_framing(
         self, monkeypatch, route: str
@@ -347,7 +358,7 @@ class TestTrustedPageCSP:
     def test_bundled_html_page_refuses_framing(self, monkeypatch) -> None:
         request = BundledFileRequest("pages/deckconfig.html")
         resp = self._serve_builtin(monkeypatch, request, b"<html></html>")
-        assert _get_csp(resp) == TRUSTED_PAGE_CSP
+        assert _get_csp(resp) == WEB_PAGE_CSP
 
     def test_bundled_asset_has_no_csp(self, monkeypatch) -> None:
         request = BundledFileRequest("js/foo.js")
@@ -364,7 +375,7 @@ class TestTrustedPageCSP:
         mw.mediaServer.get_page.return_value = LegacyPage("<html></html>", context)
         with app.test_request_context("/_anki/legacyPageData?id=1"):
             resp = legacy_page_data()
-        assert _get_csp(resp) == TRUSTED_PAGE_CSP
+        assert _get_csp(resp) == WEB_PAGE_CSP
 
     def test_legacy_editor_page_gets_editor_csp(self, monkeypatch) -> None:
         from aqt.mediasrv import app

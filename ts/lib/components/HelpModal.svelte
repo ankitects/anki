@@ -19,6 +19,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import Icon from "./Icon.svelte";
     import Row from "./Row.svelte";
     import { type HelpItem, HelpItemScheduler } from "./types";
+    import { trustedHTML } from "@tslib/trusted-types";
 
     export let title: string;
     export let url: string;
@@ -66,10 +67,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         </div>
         {#if url}
             <div class="chapter-redirect">
-                {@html renderMarkdown(
-                    tr.helpForMoreInfo({
-                        link: `<a href="${url}" title="${tr.helpOpenManualChapter({ name: linkLabel ?? title })}">${linkLabel ?? title}</a>`,
-                    }),
+                {@html trustedHTML(
+                    renderMarkdown(
+                        tr.helpForMoreInfo({
+                            link: `<a href="${url}" title="${tr.helpOpenManualChapter({ name: linkLabel ?? title })}">${linkLabel ?? title}</a>`,
+                        }),
+                    ),
                 )}
             </div>
         {/if}
