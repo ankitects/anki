@@ -37,10 +37,10 @@ import sys
 import tempfile
 import threading
 import time
+from concurrent.futures import Future
 from queue import Empty, Full, Queue
 from shutil import which
 
-import aqt
 from anki.utils import is_mac, is_win
 
 
@@ -461,10 +461,21 @@ class MPV(MPVBase):
     def __init__(self, *args, **kwargs):
         self._callbacks_queue = Queue()
         self._callbacks_initialized = False
+        self._init_future: Future[None] = Future()
 
         super().__init__(*args, **kwargs)
+        threading.Thread(
+            target=self._initial_register_callbacks, name="mpv-init", daemon=True
+        ).start()
 
-        aqt.mw.taskman.run_in_background(self._register_callbacks, None)
+    def _initial_register_callbacks(self):
+        try:
+            self._register_callbacks()
+        except BaseException as exc:
+            self._init_future.set_exception(exc)
+            raise
+        else:
+            self._init_future.set_result(None)
 
     def _register_callbacks(self):
         self._callbacks = {}
