@@ -6,6 +6,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import {
         DeckConfig_Config_NewCardGatherPriority as GatherOrder,
         DeckConfig_Config_NewCardSortOrder as SortOrder,
+        DeckConfig_Config_ReviewCardOrder as ReviewOrder,
     } from "@generated/anki/deck_config_pb";
     import * as tr from "@generated/ftl";
     import { HelpPage } from "@tslib/help-page";
@@ -36,6 +37,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const fsrs = state.fsrs;
 
     const currentDeck = "\n\n" + tr.deckConfigDisplayOrderWillUseCurrentDeck();
+
+    $: reviewOrders = reviewOrderChoices($fsrs);
+    // reset to Random order if the current one isn't offered
+    // (e.g. retrievability orders are only offered with FSRS)
+    $: if (!reviewOrders.some((c) => c.value === $config.reviewOrder)) {
+        $config.reviewOrder = ReviewOrder.RANDOM;
+    }
 
     let disabledNewSortOrders: number[] = [];
     $: {
@@ -193,7 +201,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             <EnumSelectorRow
                 bind:value={$config.reviewOrder}
                 defaultValue={defaults.reviewOrder}
-                choices={reviewOrderChoices($fsrs)}
+                choices={reviewOrders}
             >
                 <SettingTitle
                     on:click={() =>
